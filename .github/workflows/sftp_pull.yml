@@ -23,11 +23,12 @@ jobs:
 
       - name: Download from SFTP
         env:
+          SFTP_PORT: 22
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PASS: ${{ secrets.SFTP_PASS }}
           REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
-        run: python downloadit.py
+        run: python download.py
 
       - name: Commit and Push
         run: |
