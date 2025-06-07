@@ -22,7 +22,7 @@ jobs:
         run: pip install paramiko
 
       - name: Debug Hostname
-        run: nslookup ${{ secrets.SFTP_HOST }}
+        run: nslookup $SFTP_HOST
 
       - name: Run SFTP download script
         env:

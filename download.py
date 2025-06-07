@@ -1,13 +1,60 @@
 import os
 import stat
 import paramiko
+import sys
+
+# Try to load .env file if it exists (for local development)
+if os.path.exists('.env'):
+    with open('.env', 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                os.environ[key] = value
+
+# Check for required environment variables
+required_vars = ["SFTP_HOST", "SFTP_USER", "SFTP_PASS"]
+missing_vars = [var for var in required_vars if var not in os.environ]
+
+if missing_vars:
+    print(f"Error: Missing required environment variables: {', '.join(missing_vars)}")
+    print("Please set these environment variables before running the script.")
+    print("Example:")
+    print("export SFTP_HOST=your_host")
+    print("export SFTP_USER=your_username")
+    print("export SFTP_PASS=your_password")
+    print("export SFTP_PORT=22  # optional, defaults to 22")
+    print("export REMOTE_DIR=/  # optional, defaults to /")
+    print("export LOCAL_DIR=./store  # optional, defaults to ./store")
+    sys.exit(1)
 
 SFTP_HOST = os.environ["SFTP_HOST"]
 SFTP_PORT = int(os.environ.get("SFTP_PORT", 22))
 SFTP_USER = os.environ["SFTP_USER"]
 SFTP_PASS = os.environ["SFTP_PASS"]
 REMOTE_BASE_DIR = os.environ.get("REMOTE_DIR", "/")  # base remote dir
-LOCAL_BASE_DIR = os.getcwd()
+LOCAL_BASE_DIR = os.environ.get("LOCAL_DIR", os.path.join(os.getcwd(), "store"))
+
+# List of specific directories to download
+TARGET_DIRECTORIES = [
+    "img",
+    "JUNK", 
+    "kbsecurecard",
+    "localization",
+    "log",
+    "logs",
+    "mails",
+    "modules",
+    "override",
+    "pdf",
+    "prestashop",
+    "stats",
+    "themes",
+    "tools",
+    "translations",
+    "upload",
+    "webservice"
+]
 
 DONE_LIST = ".downloaded_files.txt"
 
@@ -50,7 +97,23 @@ def download_all():
     sftp = paramiko.SFTPClient.from_transport(transport)
 
     downloaded_files = load_downloaded_files()
-    download_recursive(sftp, REMOTE_BASE_DIR, LOCAL_BASE_DIR, downloaded_files)
+    
+    print(f"Target directories to download: {TARGET_DIRECTORIES}")
+    
+    # Download each target directory
+    for target_dir in TARGET_DIRECTORIES:
+        remote_path = f"{REMOTE_BASE_DIR.rstrip('/')}/{target_dir}"
+        local_path = os.path.join(LOCAL_BASE_DIR, target_dir)
+        
+        try:
+            # Check if directory exists on remote server
+            sftp.listdir(remote_path)
+            print(f"Downloading directory: {remote_path} -> {local_path}")
+            download_recursive(sftp, remote_path, local_path, downloaded_files)
+        except FileNotFoundError:
+            print(f"Directory not found on server: {remote_path}")
+        except Exception as e:
+            print(f"Error accessing directory {remote_path}: {e}")
 
     sftp.close()
     transport.close()
