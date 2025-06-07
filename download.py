@@ -44,6 +44,7 @@ def download_recursive(sftp, remote_dir, local_dir, downloaded_files):
                 return  # Exit and retry next time
 
 def download_all():
+    print("Connecting to:", SFTP_HOST, SFTP_PORT)
     transport = paramiko.Transport((SFTP_HOST, SFTP_PORT))
     transport.connect(username=SFTP_USER, password=SFTP_PASS)
     sftp = paramiko.SFTPClient.from_transport(transport)
