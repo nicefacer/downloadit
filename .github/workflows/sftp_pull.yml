@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         run: pip install paramiko
 
+      - name: Debug Hostname
+        run: nslookup ${{ secrets.SFTP_HOST }}
+
       - name: Run SFTP download script
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
