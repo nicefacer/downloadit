@@ -1,45 +1,38 @@
-name: Pull from SFTP
+name: Download from SFTP
 
 on:
   schedule:
-    - cron: "0 * * * *"  # Every hour
-  workflow_dispatch:      # Also allows manual run
+    - cron: "0 * * * *"  # Runs every hour
+  workflow_dispatch:     # Allows manual run from the GitHub UI
 
 jobs:
-  sftp_download:
-    runs-on: ubuntu-22.04
+  download:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.10.18
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.10.18'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: pip install paramiko
-        
-        name: Configure DNS
-        run: echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf
 
-      - name: Test DNS resolution
-        run: nslookup $SFTP_HOST
-
-      - name: Download from SFTP
+      - name: Run SFTP download script
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
-          SFTP_PORT: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PASS: ${{ secrets.SFTP_PASS }}
           REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
-        run: python download.py
+        run: python download_sftp.py
 
-      - name: Commit and Push
+      - name: Commit & push new files
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
           git add .
-          git diff --cached --quiet || git commit -m "Auto: Pull files from SFTP"
+          git diff --cached --quiet || git commit -m "Add downloaded files from SFTP"
           git push
