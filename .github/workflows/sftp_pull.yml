@@ -21,8 +21,11 @@ jobs:
       - name: Install dependencies
         run: pip install paramiko
 
-      - name: Debug Hostname
-        run: nslookup $SFTP_HOST
+      - name: Validate secrets
+        run: |
+         test -n "${{ secrets.SFTP_HOST }}" || (echo "Missing SFTP_HOST secret" && exit 1)
+         test -n "${{ secrets.SFTP_USER }}" || (echo "Missing SFTP_USER secret" && exit 1)
+         test -n "${{ secrets.SFTP_PASS }}" || (echo "Missing SFTP_PASS secret" && exit 1)
 
       - name: Run SFTP download script
         env:
