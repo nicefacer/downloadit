@@ -33,6 +33,7 @@ jobs:
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PASS: ${{ secrets.SFTP_PASS }}
           REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
+          LOCAL_DIR: ${{ secrets.LOCAL_DIR }}
         run: python download.py
 
       - name: Commit & push new files
