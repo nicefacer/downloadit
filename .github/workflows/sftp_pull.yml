@@ -1,0 +1,45 @@
+name: Download from SFTP
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # Runs every hour
+  workflow_dispatch:     # Allows manual run from the GitHub UI
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install paramiko
+
+      - name: Validate secrets
+        run: |
+         test -n "${{ secrets.SFTP_HOST }}" || (echo "Missing SFTP_HOST secret" && exit 1)
+         test -n "${{ secrets.SFTP_USER }}" || (echo "Missing SFTP_USER secret" && exit 1)
+         test -n "${{ secrets.SFTP_PASS }}" || (echo "Missing SFTP_PASS secret" && exit 1)
+
+      - name: Run SFTP download script
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASS: ${{ secrets.SFTP_PASS }}
+          REMOTE_DIR: ${{ secrets.REMOTE_DIR }}
+          LOCAL_DIR: ${{ secrets.LOCAL_DIR }}
+        run: python download.py
+
+      - name: Commit & push new files
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git diff --cached --quiet || git commit -m "Add downloaded files from SFTP"
+          git push

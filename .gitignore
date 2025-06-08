@@ -1,0 +1,5 @@
+.env
+.downloaded_files.txt
+__pycache__/
+*.pyc
+store/
