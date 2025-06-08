@@ -1,0 +1,7 @@
+<?php
+
+
+MLI18n::gi()->ML_ERROR_GLOBAL = '
+            An error occured.
+            Please try again later. If the error does not disappear within the next few hours,
+            please contact us: {#i18n:MAGNA_SUPPORT_URL#}.';

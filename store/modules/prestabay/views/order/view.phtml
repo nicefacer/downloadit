@@ -1,0 +1,260 @@
+<?php
+/**
+ * File view.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+/**
+ * @var Order_OrderModel $order
+ */
+$currencyCode = (int) Currency::getIdByIsoCode($order->currency);
+(Configuration::get("INVEBAY_SYNCH_ORDER_SKU") == 1) && $order->connectItemsBySku();
+
+$leftClass = "column-left";
+$rightClass = "column-right";
+
+if (CoreHelper::isPS16()) {
+    $rightClass = $leftClass = "col-md-6";
+}
+
+RenderHelper::addScript("angular.min.js");
+
+?>
+
+<?php if (CoreHelper::isOnlyPS15()) { ?>
+    <?php RenderHelper::addCss("modal.css"); ?>
+
+    <style>
+        #leaveFeedbackModal {
+            margin-top: 150px;
+            border: 0px;
+        }
+    </style>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js" ></script>
+<?php } ?>
+
+
+<div>
+<div class="<?php echo $leftClass; ?>" style="<?php echo CoreHelper::isOnlyPS15()?'width: 428px;':''; ?>">
+    <h2><?php echo $order->buyer_name." - ".L::t("Order")." #".$order->order_id; ?></h2>
+    <?php echo L::t("Order Status").": <b>".OrderViewHelper::getOrderTotalStatus($order->status_checkout, $order->status_payment, $order->status_shipping)."</b>"; ?>
+    <br/>
+    <?php if (!$order->isPrestaBayConnection()) { ?>
+        <p><?php echo L::t("This eBay Order don't have any product connected to PrestaShop.");?></p>
+    <?php } else if ((int)($order->presta_order_id) <= 0) { ?>
+        <br/>
+        <button class="button btn btn-small btn-success" onclick="document.location.href='<?php echo UrlHelper::getUrl("order/create", array('id' => $order->id)); ?>'">
+            <i class="icon-shopping-cart icon-white"></i> <?php echo L::t("Create PrestaShop Order");?>
+        </button>
+        <br/>
+    <?php } else { ?>
+        <p><?php echo L::t("Create Order in PrestaShop"); ?> -
+            <a href="<?php echo UrlHelper::getPrestaUrl('AdminOrders', array('id_order' => $order->presta_order_id, 'vieworder' => null)); ?>"><u><?php echo L::t("View"); ?></u></a></p>
+    <?php } ?>
+     <br/>
+     <?php if ($order->account_id > 0) { ?>
+         <?php if ($order->status_payment != Order_OrderModel::STATUS_PAYMENT_COMPLETE) { ?>
+            <button class="button btn btn-small btn-primary" onclick="document.location.href='<?php echo UrlHelper::getUrl("order/changeStatus", array('id' => $order->id, 'status' => 'paid')); ?>'"><?php echo L::t("Set eBay Status as Paid");?></button>
+         <?php } ?>
+         <?php if ($order->status_shipping != Order_OrderModel::STATUS_SHIPPING_COMPLETE) { ?>
+            <button class="button btn btn-small btn-primary" onclick="document.location.href='<?php echo UrlHelper::getUrl("order/changeStatus", array('id' => $order->id, 'status' => 'shipped')); ?>'"><?php echo L::t("Set eBay Status as Shipped");?></button>
+         <?php } ?>
+     <?php } else { ?>
+        <?php echo L::t("This order imported with old version of PrestaBay"); ?>
+     <?php } ?>
+</div>
+
+<div class="<?php echo $rightClass; ?>">
+    <?php echo HtmlHelper::blockStart("Payment Information", "../img/admin/charged_ok.gif"); ?>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="row-label"><?php echo L::t("Payment Method"); ?>:</td>
+                    <td><?php echo $order->payment_method; ?></td>
+                </tr>
+                <tr>
+                    <td class="row-label"><?php echo L::t("Payment Date");?>:</td>
+                    <td><?php echo (!is_null($order->payment_date) && $order->payment_date!="")?$order->payment_date:'N/A'; ?></td>
+                </tr>
+                <tr>
+                    <td class="row-label"><?php echo L::t("PayPal email");?>:</td>
+                    <td><?php echo (!is_null($order->payment_paypal_email) && $order->payment_paypal_email!="")?$order->payment_paypal_email:'N/A'; ?></td>
+                </tr>
+            </tbody>
+        </table>
+    <?php echo HtmlHelper::blockEnd(); ?>
+</div>
+    <br clear="all"/>
+</div>
+<br clear="all"/>
+
+<div class="<?php echo $leftClass; ?>">
+        <?php echo HtmlHelper::blockStart("Customer information", "../img/admin/tab-customers.gif"); ?>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="row-label"><?php echo L::t("Customer Name"); ?>:</td>
+                    <td nowrap="nowrap"><?php echo $order->buyer_name; ?></td>
+                </tr>
+                <tr>
+                    <td class="row-label"><?php echo L::t("Customer E-mail");?>:</td>
+                    <td><?php echo $order->buyer_email; ?></td>
+                </tr>
+                <tr>
+                    <td class="row-label"><?php echo L::t("User ID"); ?>:</td>
+                    <td><?php echo $order->buyer_id; ?></td>
+                </tr>
+            </tbody>
+        </table>
+        <?php echo HtmlHelper::blockEnd(); ?>
+</div>
+
+<div class="<?php echo $rightClass; ?>">
+    <?php echo HtmlHelper::blockStart("Shipping Information", "../img/admin/delivery.gif"); ?>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="row-label"><?php echo L::t("Shipping Method");?>:</td>
+                    <td><?php echo $order->getShippingMethodName(); ?></td>
+                </tr>
+                <tr>
+                    <td class="row-label"><?php echo L::t("Shipping Date");?>:</td>
+                    <td>
+                    <?php echo (!is_null($order->shipping_date) && $order->shipping_date!="")?$order->shipping_date:"N/A"; ?></td>
+                </tr>
+                <tr>
+                    <td class="row-label"><?php echo L::t("Shipping Cost");?>:</td>
+                    <td><?php echo Tools::displayPrice($order->shipping_cost, $currencyCode, false); ?></td>
+                </tr>
+            </tbody>
+        </table>
+    <?php echo HtmlHelper::blockEnd(); ?>
+    <br/>
+</div>
+
+<br clear="all"/>
+
+<div class="<?php echo $leftClass; ?>">
+    <?php echo HtmlHelper::blockStart("Shipping address", "../img/admin/delivery.gif"); ?>
+        <div class="float-right"><button type="button" class="btn btn-mini changeAddress"><i class="icon-pencil"></i></button></div>
+        <?php $address = $order->getBuyerAddress(); ?>
+        <?php echo $address['firstname']." ".$address['lastname']; ?><br/>
+        <?php echo isset($address['street'][0])?$address['street'][0]:"" ?> <?php echo (isset($address['street'][1]) && $address['street'][1]!='')?"<br/>".$address['street'][1]:"" ?><br/>
+        <?php echo isset($address['state'])?$address['state']."<br/>":""; ?>
+        <?php echo isset($address['postal_code'])?$address['postal_code']:""; ?> <?php echo isset($address['city'])?$address['city']:"" ?> <br/>
+        <?php echo isset($address['country'])?$address['country']."<br/>":""; ?>
+        <?php echo isset($address['phone'])?$address['phone']."<br/>":""; ?>
+
+    <?php echo HtmlHelper::blockEnd(); ?>
+</div>
+<div class="<?php echo $rightClass; ?>">
+    <?php echo HtmlHelper::blockStart("Order Details", "../img/admin/details.gif"); ?>
+        <div style="margin: 2px 0pt 1em 50px;">
+            <table cellspacing="0" cellpadding="0" width="300px;" class="table">
+                <tbody>
+                    <tr>
+                        <td width="150px;"><?php echo L::t("Products");?></td><td align="right"><?php echo Tools::displayPrice($order->getItemsTotal(), $currencyCode, false); ?></td>
+                    </tr>
+                    <tr>
+                        <td><?php echo L::t("Shipping");?></td>
+                        <td align="right"><?php echo Tools::displayPrice($order->shipping_cost, $currencyCode, false); ?></td>
+                    </tr>
+                    <?php
+                        $tax = $order->getTax();
+                        if (isset($tax['percent']) && $tax['percent'] > 0 && $tax['amount'] > 0) {
+                    ?>
+                            <tr>
+                                <td><?php echo L::t("Tax");?> (<?php echo $tax['percent']; ?>%)</td>
+                                <td align="right"><?php echo Tools::displayPrice($tax['amount'], $currencyCode, false); ?></td>
+                            </tr>
+                    <?php
+                        }
+                    ?>
+
+                    <tr style="font-size: 20px;">
+                        <td><strong><?php echo L::t("Total");?></strong></td>
+                        <td align="right"><strong><?php echo Tools::displayPrice($order->paid, $currencyCode, false); ?></strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    <?php echo HtmlHelper::blockEnd(); ?>
+</div>
+<br clear="all"/>
+<br clear="all"/>
+<div class="">
+    <?php echo HtmlHelper::blockStart("Products", "../img/admin/cart.gif", "width-868"); ?>
+        <div>
+            <!-- Grid with order items -->
+            <?php $itemsGrid = new Grids_OrdersItems($order->id); ?>
+            <?php echo $itemsGrid->getHtml(); ?>
+
+        </div>
+    <?php echo HtmlHelper::blockEnd(); ?>
+</div>
+<br/>
+
+<div class="<?php echo $leftClass; ?>">
+    <?php echo HtmlHelper::blockStart("Message From Buyer", "../img/admin/email.gif"); ?>
+        <?php if ($order->message!="") { ?>
+            <?php echo $order->message; ?>
+        <?php } ?>
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+    <br/>
+    <?php echo HtmlHelper::blockStart("External Transaction", "../img/admin/htaccess.gif"); ?>
+        <?php $extTransactionsGrid = new Grids_OrdersExternalTransactions($order->id); ?>
+        <?php echo $extTransactionsGrid->getHtml(); ?>
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+</div>
+
+<div class="<?php echo $rightClass; ?>">
+    <?php echo HtmlHelper::blockStart("Log", "../img/admin/slip.gif"); ?>
+        <?php $orderLogGrid = new Grids_OrdersLog($order->id); ?>
+        <?php echo $orderLogGrid->getHtml(); ?>
+    <?php echo HtmlHelper::blockEnd(); ?>
+</div>
+
+<br clear="all" />
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        jQuery(".changeAddress").bind('click', function(e){
+            var baseUrl = '<?php echo UrlHelper::getUrl('ebayOrder/changeAddressModal', array('orderId' => $order->id)); ?>';
+
+            $('#changeAddressModal').modal({
+                'show': true
+            }).load(baseUrl, function (e) {
+                angular.bootstrap(jQuery("#changeAddressModalContent"), ['changeAddress']);
+            });
+
+            e.preventDefault();
+            return false;
+        });
+
+        $('#changeAddressModal').on('hidden.bs.modal', function(){
+            $(this).removeData('bs.modal');
+        })
+
+    });
+</script>
+
+<div class="modal fade" id="changeAddressModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+</div>

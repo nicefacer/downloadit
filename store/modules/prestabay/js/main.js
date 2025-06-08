@@ -1,0 +1,1 @@
+jQuery("#content .path_bar").remove();

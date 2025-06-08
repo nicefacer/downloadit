@@ -1,0 +1,152 @@
+<?php
+/**
+ * File edit.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<script>
+    var totalConditions = 0;
+    jQuery(document).ready(function() {
+        jQuery('#new-condition').bind('click', function(){
+            newCondition();
+            return false;
+        });
+
+        jQuery('#modeSelect').bind('change', changeMode);
+
+        changeMode();
+        <?php foreach ($conditions as $condition) { ?>
+           newCondition('<?php echo $condition['value_from']; ?>','<?php echo $condition['value_to']; ?>', '<?php echo $condition['plain']; ?>', '<?php echo $condition['additional']; ?>');
+        <?php } ?>
+    });
+
+    function newCondition(valueFrom, valueTo, costPlain, costAdditional) {
+        totalConditions++;
+        jQuery("#conditionsCount").val(totalConditions);
+
+        if (isNaN(valueFrom)) {
+            valueFrom = '';
+        }
+        if (isNaN(valueTo)) {
+            valueTo = '';
+        }
+        if (typeof costPlain == 'undefined') {
+            costPlain = '0';
+        }
+        if (typeof costAdditional == 'undefined') {
+            costAdditional = '0';
+        }
+        var conditionRow = jQuery('<tr valign="top">\
+                    <td><input type="text" class="small-width" name="value_from['+totalConditions+']" value="'+valueFrom+'"/></td>\
+                    <td><input type="text" class="small-width" name="value_to['+totalConditions+']" value="'+valueTo+'"/></td>\
+                    <td><input type="text" class="small-width" name="plain['+totalConditions+']" value="'+costPlain+'"/></td>\
+                    <td><input type="text" class="small-width" name="additional['+totalConditions+']" value="'+costAdditional+'"/></td>\
+                    <td><img class="remove-condition-row" src="../img/admin/disabled.gif" /></td>\
+        </tr>');
+
+        jQuery('#conditions-list tbody').append(conditionRow);
+
+        jQuery('.remove-condition-row').unbind('click', bindRemoveConditionRowClick);
+        jQuery('.remove-condition-row').bind('click', bindRemoveConditionRowClick);
+    }
+
+    function bindRemoveConditionRowClick() {
+        jQuery(this).parent().parent().remove();
+    }
+
+    function changeMode() {
+        var selected = jQuery('#modeSelect').val();
+        var stringToSet = "";
+        if (selected == <?php echo Shipping_TemplateModel::MODE_WEIGHT; ?>) {
+            stringToSet = '<?php echo L::t('Weight'); ?>';
+        }
+
+        if (selected == <?php echo Shipping_TemplateModel::MODE_PRICE; ?>) {
+            stringToSet = '<?php echo L::t('Price'); ?>';
+        }
+
+        jQuery("#from-span").html(stringToSet);
+        jQuery("#to-span").html(stringToSet);
+    }
+
+</script>
+
+<form id="shippingTemplateForm" name="shippingTemplateForm" action="<?php echo UrlHelper::getUrl('shippingTemplates/save'); ?>" method="post" class="validate-form form-horizontal">
+    <input id="shippingTemplateId" type="hidden" name="shippingTemplateId" value="<?php echo $model->id; ?>"/>
+    <input id="conditionsCount" type="hidden" name="conditionsCount" value="0"/>
+
+    <?php $blockTitle = ($isEdit ? L::t("Edit") : L::t("Add")) . " " . L::t("Shipping Template"); ?>
+    <?php if (!CoreHelper::isPS16()): ?><h2><?php echo $blockTitle ?></h2><?php endif; ?>
+
+    <div class="content-header">
+        <button class="button btn btn-small float-left"
+                type="button"
+                onclick="document.location.href='<?php echo UrlHelper::getUrl('shippingTemplates/index'); ?>'">
+                <i class="icon-arrow-left"></i> <?php echo L::t("Back");?>
+        </button>
+        <button class="button btn btn-primary btn-small"
+                type="button"
+                onclick="document.location.href=document.location.href">
+                <?php echo L::t("Reset");?>
+        </button>
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-continue">
+                <?php echo L::t("Save&amp;Continue Edit");?>
+        </button>
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-return">
+                <i class="icon-ok-sign icon-white"></i> <?php echo L::t("Save");?>
+        </button>
+    </div>
+
+    <?php echo HtmlHelper::blockStart(CoreHelper::isPS16() ? $blockTitle : "", "", "shipping-conditions"); ?>
+        <label><?php echo L::t("Name");?> <sup>*</sup></label>
+        <div class="margin-form">
+            <input type="text" size="30" maxlength="32" name="name" value="<?php echo $model->name; ?>" class="required" title="<?php echo L::t("Please enter correct 'Name'");?>"/>
+        </div>
+
+        <label><?php echo L::t("Mode");?> <sup>*</sup></label>
+        <div class="margin-form">
+            <?php echo HtmlHelper::dropDownList('mode', $model->mode, array(Shipping_TemplateModel::MODE_WEIGHT => L::t('Weight'), Shipping_TemplateModel::MODE_PRICE => L::t('Price'),),
+                    array('id' => 'modeSelect')); ?>
+        </div>
+
+        <label for="remove-not-in-range"><?php echo L::t("Remove shipping when not in range");?></label>
+        <div class="margin-form">
+            <input id="remove-not-in-range" name="remove_not_in_range" value="1" <?php echo $model->remove_not_in_range == Shipping_TemplateModel::REMOVE_NOT_IN_RANGE_TRUE?'checked="checked"':''; ?> type="checkbox"/>
+            <p><?php echo L::t("When product price/weight not match one defined conditions, remove shipping from sending to eBay."); ?></p>
+        </div>
+
+        <b><?php echo L::t("Conditions");?></b> <a id="new-condition" href="#"><img border="0" src="../img/admin/add.gif"/><?php echo L::t("Add a New Conditions");?></a>
+        <hr class="clear"/>
+        <table id="conditions-list" class="table" style="width: 900px;" cellspacing="0" cellpadding="0">
+            <thead>
+                <th><span id="from-span"></span> <?php echo L::t("From");?></th>
+                <th><span id="to-span"></span> <?php echo L::t("To");?></th>
+                <th><?php echo L::t("Item cost");?></th>
+                <th><?php echo L::t("Additional Item cost");?></th>
+                <th width="10%"></th>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    <?php echo HtmlHelper::blockEnd(); ?>
+</form>

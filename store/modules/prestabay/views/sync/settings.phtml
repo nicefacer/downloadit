@@ -1,0 +1,312 @@
+<?php
+/**
+ * File settings.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<style>
+    label {
+        width: 290px;
+    }
+    .margin-form {
+        padding-left: 300px
+    }
+</style>
+<script>
+    jQuery(document).ready(function() {
+        jQuery('#sunc_order').bind('change', changeSyncOrder);
+        changeSyncOrder();
+
+        jQuery('#create_prestaorder_after_payment').bind('change', changeImmediatelyImport);
+        changeImmediatelyImport();
+
+        jQuery("#import_feedback").bind('change', changeFeedbackImport);
+        changeFeedbackImport();
+
+    });
+
+    function changeSyncOrder() {
+        var selected = jQuery('#sunc_order').val();
+        if (selected == 1) {
+            jQuery("#enabled-order-show").show();
+        } else {
+            jQuery("#enabled-order-show").hide();
+        }
+    }
+
+    function changeImmediatelyImport() {
+        var selected = jQuery('#create_prestaorder_after_payment').val();
+        if (selected == 1) {
+            jQuery("#order-simulation-show").hide();
+            jQuery("#order_qty_simulation").val(0);
+        } else {
+            jQuery("#order-simulation-show").show();
+        }
+    }
+
+    function changeFeedbackImport()
+    {
+        var selected = jQuery('#import_feedback').val();
+        if (selected == 1) {
+            jQuery("#feedback-import-show").show();
+        } else {
+            jQuery("#feedback-import-show").hide();
+            jQuery("#auto_feedback").val(0);
+        }
+    }
+
+</script>
+<form action="<?php UrlHelper::getUrl("synchronization/index"); ?>" id="synchForm" name="synch_form" method="post" class="psh16-container">
+    <div class="content-header">
+        <button type="submit"
+                name="saveSettings"
+                class="button btn btn-primary btn-small">
+                <?php echo L::t("Save Settings");?>
+        </button>
+        <button type="button"
+                name="viewLog"
+                class="button btn btn-primary btn-small"
+                onclick="document.location='<?php echo UrlHelper::getUrl("synchronization/log");?>'">
+                <i class="icon-list-alt icon-white"></i> <?php echo L::t("View Log");?>
+        </button>
+        <button type="submit"
+                name="runTask"
+                class="button btn btn-success btn-small">
+                <?php echo L::t("Run Tasks"); ?>
+        </button>
+    </div>
+
+    <?php echo HtmlHelper::blockStart("Catalog Synchronization", "../img/admin/products.gif"); ?>
+
+    <label><?php echo L::t("Sync eBay <=> Store QTY");?></label>
+	<div class="margin-form">
+            <select id="sync_qty" name="sync_qty">
+                <option value="1" <?php echo (Configuration::get('INVEBAY_SYNC_TASK_QTY') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNC_TASK_QTY') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+            </select>
+            <p class="help-block"><?php echo L::t("All QTY changes into PrestaShop store will be updated to connected eBay Products. Also all changes on QTY for eBay Product will be apply to PrestaShop Product.");?></p>
+    </div>
+
+    <label><?php echo L::t("Keep Listing Active While QTY Available");?></label>
+    <div class="margin-form">
+        <select name="sync_relist">
+            <option value="1" <?php echo (Configuration::get('INVEBAY_SYNC_TASK_RELIST') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+            <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNC_TASK_RELIST') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+        </select>
+        <p class="help-block"><?php echo L::t("All finished eBay Selling will be relisted when stock level of connected PrestaShop Product is greater than 0");?></p>
+    </div>
+
+    <label><?php echo L::t("Stop Listing when Stock Level Become 0");?></label>
+	<div class="margin-form">
+            <select name="sync_stop">
+                <option value="1" <?php echo (Configuration::get('INVEBAY_SYNC_TASK_STOP') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNC_TASK_STOP') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+            </select>
+            <p class="help-block"><?php echo L::t("Stop eBay Sales when connected PrestaShop product become out of stock");?></p>
+    </div>
+
+    <label><?php echo L::t("Out-of-Stock Control");?></label>
+    <div class="margin-form">
+        <select name="sync_oosc">
+            <option value="1" <?php echo (Configuration::get('INVEBAY_SYNC_TASK_OOSC') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+            <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNC_TASK_OOSC') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+        </select>
+        <p class="help-block">
+            <?php echo L::t('Experimental'); ?>. <?php echo L::t("Allows a GTC eBay listing to remain open at eBay even when is zero quantity remaining.");?>
+            <br/>
+            <?php echo L::t('Option also should be activated on ebay account.'); ?>
+            <a href="http://announcements.ebay.com/2014/12/sellers-new-out-of-stock-option-helps-protect-your-hard-earned-seller-standing/" target="_blank"><?php echo L::t('More Information'); ?></a>
+            <br/>
+            <?php echo L::t('Synchronize QTY or Auto-Stop task should be active.'); ?>
+        </p>
+    </div>
+
+    <hr/>
+
+    <label><?php echo L::t("Sync Store => eBay Price");?></label>
+	<div class="margin-form">
+            <select name="sync_price">
+                <option value="1" <?php echo (Configuration::get('INVEBAY_SYNC_TASK_PRICE') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNC_TASK_PRICE') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+            </select>
+            <p class="help-block"><?php echo L::t("Automatically update eBay Product Price when PrestaShop Product price change. Change for Price on eBay take no effect to Store Product.");?></p>
+        </div>
+
+        <hr/>
+    <label><?php echo L::t("Add New Product to Category");?></label>
+	<div class="margin-form">
+            <select name="auto_category">
+                <option value="1" <?php echo (Configuration::get('INVEBAY_AUTO_CATEGORY_ADD') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                <option value="0" <?php echo !(Configuration::get('INVEBAY_AUTO_CATEGORY_ADD') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+            </select>
+            <p class="help-block">
+                <?php echo L::t("For Selling Listings that has category mapping allow automatic add new/update product equal selected category");?>.
+                <?php echo L::t("Please note - item will be automatically posted to eBay"); ?>.
+            </p>
+    </div>
+
+    <label><?php echo L::t("List 'Not Active' In Stock products");?></label>
+	<div class="margin-form">
+            <select name="auto_list">
+                <option value="1" <?php echo (Configuration::get('INVEBAY_LIST_NOT_ACTIVE') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                <option value="0" <?php echo !(Configuration::get('INVEBAY_LIST_NOT_ACTIVE') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+            </select>
+            <p class="help-block">
+                <?php echo L::t("Experimental. Automatically List 'Selling List' items that have status 'Not Active' but have positive QTY in PrestaShop");?>.
+                <br/>
+                <?php echo L::t("NB! With activate this option all 'Not Active' product will be listed to ebay. "); ?>
+
+            </p>
+    </div>
+
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+    <br/>
+
+    <?php echo HtmlHelper::blockStart("Order Synchronization", "../img/admin/import.gif"); ?>
+        <label><?php echo L::t("Import eBay Orders");?></label>
+	<div class="margin-form">
+            <select id="sunc_order" name="sync_order">
+                <option value="1" <?php echo (Configuration::get('INVEBAY_SYNC_TASK_ORDER') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNC_TASK_ORDER') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+            </select>
+            <p class="help-block"><?php echo L::t("Get eBay Orders and Import it to <b>PrestaBay</b> Orders.");?></p>
+        </div>
+
+        <div id="enabled-order-show">
+            <label><?php echo L::t("Create PrestaShop Order for PrestaBay Listings");?></label>
+            <div class="margin-form">
+                <select name="create_prestaorder">
+                    <option value="1" <?php echo (Configuration::get('INVEBAY_SYNCH_ORDER_IMPORT') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                    <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNCH_ORDER_IMPORT') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+                </select>
+                <p class="help-block"><?php echo L::t("For eBay listings created by PrestaBay import Order to PrestaShop."); ?></p>
+            </div>
+
+            <label><?php echo L::t("Create PrestaShop Order by matching Product Reference (SKU)");?></label>
+            <div class="margin-form">
+                <select name="create_prestaorder_by_sku">
+                    <option value="1" <?php echo (Configuration::get('INVEBAY_SYNCH_ORDER_SKU') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                    <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNCH_ORDER_SKU') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+                </select>
+                <p class="help-block"><?php echo L::t("Import Order into PrestaShop by matching eBay Items SKU with PrestaShop Product Reference."); ?></p>
+            </div>
+
+            <label><?php echo L::t("Create PrestaShop Order before eBay Payment");?></label>
+            <div class="margin-form">
+                    <select id="create_prestaorder_after_payment" name="create_prestaorder_after_payment">
+                        <option value="1" <?php echo (Configuration::get('INVEBAY_SYNCH_ORDER_OK_PAYMENT') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                        <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNCH_ORDER_OK_PAYMENT') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+                    </select>
+                    <p class="help-block"><?php echo L::t("When option is enabled order imported immediately after eBay purchase. In this case possible problem with incorrect data in shipping, payment and item cost"); ?></p>
+            </div>
+
+            <div id="order-simulation-show">
+                <label><?php echo L::t("After purchase decrease Product QTY, create order after eBay Payment");?><br/>(<?php echo L::t("Experemental");?>)</label>
+                <div class="margin-form">
+                    <select id="order_qty_simulation" name="order_qty_simulation">
+                        <option value="1" <?php echo (Configuration::get('INVEBAY_ORDER_QTY_SIMULATION') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                        <option value="0" <?php echo !(Configuration::get('INVEBAY_ORDER_QTY_SIMULATION') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+                    </select>
+                    <p class="help-block"><?php echo L::t("When option is enabled product QTY always have correct value. PrestaShop order created only after eBay payment. Imported Order shipping, payment information will be correct."); ?></p>
+                    <p class="help-block"><?php echo L::t("NB! QTY Synchronization task should be enabled."); ?></p>
+                </div>
+            </div>
+
+        </div>
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+    <br/>
+
+    <?php echo HtmlHelper::blockStart("Feedback Synchronization"); ?>
+
+    <label><?php echo L::t("Import Feedbacks");?></label>
+    <div class="margin-form">
+        <?php echo HtmlHelper::dropDownList(
+            'import_feedback', Configuration::get('INVEBAY_SYNC_FEEDBACK'), array(
+                '0' => L::t("Disabled"),
+                '1' => L::t("Enabled"),
+            ), array(
+                'id' => 'import_feedback',
+            )
+        ); ?>
+        <p class="help-block"><?php echo L::t("Import ebay Feedbacks to PrestaBay Feedback section");?>.</p>
+    </div>
+
+    <div id="feedback-import-show" style="display: none;">
+    <label><?php echo L::t("Automatically Feedbacks");?><br/></label>
+    <div class="margin-form">
+        <?php echo HtmlHelper::dropDownList(
+            'auto_feedback', Configuration::get('INVEBAY_SYNC_FEEDBACK_AUTO'), array(
+                '0' => L::t("Disabled"),
+                '1' => L::t("Enabled"),
+            ), array(
+                'id' => 'auto_feedback',
+            )
+        ); ?>
+        <p class="help-block"><?php echo L::t("Automatically response to 'Positive' Buyer feedbacks using one of created Feedback Templates");?>.</p>
+    </div>
+    </div>
+
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+    <br/>
+
+    <?php echo HtmlHelper::blockStart("Messages"); ?>
+
+        <label><?php echo L::t("Download ebay Messages");?></label>
+        <div class="margin-form">
+            <?php echo HtmlHelper::dropDownList(
+                'download_messages', Configuration::get('INVEBAY_SYNC_MESSAGES'), array(
+                    '0' => L::t("Disabled"),
+                    '1' => L::t("Enabled"),
+                ), array(
+                    'id' => 'download_messages',
+                )
+            ); ?>
+            <p class="help-block"><?php echo L::t("Download ebay Messages to PrestaBay Messages section");?>.</p>
+        </div>
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+    <br/>
+
+    <?php echo HtmlHelper::blockStart("Resynchronize", "../img/admin/copy_files.gif"); ?>
+
+    <label><?php echo L::t("Resynchronize QTY");?></label>
+	<div class="margin-form">
+            <select name="resynchronize_qty">
+                <option value="1" <?php echo (Configuration::get('INVEBAY_SYNC_RESYN_QTY') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNC_RESYN_QTY') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+            </select>
+            <p class="help-block"><?php echo L::t("Synchronize product QTY in PrestaShop and PrestaBay. Very usable when used third-party software to update product QTY");?>.</p>
+        </div>
+
+        <label><?php echo L::t("Resynchronize Category Products");?><br/>(<?php echo L::t("Experemental");?>)</label>
+	<div class="margin-form">
+            <select name="resynchronize_category">
+                <option value="1" <?php echo (Configuration::get('INVEBAY_SYNC_RESYN_CATEGORY') == 1)?'selected="selected"':""; ?>><?php echo L::t("Enabled");?></option>
+                <option value="0" <?php echo !(Configuration::get('INVEBAY_SYNC_RESYN_CATEGORY') == 1)?'selected="selected"':""; ?>><?php echo L::t("Disabled");?></option>
+            </select>
+            <p class="help-block"><?php echo L::t("Synchronize products on category for PrestaShop and PrestaBay. Very usable when used third-party software to update products list");?>.</p>
+        </div>
+
+    <?php echo HtmlHelper::blockEnd(); ?>
+</form>
+
+

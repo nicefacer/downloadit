@@ -1,0 +1,99 @@
+<div class="modal-dialog" id="leaveResponseModalContent">
+    <div class="modal-content" >
+        <div ng-controller="ResponseController as responseController">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><?php echo L::t("Write Response"); ?></h4>
+            </div>
+            <div class="modal-body tab-panel">
+                <?php if (!$message->id) { ?>
+                    <?php echo L::t("Invalid parameter in request"); ?>
+                <?php } else { ?>
+                    <div class="bootstrap" ng-show="responseController.errorMessage != ''">
+                        <div class="module_error alert alert-danger" ng-bind-html="responseController.errorMessage">
+                        </div>
+                    </div>
+                <form class="form-horizontal"
+                      name="writeResponseForm"
+                      ng-submit="responseController.sendResponse()"
+                      ng-class="{submitted:trySubmit}"
+                      novalidate>
+                    <table cellpadding="5" width="100%">
+                        <tr>
+                            <td>
+                                <strong><?php echo L::t("Subject");?>:</strong>
+                                <span><?php echo $message->subject; ?></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong><?php echo L::t("Message");?>:</strong><br/>
+                                <div><?php echo $message->text; ?></div>
+                                <br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                               <label><strong><?php echo L::t("Response");?>:</strong></label>
+                               <textarea ng-model="responseController.message" required rows="5"/>
+                            </td>
+                        </tr>
+
+                    </table>
+                </form>
+                <?php } ?>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo L::t("Cancel"); ?></button>
+                <button type="button" class="btn btn-primary" ng-click="responseController.sendResponse()" ng-disabled="responseController.isLoading"><img src="../modules/prestabay/img/ajax-small-loader.gif" alt="" border="0" ng-show="responseController.isLoading"/><?php echo L::t("Send Response"); ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var routes = {
+        'writeResponse': '<?php echo UrlHelper::getUrl('messages/writeResponseAjax'); ?>'
+    };
+
+    (function () {
+        var app = angular.module("writeResponse", []);
+
+        app.controller("ResponseController", ['$scope', '$http', '$sce', function ($scope, $http, $sce) {
+            instance = this;
+            instance.isLoading = false;
+            instance.id = '<?php echo $message->id; ?>';
+            instance.message = "";
+            instance.errorMessage = "";
+
+
+            // send new sendResponse request
+            instance.sendResponse = function() {
+                if (!$scope.writeResponseForm.$valid) {
+                    $scope.trySubmit = true;
+                    return false;
+                }
+
+                instance.isLoading = true;
+                $http.post(routes['writeResponse'], {
+                    'message': instance.message,
+                    'id': instance.id
+                }).success(function (data) {
+                    instance.isLoading = false;
+                    if (data.success == true) {
+                        var responseStatus = $("[data-rowid=" + instance.id+ "]").find(".message_status");
+                        responseStatus.attr('style', 'color: #00aa00;');
+                        responseStatus.html("Answered");
+                        $('#leaveResponseModal').modal('hide');
+                    } else {
+                        instance.errorMessage = $sce.trustAsHtml('Error write Response. ' + ' ' + data.message);
+                    }
+                });
+
+
+            };
+
+        }]);
+    })();
+</script>

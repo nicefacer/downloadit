@@ -1,0 +1,1 @@
+<a href="new_products"><i class="icon-briefcase"></i> New Products</a>

@@ -1,0 +1,82 @@
+
+<?php if (CoreHelper::isOnlyPS15()) { ?>
+<style>
+    .col-lg-8 {
+        margin-bottom: 10px;
+    }
+    .col-lg-8 p {
+        margin-left: 255px;
+    }
+</style>
+<?php } ?>
+<?php $blockTitle = L::t("PrestaBay eBay information"); ?>
+
+<?php if (CoreHelper::isPS16()) { ?>
+    <?php echo HtmlHelper::blockStart(CoreHelper::isPS16() ? $blockTitle : "", ""); ?>
+<?php } ?>
+<?php if (CoreHelper::isOnlyPS15()) { ?>
+    <h4><?php echo $blockTitle ?></h4>
+<?php } ?>
+<div id="prestashop-prestabaytab">
+<div class="form-group ">
+    <label for="prestabay[item_title]" class="control-label col-lg-3"><?php echo L::t("Item Title"); ?></label>
+    <div class="col-lg-8">
+        <input name="prestabay[item_title]" value="<?php echo $productEbayDataModel->item_title ?>" type="text">
+    </div>
+</div>
+<div class="form-group ">
+    <label for="prestabay[subtitle]" class="control-label col-lg-3"><?php echo L::t("Item Subtitle"); ?></label>
+    <div class="col-lg-8">
+        <input name="prestabay[subtitle]" value="<?php echo $productEbayDataModel->subtitle ?>" type="text">
+    </div>
+</div>
+
+<div class="form-group ">
+    <label for="prestabay[description]" class="control-label col-lg-3"><?php echo L::t("Description"); ?></label>
+    <div class="col-lg-8">
+        <textarea name="prestabay[description]" rows="10" cols="100"><?php echo $productEbayDataModel->description ?></textarea>
+        <p><?php echo L::t('Please use only simple HTML. For complex template use Description Template'); ?></p>
+    </div>
+</div>
+
+<div class="form-group ">
+    <label for="prestabay[ebay_store_category_main_id]" class="control-label col-lg-3"><?php echo L::t("Store Category Main"); ?></label>
+    <div class="col-lg-8">
+        <input name="prestabay[ebay_store_category_main_id]" value="<?php echo $productEbayDataModel->ebay_store_category_main_id ?>" type="text">
+        <p><?php echo L::t('You can get Category ID from Selling Profile'); ?></p>
+    </div>
+</div>
+
+<div class="form-group ">
+    <label for="prestabay[ebay_store_category_secondary_id]" class="control-label col-lg-3"><?php echo L::t("Store Category Secondary"); ?></label>
+    <div class="col-lg-8">
+        <input name="prestabay[ebay_store_category_secondary_id]" value="<?php echo $productEbayDataModel->ebay_store_category_secondary_id ?>" type="text">
+        <p><?php echo L::t('You can get Category ID from Selling Profile'); ?></p>
+    </div>
+</div>
+
+<?php if (CoreHelper::isPS16()) { ?>
+
+    <div class="panel-footer">
+        <button type="button" id="submitPrestaBayData" name="submitPrestaBayData" class="btn btn-default pull-right" onclick="onSaveCustomData()"><i class="process-icon-save"></i> Save</button>
+
+        <div id="prestabay-save-result" class="pull-right" style="display: none; margin-right: 10px;"></div>
+    </div>
+
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+<?php } ?>
+</div>
+<script>
+    function onSaveCustomData() {
+        var serialized = jQuery("#prestashop-prestabaytab input, #prestashop-prestabaytab textarea, input[name=id_product]").serialize();
+        jQuery("#prestabay-save-result").hide();
+        jQuery.post("<?php echo UrlHelper::getPrestaUrl('AdminPrestabay',array('request' => 'presta/saveProductData')); ?>", serialized, function( data ) {
+            console.debug(data.message);
+                jQuery("#prestabay-save-result").html(data.message);
+                jQuery("#prestabay-save-result").show();
+
+            }, "json");
+
+    }
+</script>

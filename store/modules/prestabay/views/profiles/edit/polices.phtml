@@ -1,0 +1,129 @@
+<?php
+/**
+ * File polices.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<?php echo HtmlHelper::tabBlockStart("Policies"); ?>
+<table cellpadding="5" width="100%">
+    <tr>
+        <td class="col-left"><label class="control-label" for="returns_accepted"><?php echo L::t("Return Policy");?> <em>*</em></label></td>
+        <td>
+            <div class="hide-notice" <?php echo isset($hdbk['policy'])?"style='display:none'":"";?>><?php echo L::t("Please select <b>Marketplace</b> to access this field");?></div>
+            <select id="returns_accepted" name="returns_accepted" class="<?php echo !isset($hdbk['policy'])?"hidden-option":"";?>">
+                <?php if (isset($hdbk['policy']['returns_accepted'])) { ?>
+                    <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                    <?php foreach ($hdbk['policy']['returns_accepted'] as $raccepted) { ?>
+                    <option
+                        value="<?php echo $raccepted['id'];?>"
+                        <?php echo ($model->returns_accepted == $raccepted['id'])?"selected='selected'":"";?>>
+                            <?php echo $raccepted['label'];?>
+                    </option>
+                    <?php } ?>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+
+   <?php
+        $isNeedShowAddReturnPolicyInfo = false;
+        if (isset($hdbk['policy']['returns_accepted']) && $model->returns_accepted  == ProfilesModel::RETURN_ACCEPTED_EBAY_CONST) {
+            $isNeedShowAddReturnPolicyInfo = true;
+        }
+    ?>
+    <tr class="return-policy-accepted" <?php echo (!isset($hdbk['policy']['refund']) || $hdbk['policy']['refund'] == array() || !$isNeedShowAddReturnPolicyInfo)?"style='display:none'":"";?>>
+        <td class="col-left"><label class="control-label" for="refund"><?php echo L::t("Refund By");?></label></td>
+        <td>
+            <select id="refund" name="refund" >
+                <?php if (isset($hdbk['policy']['refund'])) { ?>
+                    <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                    <?php foreach ($hdbk['policy']['refund'] as $refundValue) { ?>
+                    <option
+                        value="<?php echo $refundValue['id'];?>"
+                        <?php echo ($model->refund == $refundValue['id'])?"selected='selected'":"";?>>
+                            <?php echo $refundValue['label'];?>
+                    </option>
+                    <?php } ?>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+
+    <tr class="return-policy-accepted" <?php echo (!isset($hdbk['policy']['returns_within']) || $hdbk['policy']['returns_within'] == array() || !$isNeedShowAddReturnPolicyInfo)?"style='display:none'":"";?>>
+        <td class="col-left"><label class="control-label" for="returns_within"><?php echo L::t("Item Returned Within");?></label></td>
+        <td>
+            <select id="returns_within" name="returns_within">
+                <?php if (isset($hdbk['policy']['returns_within'])) { ?>
+                    <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                    <?php foreach ($hdbk['policy']['returns_within'] as $returnWithinValue) { ?>
+                    <option
+                        value="<?php echo $returnWithinValue['id'];?>"
+                        <?php echo ($model->returns_within == $returnWithinValue['id'])?"selected='selected'":"";?>>
+                            <?php echo $returnWithinValue['label'];?>
+                    </option>
+                    <?php } ?>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+    <tr class="return-policy-accepted" <?php echo (!isset($hdbk['policy']['shipping_cost_paid_by']) || $hdbk['policy']['shipping_cost_paid_by'] == array() || !$isNeedShowAddReturnPolicyInfo)?"style='display:none'":"";?>>
+        <td class="col-left"><label class="control-label" for="shipping_cost_paid_by"><?php echo L::t("Shipping Paid By");?></label></td>
+        <td>
+            <select id="shipping_cost_paid_by" name="shipping_cost_paid_by">
+                <?php if (isset($hdbk['policy']['shipping_cost_paid_by'])) { ?>
+                    <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                    <?php foreach ($hdbk['policy']['shipping_cost_paid_by'] as $scpbValue) { ?>
+                    <option
+                        value="<?php echo $scpbValue['id'];?>"
+                        <?php echo ($model->shipping_cost_paid_by == $scpbValue['id'])?"selected='selected'":"";?>>
+                            <?php echo $scpbValue['label'];?>
+                    </option>
+                    <?php } ?>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+
+    <tr class="return-policy-accepted" <?php echo (!isset($hdbk['policy']['restocking_fee']) || $hdbk['policy']['restocking_fee'] == array() || !$isNeedShowAddReturnPolicyInfo)?"style='display:none'":"";?>>
+        <td class="col-left"><label class="control-label" for="shipping_cost_paid_by"><?php echo L::t("Restocking Fee");?></label></td>
+        <td>
+            <select id="restock_fee" name="restock_fee">
+                <?php if (isset($hdbk['policy']['restocking_fee'])) { ?>
+                    <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                    <?php foreach ($hdbk['policy']['restocking_fee'] as $rfValue) { ?>
+                        <option
+                            value="<?php echo $rfValue['id'];?>"
+                            <?php echo ($model->restock_fee == $rfValue['id'])?"selected='selected'":"";?>>
+                            <?php echo $rfValue['label'];?>
+                        </option>
+                    <?php } ?>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+
+    <tr class="return-policy-accepted" <?php echo (!isset($hdbk['policy']) || !$isNeedShowAddReturnPolicyInfo)?"style='display:none'":"";?>>
+        <td class="col-left"><label class="control-label" for="refund_description"><?php echo L::t("Refund Description"); ?></label></td>
+        <td>
+            <textarea cols="5" rows="3" style="width: 500px; height: 150px;" name="refund_description" id="refund_description"><?php echo $model->refund_description; ?></textarea>
+        </td>
+    </tr>
+
+</table>
+
+<?php echo HtmlHelper::tabBlockEnd(); ?>

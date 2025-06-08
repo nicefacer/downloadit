@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?><rss version="2.0" xml:base="https://www.prestashop.com/de/blog/feed.xml" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:og="http://ogp.me/ns#" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:sioct="http://rdfs.org/sioc/types#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <channel>
+    <title>Blog Feed</title>
+    <link>https://www.prestashop.com/de/blog/feed.xml</link>
+    <description></description>
+    <language>de</language>
+     <atom:link href="https://www.prestashop.com/de/blog/feed.xml" rel="self" type="application/rss+xml" />
+      <item>
+    <title>Saisonalität im E-Commerce: So wird sie zum Erfolg </title>
+    <link>https://www.prestashop.com/de/blog/financing-banxy</link>
+    <description>Saisonalität im E-Commerce ist ein komplexes Thema. Die Bewältigung von Saisonspitzenzeiten ist eine Herausforderung und gleichzeitig der Schlüssel zum Erfolg eines Unternehmens.  </description>
+     <pubDate>Thu, 15 Dec 2022 17:42:39 +0100</pubDate>
+ <dc:creator>Miriam Wohlfarth</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/financing-banxy</guid>
+  </item>
+  <item>
+    <title>Nachhaltige Lieferung: Wie können Sie den diesbezüglichen ökologischen Fußabdruck reduzieren?</title>
+    <link>https://www.prestashop.com/de/blog/dhl-green-delivery</link>
+    <description>Der Umweltschutz ist ein zentrales Anliegen von Verbrauchern, aber auch von Unternehmen.</description>
+     <pubDate>Wed, 23 Nov 2022 17:31:31 +0100</pubDate>
+ <dc:creator>Delphine Robin EN</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/dhl-green-delivery</guid>
+  </item>
+  <item>
+    <title>Wie hat sich der eCommerce nach dem Ausbruch von COVID-19 entwickelt?</title>
+    <link>https://www.prestashop.com/de/blog/ecommerce-translation</link>
+    <description>Die COVID-19-Pandemie hat die technologische Revolution beschleunigt, die in den letzten Jahrzehnten begonnen hat.</description>
+     <pubDate>Fri, 23 Sep 2022 10:50:41 +0200</pubDate>
+ <dc:creator>Sara Papa</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/ecommerce-translation</guid>
+  </item>
+  <item>
+    <title>Logistik wird grün – nachhaltiger Paketversand </title>
+    <link>https://www.prestashop.com/de/blog/logistik-grun-paketversand</link>
+    <description>Wer auf eine grüne Unternehmenskultur setzt, investiert in die Zukunft.</description>
+     <pubDate>Tue, 28 Jun 2022 18:18:05 +0200</pubDate>
+ <dc:creator>Thomas Kempkes</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/logistik-grun-paketversand</guid>
+  </item>
+  <item>
+    <title>So stärken Sie die Kundenbindung im E-Commerce</title>
+    <link>https://www.prestashop.com/de/blog/customer-loyalty-ecommerce</link>
+    <description></description>
+     <pubDate>Thu, 19 May 2022 17:06:18 +0200</pubDate>
+ <dc:creator>Max Elias</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/customer-loyalty-ecommerce</guid>
+  </item>
+  <item>
+    <title>Erfüllen sie die hohen Erwartungen ihrer Kunden?</title>
+    <link>https://www.prestashop.com/de/blog/erfullen-erwartungen-kunden</link>
+    <description>Heutzutage muss man sich schon etwas Besonderes einfallen lassen, um E-Commerce-Kunden zu beeindrucken.</description>
+     <pubDate>Mon, 21 Feb 2022 11:52:59 +0100</pubDate>
+ <dc:creator>Andreas Bicking</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/erfullen-erwartungen-kunden</guid>
+  </item>
+  <item>
+    <title>PrestaShop-Ratgeber: Fehlercode 404 erkennen und zuverlässig beheben</title>
+    <link>https://www.prestashop.com/de/blog/http-fehler-404-seite-nicht-gefunden-erklarung-und-losung</link>
+    <description>Shopping in Internet ist angesagt. Laut einer aktuellen Studie des IT-Branchenverbands Bitkom kaufen rund 85 Prozent der Deutschen mittlerweile regelmäßig im Internet ein; Tendenz steigend.</description>
+     <pubDate>Tue, 08 Feb 2022 14:21:03 +0100</pubDate>
+ <dc:creator>Jochen Schmid</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/http-fehler-404-seite-nicht-gefunden-erklarung-und-losung</guid>
+  </item>
+  <item>
+    <title>Prestashop Installation leicht gemacht: die komplette Schritt-für-Schritt-Anleitung</title>
+    <link>https://www.prestashop.com/de/blog/installation-von-prestashop-die-vollstandige-anleitung</link>
+    <description>Als modular aufgebaute Open-Source-Lösung für E-Commerce-Vorhaben verbindet PrestaShop bei der Erstellung sowie beim Betreiben von Onlineshops flexible Anpassbarkeit mit in</description>
+     <pubDate>Tue, 04 Jan 2022 15:30:05 +0100</pubDate>
+ <dc:creator>Jochen Schmid</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/installation-von-prestashop-die-vollstandige-anleitung</guid>
+  </item>
+  <item>
+    <title>E-Commerce 2022: 10 entschlüsselte Schlüsseltrends</title>
+    <link>https://www.prestashop.com/de/blog/trends-ecommerce-2022</link>
+    <description>Es wird immer wieder betont, dass die globale Pandemie dem E-Commerce zu spektakulären Fortschritten verholfen hat.</description>
+     <pubDate>Tue, 04 Jan 2022 12:25:54 +0100</pubDate>
+ <dc:creator>PrestaShop Team</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/trends-ecommerce-2022</guid>
+  </item>
+  <item>
+    <title>Neun Tipps für eine gute Vorbereitung auf den Schlussverkauf</title>
+    <link>https://www.prestashop.com/de/blog/neun-tipps-ecommerce-verkaufssaison</link>
+    <description>Fast überall in Europa wird der Winterschlussverkauf bereits zu Beginn des neuen Jahres beginnen.</description>
+     <pubDate>Mon, 27 Dec 2021 14:03:13 +0100</pubDate>
+ <dc:creator>PrestaShop Team</dc:creator>
+ <guid isPermaLink="false">https://www.prestashop.com/de/blog/neun-tipps-ecommerce-verkaufssaison</guid>
+  </item>
+  </channel>
+</rss>

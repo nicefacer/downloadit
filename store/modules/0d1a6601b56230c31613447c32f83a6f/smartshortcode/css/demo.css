@@ -1,0 +1,14 @@
+.shortcode_header{
+	margin-bottom: 25px;
+	color: #999999;
+	border-bottom: 2px solid #ccc;
+	padding-bottom: 12px;
+	text-transform: uppercase;
+}
+
+.shortcode_box{
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding:30px 15px 30px 15px;
+	box-shadow: 0px 0px 6px #ccc;
+}

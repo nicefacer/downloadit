@@ -1,0 +1,8 @@
+[{shop_url}] 
+
+Hallo {firstname} {lastname}, 
+
+{message} 
+
+{shop_name} [{shop_url}]  
+

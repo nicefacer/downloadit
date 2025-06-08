@@ -1,0 +1,5 @@
+.magnalisterForm div.optional>*{display:block;margin-bottom:.5em;}
+.magnalisterForm div.optional span.optional.hidden{opacity:.2;}
+.magnalisterForm div.optional span.optional.visible{opacity:1;}
+
+.magnalisterForm div.optional span.optional.hidden div.optional span.optional{opacity:1}

@@ -1,0 +1,1 @@
+<a href="alert_box"><i class="icon-info-sign"></i> Notification</a>

@@ -1,0 +1,210 @@
+<?php
+/**
+ * File grid.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php
+
+    $isPS16 = CoreHelper::isPS16();
+?>
+
+<script type="text/javascript">
+    function togleCheckboxes(gridId, status) {
+        jQuery('form#'+gridId+' input[type=checkbox]').each(function() {
+            if (jQuery(this).attr('name') == gridId + 'Box[]') {
+                jQuery(this).attr("checked", (status) ? true : false);
+            }
+        });
+    }
+    jQuery(document).ready(function() {
+        jQuery(".sort-arrow").click(function() {
+            jQuery("#sort-field").attr("value", jQuery(this).attr("field"));
+            jQuery("#sort-dir").attr("value", jQuery(this).attr("dirrection"));
+            jQuery(this).parents("form:eq(0)").submit();
+            return false;
+        });
+
+        jQuery("#<?php echo $grid->getGridId(); ?>").submit(function(e) {
+              var submitFrom = jQuery("[type=button][clicked=true]").attr('name');
+              e.preventDefault();
+              var filter = jQuery("#<?php echo $grid->getGridId(); ?>").serialize();
+              document.location.href = "<?php echo $grid->getGridUrl(); ?>&"+filter+"&" + submitFrom + "=true";
+
+              return false;
+        });
+
+        jQuery("#<?php echo $grid->getGridId(); ?> [type=button].controll-button").click(function() {
+            jQuery("[type=button].controll-button", jQuery(this).parents("form")).removeAttr("clicked");
+            jQuery(this).attr("clicked", "true");
+            jQuery(this).parents("form:eq(0)").submit();
+        });
+    });
+</script>
+
+<?php
+    $page = $grid->getCurrentPage();
+    $totalPages = $grid->getTotalPages()
+?>
+<?php if (!$grid->isShortView()) { ?>
+<form method="post" action="<?php echo $grid->getGridUrl(); ?> " id="<?php echo $grid->getGridId(); ?>" name="<?php echo $grid->getGridId(); ?>" class="form">
+    <input type="hidden" id="sort-field" name="sort-field" value="<?php echo $grid->getSortField(); ?>" />
+    <input type="hidden" id="sort-dir" name="sort-dir" value="<?php echo $grid->getSortDir(); ?>" />
+    <?php
+        foreach ($grid->getHiddens() as $hidden) {
+            echo $hidden->getHtml();
+        }
+    ?>
+    <?php if ($isPS16) { ?>
+        <?php RenderHelper::view("widget/grid/head16.phtml", array('grid' => $grid)); ?>
+    <?php } else { ?>
+        <?php RenderHelper::view("widget/grid/head.phtml", array('grid' => $grid)); ?>
+    <?php } ?>
+<?php } // full view ?>
+
+
+<?php if (!$grid->isShortView()) { ?>
+    <?php if ($isPS16) { ?>
+        <?php RenderHelper::view("widget/grid/header16.phtml", array('grid' => $grid, 'page' => $page, 'totalPages' => $totalPages)); ?>
+    <?php } else { ?>
+        <?php RenderHelper::view("widget/grid/header.phtml", array('grid' => $grid, 'page' => $page, 'totalPages' => $totalPages)); ?>
+    <?php } ?>
+<?php } // full view ?>
+<!--    <tr><td>-->
+            <table class="table" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr class="nodrag nodrop">
+                    <?php if ($grid->getMultiSelect()) :?>
+                        <th width="15">
+                            <input type="checkbox" name="checkme" class="noborder" onclick="togleCheckboxes('<?php echo $grid->getGridId(); ?>', this.checked)" />
+                        </th>
+                    <?php endif; ?>
+
+                    <?php foreach ($grid->getColumns() AS $columnIn => $params): ?>
+                        <?php $sortKey = isset($params['index'])?$params['index']:$columnIn; ?>
+                        <?php $isCurrentColumnSorted = $grid->getSortField() == $sortKey; ?>
+                        <th
+                            <?php echo isset($params['width'])?'width="'.$params['width'].'"':"";?>
+                            <?php echo isset($params['class'])?'class="'.$params['class'].'"':"";?>
+                            >
+                            <?php if ($isPS16) { ?>
+                                <span class="title_box<?php echo $isCurrentColumnSorted?' active':''?>">
+                            <?php } ?>
+                            <?php echo isset($params['header'])?$params['header']:$columnIn;?>
+                            <?php if (!$grid->isShortView()) { ?>
+                                <?php if (!$isPS16) { ?><br /><?php } ?>
+                                <?php if (!isset($params['sortable']) || $params['sortable'] == true) : ?>
+                                    <?php $upImg = ($isCurrentColumnSorted && $grid->getSortDir() == "asc")?"up":"up_d"; ?>
+                                    <?php $downImg = ($isCurrentColumnSorted && $grid->getSortDir() == "desc")?"down":"down_d"; ?>
+                                    <a href="#" class="sort-arrow" field="<?php echo $sortKey; ?>" dirrection="asc"><img border="0" src="../img/admin/<?php echo $upImg; ?>.gif"/></a>
+                                    <a href="#" class="sort-arrow" field="<?php echo $sortKey; ?>" dirrection="desc"><img border="0" src="../img/admin/<?php echo $downImg; ?>.gif" /></a>
+                                <?php else : ?>
+                                    &nbsp;&nbsp;
+                                <?php endif; ?>
+                            <?php } // short view ?>
+                            <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+                    <?php endforeach; ?>
+                    </tr>
+                    <?php if (!$grid->isShortView()) { ?>
+                        <tr class="nodrag nodrop filter-head filter row_hover" style="height: 35px;">
+                            <?php if ($grid->getMultiSelect()) :?>
+                                <th></th>
+                            <?php endif; ?>
+
+                            <?php foreach ($grid->getColumns() AS $columnIn => $params): ?>
+                                <th>
+                                    <div>
+                                    <?php if (isset($params['filtrable']) && $params['filtrable'] == false) { ?>
+                                    --
+                                    <?php } else {
+                                        $renderClassName = "Grid_".ucfirst(strtolower(isset($params['type'])?$params['type']:"text"))."Renderer";
+                                        $render = new $renderClassName();
+                                        $key = isset($params['filter'])?$params['filter']:(isset($param['index'])?$param['index']:$columnIn);
+                                        $filters = $grid->getFilters();
+                                        $filterValue = isset($filters[$key])?$filters[$key]:null;
+
+                                        echo $render->filter($key, $filterValue, $params, $grid);
+
+                                    } ?>
+                                    </div>
+                                </th>
+                            <?php endforeach; ?>
+                        </tr>
+                    <?php } // short view ?>
+                </thead>
+                <tbody>
+                    <?php $irow = 0; ?>
+                    <?php $gridItems = $grid->getItems(); ?>
+
+                    <?php if ($gridItems && count($gridItems) > 0) : ?>
+                    <?php foreach ($gridItems AS $rowNum => $rowValue): ?>
+                    <tr <?php echo ($irow++ % 2 ? 'class="alt_row"' : ''); ?> data-rowid="<?php echo $rowValue[$grid->getPrimaryKeyName()]; ?>">
+                        <?php if ($grid->getMultiSelect()) :?>
+                            <td class="center">
+                                <input type="checkbox" name="<?php echo $grid->getGridId(); ?>Box[]" value="<?php echo $rowValue[$grid->getPrimaryKeyName()]; ?>" class="noborder" />
+                            </td>
+                        <?php endif; ?>
+                        <?php foreach ($grid->getColumns() AS $columnIn => $params): ?>
+                            <td>
+                                <?php
+                                    $renderClassName = "Grid_".ucfirst(strtolower(isset($params['type'])?$params['type']:"text"))."Renderer";
+                                    $render = new $renderClassName();
+                                    $key = isset($params['index'])?$params['index']:$columnIn;
+
+                                    echo $render->render($key, $rowValue, $params, $grid);
+                                ?>
+                            </td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php else : ?>
+                        <tr>
+                            <?php
+                                $columnCount = count($grid->getColumns());
+                                $columnCount+=($grid->getMultiSelect())?1:0;
+                            ?>
+                            <td colspan="<?php echo $columnCount; ?>" align="center" class="empty-grid-row list-empty">
+                                <?php if ($isPS16) { ?>
+                                <div class="list-empty-msg">
+                                    <i class="icon-warning-sign list-empty-icon"></i>
+                                    No records found
+                                </div>
+                                <?php } else { ?>
+                                <?php echo L::t("No Information Available");?>
+                                <?php } ?>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+
+                </tbody>
+            </table>
+<?php if (!$grid->isShortView()) { ?>
+    <?php if ($isPS16) { ?>
+        <?php RenderHelper::view("widget/grid/footer16.phtml", array('grid' => $grid, 'page' => $page, 'totalPages' => $totalPages)); ?>
+    <?php } else { ?>
+        <?php RenderHelper::view("widget/grid/footer.phtml", array('grid' => $grid, 'page' => $page, 'totalPages' => $totalPages)); ?>
+    <?php } ?>
+<?php } // full view ?>
+
+<?php $grid->getFooterButtons(); ?>
+<br clear="all"/>
+<?php if (!$grid->isShortView()) { ?>
+    </form>
+<?php } ?>

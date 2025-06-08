@@ -1,0 +1,98 @@
+<div class="modal-dialog" id="setProductIdModalContent">
+    <div class="modal-content">
+        <div ng-controller="SetProductIdController as setProductIdController">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><?php echo L::t("Set PrestaShop Product ID"); ?></h4>
+            </div>
+            <div class="modal-body tab-panel">
+                <?php if (!$ebayListing->id) { ?>
+                    <?php echo L::t("Invalid parameter in request"); ?>
+                <?php } else { ?>
+                    <div class="bootstrap" ng-show="setProductIdController.showError">
+                        <div class="module_error alert alert-danger" ng-bind-html="setProductIdController.errorMessage">
+                        </div>
+                    </div>
+                    <form class="form-horizontal"
+                          name="setProductIdForm"
+                          ng-submit="setProductIdController.sendProductIdSet()"
+                          ng-class="{submitted:trySubmit}"
+                          novalidate>
+                        <table cellpadding="5" width="100%">
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("Item Title");?>:</label>
+                                </td>
+                                <td>
+                                    <span><?php echo $ebayListing->title; ?></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("Product Id");?>:</label>
+                                </td>
+                                <td>
+                                    <input type="text"
+                                           ng-model='setProductIdController.product_id'
+                                           required='required'
+                                           value="<?php echo $ebayListing->product_id; ?>"
+                                           />
+
+                                </td>
+                            </tr>
+
+                        </table>
+                    </form>
+                <?php } ?>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo L::t("Cancel"); ?></button>
+                <button type="button" class="btn btn-primary" ng-click="setProductIdController.sendProductIdSet()" ng-disabled="setProductIdController.isLoading"><img src="../modules/prestabay/img/ajax-small-loader.gif" alt="" border="0" ng-show="setProductIdController.isLoading"/><?php echo L::t("Save"); ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var routes = {
+        'sendProductIdSet': '<?php echo UrlHelper::getUrl('ebayListings/sendProductIdSetAjax'); ?>'
+    };
+
+    (function () {
+        var app = angular.module("setProductId", []);
+
+        app.controller("SetProductIdController", ['$scope', '$http', '$sce', function ($scope, $http, $sce) {
+            var instance = this;
+            instance.showError = false;
+            instance.isLoading = false;
+            instance.id = '<?php echo $ebayListing->id; ?>';
+            instance.product_id='<?php echo $ebayListing->product_id; ?>';
+
+            // send new product set request
+            instance.sendProductIdSet = function() {
+                if (!$scope.setProductIdForm.$valid) {
+                    $scope.trySubmit = true;
+                    return false;
+                }
+                instance.isLoading = true;
+                $http.post(routes['sendProductIdSet'], {
+                    'product_id': instance.product_id,
+                    'id': instance.id
+                }).success(function (data) {
+                    instance.isLoading = false;
+                    if (data.success == true) {
+                        var setProductIdLink = $("[data-rowid=" + instance.id+ "]").find(".setProductId");
+                        setProductIdLink.html("<span>" + instance.product_id + "</span>");
+
+                        $('#setProductIdModal').modal('hide');
+                    } else {
+                        instance.errorMessage = $sce.trustAsHtml('Error set Product ID. ' + ' ' + data.message);
+                    }
+                });
+            };
+
+
+        }]);
+    })();
+</script>

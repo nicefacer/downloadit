@@ -1,0 +1,84 @@
+<?php
+/**
+ * File store.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<?php
+    $isEditMode = isset($hdbk['account_store_info']) && $hdbk['account_store_info'] != AccountStoreHelper::STORE_NOT_AVAILABLE;
+    $isEditEmptyMode = isset($hdbk['account_store_info']) && $hdbk['account_store_info'] == AccountStoreHelper::STORE_NOT_AVAILABLE;
+?>
+<?php echo HtmlHelper::tabBlockStart("eBay Store"); ?>
+
+<div id="ebay_account_store_not_select" <?php echo ($isEditMode || $isEditEmptyMode)?'style="display:none"':''; ?>><?php echo L::t("Please select <b>eBay Account</b> to access this section");?></div>
+<div id="ebay_account_store_empty" <?php echo $isEditEmptyMode?'':'style="display:none;"'?>><?php echo L::t("Selected eBay Account don't have store subscription");?></div>
+
+<table id="ebay_account_store_information" cellpadding="5" width="100%" <?php echo ($isEditMode)?'':'style="display:none;"'; ?>>
+    <tr>
+        <td class="col-left"><label for="ebay_store_mode" class="control-label"><?php echo L::t("Categories Mapping Mode");?></label></td>
+        <td>
+            <select name="ebay_store_mode" id="ebay_store_mode">
+                <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                <option value="<?php echo ProfilesModel::EBAY_STORE_MODE_PROFILE; ?>" <?php echo ($model->ebay_store_mode == ProfilesModel::EBAY_STORE_MODE_PROFILE)?"selected='selected'":"";?>><?php echo L::t("Selling Profile");?></option>
+                <option value="<?php echo ProfilesModel::EBAY_STORE_MODE_PRODUCT; ?>" <?php echo ($model->ebay_store_mode == ProfilesModel::EBAY_STORE_MODE_PRODUCT)?"selected='selected'":"";?>><?php echo L::t("PrestaShop Product");?></option>
+                <?php echo ProfilesHelper::getStoreMappingOptions($model->ebay_store_mode == ProfilesModel::EBAY_STORE_MODE_MAPPING?$model->ebay_store_mapping_id:0); ?>
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label"><?php echo L::t("Store Name");?></label></td>
+        <td>
+            <a id="storeName" <?php echo ($isEditMode)?'href="'.$hdbk['account_store_info']['url'].'"':''; ?> target="_blank" style="text-decoration: underline;"><?php echo ($isEditMode)?$hdbk['account_store_info']['name']:''; ?></a>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label"><?php echo L::t("Subscription");?></label></td>
+        <td>
+            <span id="storeSubscription"><?php echo ($isEditMode)?$hdbk['account_store_info']['subscription']:''; ?></span>
+        </td>
+    </tr>
+    <tr class="mapping-categories-row">
+        <td class="col-left"><label class="control-label" for="ebay_store_category_main"><?php echo L::t("Store Category Main");?></label></td>
+        <td>
+            <select id="ebay_store_category_main" name="ebay_store_category_main" class="ebay_store_category">
+                <?php 
+                    if ($isEditMode) {
+                      echo AccountStoreHelper::getCategoryAsOptions($model->ebay_account, true, $model->ebay_store_category_main);
+                    }
+                ?>
+            </select>
+            <div></div>
+        </td>
+    </tr>
+    <tr class="mapping-categories-row">
+        <td class="col-left"><label class="control-label" for="ebay_store_category_secondary"><?php echo L::t("Store Category Secondary");?></label></td>
+        <td>
+            <select id="ebay_store_category_secondary" name="ebay_store_category_secondary" class="ebay_store_category">
+                <?php 
+                    if ($isEditMode) {
+                      echo AccountStoreHelper::getCategoryAsOptions($model->ebay_account, true, $model->ebay_store_category_secondary);
+                    }
+                ?>
+            </select>
+            <div></div>
+        </td>
+    </tr>
+</table>
+    <div class="text-right"><small><u><a href="<?php echo UrlHelper::getUrl('config/clearCache'); ?>" target="_blank"><?php echo L::t("Reset Ebay Store Categories cache"); ?></php></a></u></small></div>
+<?php echo HtmlHelper::tabBlockEnd(); ?>

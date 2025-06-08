@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>seowizard</name>
+	<displayName><![CDATA[Seo-Assistent Free Version]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[Dieses Modul wird Ihnen helfen Sitemap f&uuml;r Ihre Website zu generieren. Es wird Ihnen auch in Verkettungs Ihrer Website helfen.]]></description>
+	<author><![CDATA[Knowband]]></author>
+	<tab><![CDATA[front_office_features]]></tab>
+	<confirmUninstall><![CDATA[Bist du sicher, dass du es deinstallieren willst?]]></confirmUninstall>
+	<is_configurable>1</is_configurable>
+	<need_instance>0</need_instance>
+	<limited_countries></limited_countries>
+</module>

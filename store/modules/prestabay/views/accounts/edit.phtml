@@ -1,0 +1,126 @@
+<?php
+/**
+ * File edit.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php
+    RenderHelper::addScript("jquery.validate.min.js");
+?>
+
+<form action="" id="accountForm" name="account_form" method="post" class="form-horizontal">
+    <input type="hidden" name="id" value="<?php echo $model->id; ?>"/>
+    <input type="hidden" name="ebaytoken" id="ebaytoken" value="" class="account-assign"/>
+    <?php $blockTitle = ($isEdit ? L::t("Edit") : L::t("Add")) . " " . L::t("eBay Account"); ?>
+    <?php if (!CoreHelper::isPS16()): ?><h2><?php echo $blockTitle ?></h2><?php endif; ?>
+    <div class="content-header">
+        <button class="button btn btn-small float-left"
+                type="button"
+                onclick="document.location.href='<?php echo UrlHelper::getUrl('accounts/index'); ?>'">
+            <i class="icon-arrow-left"></i> <?php echo L::t("Back"); ?>
+        </button>
+        <button type="button"
+                class="button btn btn-primary btn-small"
+                onclick="connectToEbay()">
+            <?php echo L::t("Connect to eBay Account"); ?>
+        </button>
+        <button type="submit"
+                class="button btn btn-primary btn-small"
+                onclick="submitForm()">
+            <?php echo L::t("Save Changes And Return"); ?>
+        </button>
+    </div>
+
+    <?php echo HtmlHelper::blockStart(CoreHelper::isPS16() ? $blockTitle : "", ""); ?>
+    <ul class="error-container">
+
+    </ul>
+
+    <div class="form-group ">
+        <label for="name" class="control-label col-lg-3 required"><?php echo L::t("Name"); ?></label>
+        <div class="col-lg-9 ">
+            <input type="text" size="30" maxlength="32" name="name" value="<?php echo $model->name; ?>"
+                   class="required"
+                   title="<?php echo L::t("Please enter correct 'Account Title'"); ?>"/>
+            <?php echo CoreHelper::isPS16()?"":"<sup>*</sup>"; ?>
+        </div>
+    </div>
+
+    <div class="form-group ">
+        <label for="mode" class="control-label col-lg-3"><?php echo L::t("Mode"); ?></label>
+        <div class="col-lg-9 ">
+            <?php echo HtmlHelper::dropDownList("mode", is_null($model->mode)?1:$model->mode, array(
+                    1 => L::t('Live'),
+                    0 => L::t('Sandbox'),
+                )); ?>
+        </div>
+    </div>
+
+    <div class="small"><sup>*</sup><?php echo L::t("Required field"); ?></div>
+    <?php echo HtmlHelper::blockEnd(); ?>
+</form>
+
+<script type="text/javascript">
+    var isNeedToekenCheck = false;
+
+    jQuery(document).ready(function () {
+        $("#accountForm").validate({
+            errorLabelContainer: $("#accountForm ul.error-container"),
+            errorClass: 'invalid',
+            errorElement: "li"
+
+        });
+
+        jQuery.validator.addMethod("account-assign", function (value, element) {
+            if (!isNeedToekenCheck) {
+                return true;
+            }
+            <?php
+                if ($isEdit) {
+                  echo "return true;"  ;
+                } else {
+                  echo "return false;";
+                }
+            ?>
+        }, "<?php echo L::t("Please assign eBay account first"); ?>");
+    });
+
+    function connectToEbay() {
+        isNeedToekenCheck = false;
+
+        if (!$("#accountForm").valid()) {
+            return false;
+        }
+
+        jQuery("#accountForm").attr("action", "<?php echo  UrlHelper::getUrl("accounts/beforeGetToken"); ?>")
+        jQuery("#accountForm").submit();
+    }
+
+    function submitForm() {
+        isNeedToekenCheck = true;
+
+        if (!$("#accountForm").valid()) {
+            return false;
+        }
+
+        jQuery("#accountForm").attr("action", "<?php echo  UrlHelper::getUrl("accounts/save"); ?>")
+        jQuery("#accountForm").submit();
+    }
+
+</script>

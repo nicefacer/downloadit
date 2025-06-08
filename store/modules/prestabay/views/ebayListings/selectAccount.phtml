@@ -1,0 +1,42 @@
+<?php
+/**
+ * File selectAccount.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<form action="" id="selectAccount" name="select_account_form" method="post">
+    <h2><?php echo L::t("Download eBay Listings"); ?></h2>
+    <div class="content-header">
+        <button class="button btn btn-small float-left"
+                type="button"
+                onclick="document.location.href='<?php echo UrlHelper::getUrl('ebayListings/index'); ?>'">
+                <i class="icon-arrow-left"></i> <?php echo L::t("Back");?>
+        </button>
+        <button type="submit"
+                class="button btn btn-primary btn-small">
+            <?php echo L::t("Start Download");?>
+        </button>
+    </div>
+    <fieldset>
+        <label><?php echo L::t("eBay Account");?></label>
+	<div class="margin-form">
+            <?php echo HtmlHelper::dropDownList('ebay_account', '', $accounts); ?>
+        </div>
+    </fieldset>
+</form>
+

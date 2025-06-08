@@ -1,0 +1,26 @@
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <ul class="nav navbar-nav">
+        <?php foreach ($menuItems as $menuText => $menuInfo) { ?>
+            <?php $isDropDown = isset($menuInfo['child']) && is_array($menuInfo['child']); ?>
+            <li class="<?php echo $isDropDown?'dropdown':''; ?>">
+                <a href="<?php echo !$isDropDown?$menuInfo['url']:'#'; ?>" <?php echo $isDropDown?' class="dropdown-toggle" data-toggle="dropdown"':'';?>><?php echo $menuText; ?><?php echo $isDropDown?' <b class="caret"></b>':''; ?></a>
+                <?php if ($isDropDown) { ?>
+                    <ul class="dropdown-menu">
+                        <?php foreach ($menuInfo['child'] as $menuChildText => $menuChildInfo) { ?>
+                            <?php if ($menuChildInfo['url'] == "--") { ?>
+                                <li class="divider"></li>
+                            <?php } else { ?>
+                                <li><a href="<?php echo $menuChildInfo['url']; ?>"><?php echo $menuChildText; ?></a></li>
+                            <?php } ?>
+                        <?php } ?>
+                    </ul>
+                <?php } ?>
+            </li>
+        <?php } ?>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a id="uservoicesupport" href="mailto:support@involic.com"><?php echo L::t("Support"); ?></a></li>
+        </ul>
+    </div>
+</nav>

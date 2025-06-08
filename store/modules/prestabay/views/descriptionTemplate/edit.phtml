@@ -1,0 +1,147 @@
+<?php
+/**
+ * File edit.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<?php
+    RenderHelper::addScript("htmlHelper.js");
+    RenderHelper::addScript("jquery.validate.min.js");
+    $element = "template";
+    RenderHelper::view("main/tinymce.php", array('element' => 'template'));
+?>
+
+
+
+<script type="text/javascript">
+      jQuery(document).ready(function() {
+
+        var htmlHelper = HtmlHelper();
+
+        if (htmlHelper.getCookie("prestabay-tiny-mce-enable") == 0) {
+            jQuery("#tinymce-custom-description-toggle").toggle(function () {
+                tinymce_add("<?php echo $element; ?>");
+                htmlHelper.setCookie("prestabay-tiny-mce-enable", 1);
+            }, function(){
+                tinymce_remove("template");
+                htmlHelper.setCookie("prestabay-tiny-mce-enable", 0);
+            });
+        } else {
+            if (typeof tinyMCE !== 'undefined') {
+                tinymce_add("<?php echo $element; ?>");
+            }
+            jQuery("#tinymce-custom-description-toggle").toggle(function () {
+                tinymce_remove('template');
+                htmlHelper.setCookie("prestabay-tiny-mce-enable", 0);
+            }, function(){
+                tinymce_add("<?php echo $element; ?>");
+                htmlHelper.setCookie("prestabay-tiny-mce-enable", 1);
+            });
+        }
+
+        jQuery("#descriptionTemplateForm").submit(function() {
+            // update underlying textarea before submit validation
+            if (tinyMCE) {
+                tinyMCE.triggerSave();
+            }
+        }).validate({
+            errorLabelContainer: jQuery("#descriptionTemplateForm ul.error-container"),
+            errorClass: 'invalid',
+            errorElement: "li"
+
+        });
+
+       jQuery("#item_description_custom_variable_insert").click(itemDescriptionVariableInsertClick);
+    });
+
+    function itemDescriptionVariableInsertClick() {
+        var selectedTemplateValue = jQuery(this).prev().find(":selected").val();
+
+        if (jQuery("#template").next("span.mceEditor").length > 0 <?php if (CoreHelper::isPS16()){?>|| (jQuery(".mce-tinymce").length > 0)<?php } ?>) {
+            <?php if (CoreHelper::isPS16()) { ?>
+                tinyMCE.activeEditor.insertContent(selectedTemplateValue);
+            <?php } else { ?>
+                var mceElement = tinyMCE.get('template')
+                mceElement.setContent(mceElement.getContent() + selectedTemplateValue);
+            <?php } ?>
+        } else {
+            jQuery("#template").insertAtCaret(selectedTemplateValue)
+        }
+
+    }
+</script>
+
+<form id="descriptionTemplateForm" name="descriptionTemplateForm" action="<?php echo UrlHelper::getUrl('descriptionTemplates/save'); ?>" method="post" class="validate-form form-horizontal">
+    <input id="descriptionTemplateId" type="hidden" name="descriptionTemplateId" value="<?php echo $model->id; ?>"/>
+    <?php $blockTitle = ($isEdit ? L::t("Edit") : L::t("Create New")) . " " . L::t("Description Template"); ?>
+
+    <?php if (!CoreHelper::isPS16()): ?><h2><?php echo $blockTitle ?></h2><?php endif; ?>
+    <div class="content-header">
+        <button class="button btn btn-small float-left"
+                type="button"
+                onclick="document.location.href='<?php echo UrlHelper::getUrl('descriptionTemplates/index'); ?>'">
+                <i class="icon-arrow-left"></i> <?php echo L::t("Back");?>
+        </button>
+        <button class="button btn btn-primary btn-small"
+                type="button"
+                onclick="document.location.href=document.location.href">
+                <?php echo L::t("Reset");?>
+        </button>
+        <button class="button btn btn-primary btn-small"
+                type="button"
+                onclick="window.open('<?php echo UrlHelper::getUrl('descriptionTemplates/preview', array('id' => $model->id)); ?>','previewwindow')">
+                <i class="icon-search icon-white"></i> <?php echo L::t("Preview");?>
+        </button>
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-continue">
+                <?php echo L::t("Save&amp;Continue Edit");?>
+        </button>
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-return">
+                <i class="icon-ok-sign icon-white"></i> <?php echo L::t("Save");?>
+        </button>
+    </div>
+
+    <?php echo HtmlHelper::blockStart(CoreHelper::isPS16() ? $blockTitle : "", ""); ?>
+        <ul class="error-container"></ul>
+        <label for="name"><?php echo L::t("Name");?> <sup>*</sup></label>
+        <div class="margin-form">
+            <input type="text" size="30" maxlength="32" name="name" id="name" value="<?php echo $model->name; ?>" class="required" title="<?php echo L::t("Please enter correct 'Name'");?>"/>
+        </div>
+
+        <label for="template" stlye="float:none;"><?php echo L::t("Custom Description Template");?> <sup>*</sup></label>
+        <br/><br/>
+        <div>
+            <textarea id="template" name="template" cols="121" rows="40"
+                      class="required autoload_tinymce" title="<?php echo L::t("Please enter correct 'Description'");?>"
+                      style="width: 900px; height: 500px;"><?php echo $model->template; ?></textarea>
+            <div class="error-container" for='template'></div>
+            <a id="tinymce-custom-description-toggle"><?php echo L::t("Toggle Editor");?></a>
+            <br/><br/>
+            <div class="form-group">
+                <select id="item_description_custom_variable" class="col-lg-3">
+                    <?php echo ReplaceHelper::getAllSupportedVariablesOptions(); ?>
+                </select>
+                <input id="item_description_custom_variable_insert" type="button" class="button" value="<?php echo L::t("Insert Variable");?>" />
+            </div>
+        </div>
+
+    <?php echo HtmlHelper::blockEnd(); ?>
+</form>

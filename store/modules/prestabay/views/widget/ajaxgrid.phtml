@@ -1,0 +1,202 @@
+<?php
+    RenderHelper::addScript("angular.min.js");
+    RenderHelper::addScript('ajaxgrid.js');
+    $isPS16 = CoreHelper::isPS16();
+?>
+
+<script>
+    var routes = {
+        'gridUrl': '<?php echo $gridUrl; ?>'
+    };
+</script>
+
+<div ng-app="ajaxGrid">
+    <div ng-controller="AjaxGridController as gridCtrl">
+        <div class="ajaxloader-angular ajaxloader-fixed" ng-show="gridCtrl.isLoading"><table><tr><td align="center" valign="middle"><img src="../modules/prestabay/img/ajax-loader.gif" alt="Loading... Please wait." border="0"/></td></tr></table></div>
+
+        <div class="content-header">
+            <?php foreach ($gridButtons as $button) {
+                echo "&nbsp;" . $button->getHtml();
+            } ?>
+        </div>
+
+        <div class="panel col-lg-12">
+            <div class="panel-heading">
+                {{ gridCtrl.gridHeader }}
+                <span class="panel-heading-action">
+                    <a id="desc-product-refresh" class="list-toolbar-btn" ng-click="gridCtrl.reload()">
+                        <span title="" data-toggle="tooltip" class="label-tooltip" data-original-title="Refresh list" data-html="true">
+                                <i class="process-icon-refresh"></i>
+                        </span>
+                    </a>
+                </span>
+            </div>
+            <div class="col-lg-12">
+                <span class="pull-right">
+                    <button type="submit"
+                            name="submitFilter"
+                            ng-click="gridCtrl.filter()"
+                            class="btn btn-default">
+                        <i class="icon-search"></i> <?php echo L::t("Search"); ?>
+                    </button>
+                    <button type="button"
+                            ng-click="gridCtrl.reset()"
+                            name="resetButton"
+                            class="btn btn-warning">
+                        <i class="icon-eraser"></i> <?php echo L::t("Reset"); ?>
+                    </button>
+                </span>
+            </div>
+
+            <div class="col-lg-12 margin-17" ng-show="gridCtrl.hasError">
+                <div class="module_error alert alert-danger">
+                    {{ gridCtrl.errorMessage }}
+                </div>
+            </div>
+
+
+            <div class="col-lg-12 margin-17" ng-show="gridCtrl.hasWarning">
+                <div class="module_error alert alert-warning">
+                    {{ gridCtrl.warningMessage }}
+                </div>
+            </div>
+
+
+            <div class="col-lg-12" ng-show="gridCtrl.progressActive">
+                <div class="progress progress-striped active margin-17">
+                    <div class="progress-bar" ng-style="{ 'width' : gridCtrl.progressPercent }"></div>
+                </div>
+            </div>
+
+            <table class="table" cellpadding="0" cellspacing="0">
+                <thead>
+                    <tr class="nodrag nodrop">
+                        <th ng-if="gridCtrl.multiSelect" width="15">
+                            <input type="checkbox" name="checkme" class="noborder" ng-click="gridCtrl.toggleAllCheckboxes()" />
+                        </th>
+                        <th ng-repeat="column in gridCtrl.columns" ng-style="{ width: column.width }" ng-class="column.class">
+                            <?php if ($isPS16) { ?>
+                                <span class="title_box">
+                            <?php } ?>
+                                {{ column.header }}
+                                <span ng-if="column.sortable != false">
+                                    <a href="" ng-click="gridCtrl.sortBy(column.index, 'asc')" class="sort-arrow" ng-if="column.index != gridCtrl.sortField || gridCtrl.sortDir != 'asc'"><img border="0" src="../img/admin/up_d.gif"/></a>
+                                    <a href="" ng-click="gridCtrl.sortBy(column.index, 'asc')" class="sort-arrow" ng-if="column.index == gridCtrl.sortField && gridCtrl.sortDir == 'asc'"><img border="0" src="../img/admin/up.gif"/></a>
+
+                                    <a href="" ng-click="gridCtrl.sortBy(column.index, 'desc')" class="sort-arrow" dirrection="desc" ng-if="column.index != gridCtrl.sortField || gridCtrl.sortDir != 'desc'"><img border="0" src="../img/admin/down_d.gif" /></a>
+                                    <a href="" ng-click="gridCtrl.sortBy(column.index, 'desc')" class="sort-arrow" dirrection="desc" ng-if="column.index == gridCtrl.sortField && gridCtrl.sortDir == 'desc'"><img border="0" src="../img/admin/down.gif" /></a>
+                                </span>
+                                <span ng-if="column.sortable == false">
+                                    &nbsp;&nbsp;
+                                </span>
+
+                            <?php if ($isPS16) { ?>
+                                </span>
+                            <?php } ?>
+                        </th>
+                    </tr>
+                    <tr class="nodrag nodrop filter-head filter row_hover" style="height: 35px;">
+                        <th ng-if="gridCtrl.multiSelect"></th>
+                        <th ng-repeat="column in gridCtrl.columns">
+                            <div ng-if="column.type != 'options'">
+                                <input type="text" ng-model="gridCtrl.filters[column.columnId]" ng-enter="gridCtrl.filter()"/>
+                            </div>
+                            <div ng-if="column.type == 'options'">
+                                <select ng-options="key as value for (key , value) in column.options"
+                                        ng-model="gridCtrl.filters[column.columnId]"
+                                        ng-change="gridCtrl.filter()">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="item in gridCtrl.items" ng-class="$even ? 'alt_row': ''">
+                    <td ng-if="gridCtrl.multiSelect" class="center">
+                        <input type="checkbox" class="noborder" ng-model="item['checked']"/>
+                    </td>
+                    <td ng-repeat="column in gridCtrl.columns" ng-bind-html="item[column.index] | unsafe">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="row">
+                <!-- Footer -->
+                <div class="col-lg-7">
+                    <?php if ($footerButtons) { ?>
+                        <br/><br clear="all"/>
+                    <?php } ?>
+                    <?php foreach ($footerButtons as $footerButton) {
+                        echo "&nbsp;".$footerButton->getHtml();
+                    } ?>
+
+                    <div ng-if="gridCtrl.totalItemsCount > 0">
+                        <div class="form-group bulk-actions">
+                            <div class="col-lg-6">
+                                <input id="massaction-submit" type="hidden" name="massaction-submit" value="0"/>
+                                <select ng-model="gridCtrl.selectedMassaction" ng-options="item.url as item.label for item in gridCtrl.massactions">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="submit" class="btn btn-default" ng-click="gridCtrl.submitMassaction()" value="<?php echo L::t("Apply");?>"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5" ng-if="gridCtrl.totalItemsCount > 0">
+                    <!-- pagination -->
+                    <span class="pagination">
+                            <?php echo L::t("Display"); ?>:
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                {{ gridCtrl.limit }}
+                                <i class="icon-caret-down"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="(limitKey, limitText) in gridCtrl.limits" >
+                                    <a href="" class="pagination-items-page" ng-click="gridCtrl.changeLimit(limitKey)">{{ limitText }}</a>
+                                </li>
+                            </ul>
+                            / {{ gridCtrl.totalItemsCount }} <?php echo L::t("result(s)"); ?>
+                    </span>
+                    <ul class="pagination pull-right" ng-if="gridCtrl.totalPages > 1">
+                            <li ng-class="gridCtrl.page <= 1?'disabled':''">
+                                <a href="" class="pagination-link" ng-click="gridCtrl.gotoPage(1)">
+                                    <i class="icon-double-angle-left"></i>
+                                </a>
+                            </li>
+                            <li ng-class="gridCtrl.page <= 1?'disabled':''">
+                                <a href="" class="pagination-link" ng-click="gridCtrl.gotoPage(gridCtrl.page - 1)">
+                                    <i class="icon-angle-left"></i>
+                                </a>
+                            </li>
+
+                            <li ng-if="gridCtrl.paginationStartPage != 1"><a class="disabled">&hellip;</a></li>
+
+                            <li ng-repeat="n in range(gridCtrl.paginationStartPage, gridCtrl.paginationEndPage)" ng-class="n == gridCtrl.page ? 'active': ''">
+                                <a href="" class="pagination-link" ng-click="gridCtrl.gotoPage(n)">{{ n }}</a>
+                            </li>
+
+                            <li ng-if="gridCtrl.paginationEndPage != gridCtrl.totalPages"><a class="disabled">&hellip;</a></li>
+
+                            <li ng-class="gridCtrl.page >= gridCtrl.totalPages?'disabled':''">
+                                <a href="" class="pagination-link" ng-click="gridCtrl.gotoPage(gridCtrl.page + 1)">
+                                    <i class="icon-angle-right"></i>
+                                </a>
+                            </li>
+                            <li ng-class="gridCtrl.page >= gridCtrl.totalPages?'disabled':''">
+                                <a href="" class="pagination-link" ng-click="gridCtrl.gotoPage(gridCtrl.totalPages)">
+                                    <i class="icon-double-angle-right"></i>
+                                </a>
+                            </li>
+
+                        </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

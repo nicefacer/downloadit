@@ -1,0 +1,189 @@
+<div class="modal-dialog" id="leaveFeedbackModalContent">
+    <div class="modal-content" >
+        <div ng-controller="LeaveFeedbackController as leaveFeedbackController">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><?php echo L::t("Leave Feedback"); ?></h4>
+            </div>
+            <div class="modal-body tab-panel">
+                <?php if (!$feedback->id) { ?>
+                    <?php echo L::t("Invalid parameter in request"); ?>
+                <?php } else { ?>
+                    <div class="bootstrap" ng-show="leaveFeedbackController.errorMessage != ''">
+                        <div class="module_error alert alert-danger" ng-bind-html="leaveFeedbackController.errorMessage">
+                        </div>
+                    </div>
+                <form class="form-horizontal"
+                      name="leaveFeedbackForm"
+                      ng-submit="leaveFeedbackController.sendFeedback()"
+                      ng-class="{submitted:trySubmit}"
+                      novalidate>
+                    <table cellpadding="5" width="100%">
+                        <tr>
+                            <td class="col-left">
+                                <label class="control-label" ><?php echo L::t("Item Title");?>:</label>
+                            </td>
+                            <td>
+                                <span><?php echo $feedback->title; ?></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-left">
+                                <label class="control-label" ><?php echo L::t("Item Id");?>:</label>
+                            </td>
+                            <td>
+                                <span><?php echo $feedback->item_id; ?></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-left">
+                                <label class="control-label" ><?php echo L::t("Transaction Id");?>:</label>
+                            </td>
+                            <td>
+                                <span><?php echo $feedback->transaction_id; ?></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-left">
+                                <label class="control-label" ><?php echo L::t("Buyer Feedback Type");?>:</label>
+                            </td>
+                            <td>
+                                <span style="<?php echo $feedback->buyer_type == Feedbacks_FeedbacksModel::TYPE_NEGATIVE ? 'color:red;': ($feedback->buyer_type == Feedbacks_FeedbacksModel::TYPE_POSITIVE ? 'color: green':''); ?>">
+                                    {{ leaveFeedbackController.buyer_type }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-left">
+                                <label class="control-label" ><?php echo L::t("Buyer Message");?>:</label>
+                            </td>
+                            <td>
+                                <span><?php echo $feedback->buyer_comment; ?></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-left">
+                                <label class="control-label" ><?php echo L::t("Response Feedback Type");?>:</label>
+                            </td>
+                            <td>
+                                <?php echo HtmlHelper::dropDownList('response_feedback',
+                                    Feedbacks_FeedbacksModel::TYPE_POSITIVE, Feedbacks_FeedbacksModel::getTypesList(true), array(
+                                            'ng-model' => 'leaveFeedbackController.response_feedback',
+                                            'required' => 'required',
+                                            'ng-change' => 'leaveFeedbackController.feedbackTypeChange()',
+                                            'disabled'  => 'disabled'
+                                    )); ?>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-left">
+                                <label class="control-label" ><?php echo L::t("Feedback Templates");?>:</label>
+                            </td>
+                            <td>
+                                <?php echo HtmlHelper::dropDownList('feedback_templates',
+                                    '', array(), array(
+                                        'ng-model' => 'leaveFeedbackController.feedback_template',
+                                        'ng-options'=> "template.message for template in leaveFeedbackController.templates",
+                                        'ng-change' => 'leaveFeedbackController.feedbackTemplateChange()'
+                                    )); ?>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-left">
+                                <label class="control-label" ><?php echo L::t("Message");?>:</label>
+                            </td>
+                            <td>
+                               <input type="text" maxlength="80" ng-model="leaveFeedbackController.message" required/>
+                                <p><?php echo L::t("NB! Sellers are not able to leave negative or neutral feedback for buyers."); ?></p>
+                            </td>
+                        </tr>
+
+                    </table>
+                </form>
+                <?php } ?>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo L::t("Cancel"); ?></button>
+                <button type="button" class="btn btn-primary" ng-click="leaveFeedbackController.sendFeedback()" ng-disabled="leaveFeedbackController.isLoading"><img src="../modules/prestabay/img/ajax-small-loader.gif" alt="" border="0" ng-show="leaveFeedbackController.isLoading"/><?php echo L::t("Send Feedback"); ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var routes = {
+        'templateList': '<?php echo UrlHelper::getUrl('feedback/templateListAjax'); ?>',
+        'sendFeedback': '<?php echo UrlHelper::getUrl('feedback/sendFeedbackAjax'); ?>'
+    };
+
+    (function () {
+        var app = angular.module("leaveFeedback", []);
+
+        app.controller("LeaveFeedbackController", ['$scope', '$http', '$sce', function ($scope, $http, $sce) {
+
+            instance = this;
+            instance.isLoading = false;
+            instance.id = '<?php echo $feedback->id; ?>';
+            instance.buyer_type='<?php echo $feedback->buyer_type; ?>';
+            instance.response_feedback = "";
+            instance.feedback_template = "";
+            instance.message = "";
+            instance.templates = [];
+            instance.errorMessage = "";
+
+            instance.response_feedback = 'Positive';
+
+            // send new feedback request
+            instance.sendFeedback = function() {
+                if (!$scope.leaveFeedbackForm.$valid) {
+                    $scope.trySubmit = true;
+                    return false;
+                }
+                instance.isLoading = true;
+                $http.post(routes['sendFeedback'], {
+                    'type': instance.response_feedback,
+                    'message': instance.message,
+                    'id': instance.id
+                }).success(function (data) {
+                    instance.isLoading = false;
+                    if (data.success == true) {
+                        var feedbackLink = $("[data-rowid=" + instance.id+ "]").find(".leaveFeedback");
+                        $("<span>" + instance.message + "</span>").insertAfter(feedbackLink);
+                        feedbackLink.hide();
+                        $('#leaveFeedbackModal').modal('hide');
+                    } else {
+                        instance.errorMessage = $sce.trustAsHtml('Error set Feedback. ' + ' ' + data.message);
+                    }
+                });
+            };
+
+            // Change type of feedback
+            instance.feedbackTypeChange = function() {
+                instance.templates = [];
+
+                $http.get(routes['templateList']).success(function(data){
+                    if (instance.response_feedback == "Positive") {
+                        instance.templates = data.positive;
+                    }
+                    if (instance.response_feedback == "Neutral") {
+                        instance.templates = data.neutral;
+                    }
+
+                    instance.feedback_template = "";
+                });
+            };
+
+            instance.feedbackTemplateChange = function() {
+                instance.message = instance.feedback_template.message;
+            };
+
+            // call first to get templates list
+            instance.feedbackTypeChange();
+
+        }]);
+    })();
+</script>

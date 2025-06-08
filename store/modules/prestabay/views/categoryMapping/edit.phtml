@@ -1,0 +1,316 @@
+<?php
+/**
+ * File edit.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+
+
+<?php
+$leftClass  = "column-half-left";
+$rightClass = "column-half-right";
+$isPS16     = false;
+if (CoreHelper::isPS16()) {
+    $rightClass = $leftClass = "col-md-6";
+    $isPS16     = true;
+}
+
+RenderHelper::addScript("angular.min.js");
+RenderHelper::addScript("jquery.validate.min.js");
+RenderHelper::addScript("categoryMapping.js");
+?>
+
+<script>
+    var mappingId = <?php echo $id; ?>;
+
+    var routes = {
+        'categoryMappingInfo': '<?php echo UrlHelper::getUrl('categoryMapping/info'); ?>',
+        'category': '<?php echo UrlHelper::getUrl('profiles/categoryList'); ?>',
+        'specifics': '<?php echo UrlHelper::getUrl('profiles/getCategoryOptions'); ?>',
+        'saveMapping': '<?php echo UrlHelper::getUrl('categoryMapping/save'); ?>',
+        'mappingIndex': '<?php echo UrlHelper::getUrl('categoryMapping/index'); ?>'
+    };
+    var customValueSpecificKey = '<?php echo ProfilesModel::SPECIFIC_CUSTOM_VALUE_KEY; ?>';
+</script>
+<style>
+    .edit-highlight td {
+        background-color: lightgray;
+    }
+</style>
+<div ng-app="categoryMapping">
+    <div ng-controller="MappingController as mappingCtrl">
+        <div class="bootstrap" ng-show="mappingCtrl.showSuccessMessage">
+            <div class="module_confirmation confirm alert alert-success">
+                {{ mappingCtrl.successMessage }}
+            </div>
+        </div>
+
+        <div class="bootstrap" ng-show="mappingCtrl.showErrorMessage">
+            <div class="module_error alert alert-danger">
+                {{ mappingCtrl.errorMessage }}
+            </div>
+        </div>
+
+        <div class="ajaxloader-angular ajaxloader-fixed" ng-show="mappingCtrl.fullLoader"><table><tr><td align="center" valign="middle"><img src="../modules/prestabay/img/ajax-loader.gif" alt="Loading... Please wait." border="0"/></td></tr></table></div>
+
+        <?php $blockTitle = ($isEdit ? L::t("Edit") : L::t("Add")) . " " . L::t("Category Mapping"); ?>
+        <?php if (!CoreHelper::isPS16()): ?><h2><?php echo $blockTitle ?></h2><?php endif; ?>
+
+        <div class="content-header">
+            <button class="button btn btn-small float-left"
+                    type="button"
+                    onclick="document.location.href='<?php echo UrlHelper::getUrl('categoryMapping/index'); ?>'">
+                <i class="icon-arrow-left"></i> <?php echo L::t("Back");?>
+            </button>
+            <button class="button btn btn-primary btn-small"
+                    type="button"
+                    onclick="document.location.href=document.location.href">
+                <?php echo L::t("Reset");?>
+            </button>
+            <button class="button btn btn-success btn-small"
+                    type="submit"
+                    name="save-and-continue"
+                    ng-click="mappingCtrl.saveMapping(true)"
+                >
+                <?php echo L::t("Save&amp;Continue Edit");?>
+            </button>
+            <button class="button btn btn-success btn-small"
+                    type="submit"
+                    name="save-and-return"
+                    ng-click="mappingCtrl.saveMapping(false)"
+                >
+                <i class="icon-ok-sign icon-white"></i> <?php echo L::t("Save");?>
+            </button>
+        </div>
+
+        <?php echo HtmlHelper::blockStart(CoreHelper::isPS16() ? $blockTitle : "", "", ""); ?>
+        <form name="categoryMappingForm"
+              ng-submit="mappingCtrl.saveMapping(false)"
+              ng-class="{submitted:mappingCtrl.trySubmit}"
+              class="form-horizontal"
+              novalidate>
+
+            <div class="form-group">
+                <label for="name" class="control-label col-lg-3 required"><?php echo L::t("Mapping Name"); ?>: </label>
+
+                <div class="col-lg-9">
+                    <input type="text" id="name" ng-model="mappingCtrl.name" required maxlength="80"/>
+                </div>
+            </div>
+
+            <div class="form-group ">
+                <label for="marketplace" class="control-label col-lg-3 required"><?php echo L::t("Marketplace"); ?>: </label>
+
+                <div class="col-lg-3 ">
+                    <?php echo HtmlHelper::dropDownList(
+                        'marketplace', '', MarketplacesModel::getMarketplaceList(), array(
+                            'ng-model' => "mappingCtrl.marketplace",
+                            'id'       => 'marketplace',
+                            'addSelect' => true,
+                            'ng-change' => 'mappingCtrl.marketplaceChange()',
+                            'required'  => 'required'
+                        )
+                    ); ?>
+                    <?php echo CoreHelper::isPS16() ? "" : "<sup>*</sup>"; ?>
+                </div>
+            </div>
+
+        </form>
+        <?php echo HtmlHelper::blockEnd(); ?>
+
+        <br clear="all"/>
+        <div class="text-center">
+            <button ng-hide="mappingCtrl.editMode" ng-click="mappingCtrl.addMapping()" type="button" class="btn btn-success"><i class="icon-plus-sign icon-white"></i> <?php echo L::t("Add Mapping"); ?></button>
+        </div>
+        <br clear="all"/>
+        <form name="categoryAddMappingForm"
+              ng-submit="mappingCtrl.addMapping()"
+              ng-class="{submitted:mappingCtrl.trySubmitAddMapping}"
+              novalidate>
+
+        <div class="<?php echo $leftClass; ?>">
+            <?php echo HtmlHelper::blockStart("Ebay Categories"); ?>
+
+            <div class="ajaxloader-angular ajaxloader-absolute" ng-show="mappingCtrl.ebayCategoryLoader"><table><tr><td align="center" valign="middle"><img src="../modules/prestabay/img/ajax-loader.gif" alt="Loading... Please wait." border="0"/></td></tr></table></div>
+
+            <table>
+                <colgroup>
+                    <col width="150">
+                </colgroup>
+                <tr ng-hide="mappingCtrl.editMode">
+                    <td class="col-left">
+                        <label class="control-label ebay_store_category_label" for="ebay_category_main"><?php echo L::t("Category Main");?></label>
+                    </td>
+                    <td>
+                        <div ng-repeat="categoryLevel in mappingCtrl.ebayPrimaryCategories" class="float-left">
+                            <select ng-model="mappingCtrl.selectedPrimaryCategory[$index]"
+                                    ng-options="categoryInfo.label for categoryInfo in categoryLevel"
+                                    ng-change="mappingCtrl.changeEbayCategory($index, true)" required></select>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-hide="mappingCtrl.editMode">
+                    <td class="col-left">
+                        <label class="control-label ebay_store_category_label" for="ebay_category_secondary"><?php echo L::t("Category Secondary");?></label>
+                    </td>
+                    <td>
+                        <div ng-repeat="categoryLevel in mappingCtrl.ebaySecondaryCategories" class="float-left">
+                            <select ng-model="mappingCtrl.selectedSecondaryCategory[$index]"
+                                    ng-options="categoryInfo.label for categoryInfo in categoryLevel"
+                                    ng-change="mappingCtrl.changeEbayCategory($index, false)"></select>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-show="mappingCtrl.editMode">
+                    <td class="col-left">
+                        <label class="control-label ebay_store_category_label" for="ebay_category_main"><?php echo L::t("Category Main");?></label>
+                    </td>
+                    <td>
+                        {{ mappingCtrl.editPrimaryCategoryName }}
+                    </td>
+
+                </tr>
+                <tr ng-show="mappingCtrl.conditionIsShown">
+                    <td class="col-left">
+                        <label class="control-label" for="condition"><?php echo L::t("Item Condition"); ?>:</label>
+                    </td>
+                    <td>
+                        <select name="condition" ng-model="mappingCtrl.condition" ng-options="singleCondition.label for singleCondition in mappingCtrl.conditionOptions"></select>
+                    </td>
+                </tr>
+
+                <tr ng-show="mappingCtrl.conditionIsShown">
+                    <td class="col-left">
+                        <label class="control-label" for="condition_description"><?php echo L::t("Item Condition Description"); ?>:</label>
+                    </td>
+                    <td>
+                        <select name="condition_description" ng-model="mappingCtrl.condition_description">
+                            <option value=""></option>
+                            <?php echo ReplaceHelper::getAllSupportedSpecificOptions('', false); // $model->item_condition_description ?>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+
+            <table id="specific-block" dynamic="mappingCtrl.specificHtml">
+            </table>
+
+            <button ng-show="mappingCtrl.editMode" ng-click="mappingCtrl.saveEdit()" type="button" class="btn btn-success"> <?php echo L::t("Save Edit"); ?></button>
+            <?php echo HtmlHelper::blockEnd(); ?>
+        </div>
+
+        <div class="<?php echo $rightClass; ?>">
+            <?php echo HtmlHelper::blockStart("PrestaShop Categories"); ?>
+            <div ng-hide="mappingCtrl.editMode">
+                <select id="mappingPSCategoryBox" ng-model="mappingCtrl.categories" multiple="multiple"
+                        ng-options="prestaCategory.label for prestaCategory in mappingCtrl.psCategories"
+                        options-disabled="prestaCategory.used for prestaCategory in mappingCtrl.psCategories" required></select>
+            </div>
+            <div ng-show="mappingCtrl.editMode">
+                <?php echo L::t('Category change blocked in edit mode'); ?>
+            </div>
+            <?php echo HtmlHelper::blockEnd(); ?>
+
+        </div>
+
+        <br clear="all"/>
+        <div class="">
+            <?php echo HtmlHelper::blockStart("Mapping", "", CoreHelper::isPS16()?"width-868":""); ?>
+            <div class="ajaxloader-angular ajaxloader-absolute" ng-show="mappingCtrl.editMode"><table><tr><td align="center" valign="middle"></td></tr></table></div>
+
+            <div>
+                <table class="table" cellpadding="0" cellspacing="0" <?php echo CoreHelper::isOnlyPS15()?'style="width:100%;"':""; ?>>
+                    <thead>
+                    <tr class="nodrag nodrop">
+                        <th>
+                            <?php if ($isPS16) { ?>
+                            <span class="title_box">
+                            <?php } ?>
+                            <?php echo L::t("eBay Primary category"); ?>
+                            <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+                        <th>
+                            <?php if ($isPS16) { ?>
+                            <span class="title_box">
+                            <?php } ?>
+                            <?php echo L::t("eBay Secondary category"); ?>
+                            <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+                        <th>
+                            <?php if ($isPS16) { ?>
+                            <span class="title_box">
+                            <?php } ?>
+                            <?php echo L::t("PrestaShop Categories"); ?>
+                            <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+                        <th>
+                            <?php if ($isPS16) { ?>
+                            <span class="title_box">
+                            <?php } ?>
+                            <?php echo L::t("List options"); ?>
+                            <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+                        <th>
+                            <?php if ($isPS16) { ?>
+                            <span class="title_box">
+                            <?php } ?>
+
+                            <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+
+                    </tr>
+                    </thead>
+                    <tbody id="mapping-grid-body" ng-="">
+                        <tr ng-repeat="mapping in mappingCtrl.mapping">
+                            <td>{{ mapping.ebay_primary_category_name }}</td>
+                            <td>{{ mapping.ebay_secondary_category_name }}</td>
+                            <td>
+                                <div ng-repeat="category in mapping.categories">
+                                    {{ category.category_path }}
+                                </div>
+                            </td>
+                            <td>
+                                <strong><?php echo L::t("Condition"); ?>:</strong>
+                                {{ mapping.item_condition.label }} <i>{{ mapping.item_condition_description }}</i>
+                                <br/>
+
+                                <br/><strong><?php echo L::t("Specifics"); ?>:</strong><br/>
+                                <div ng-repeat="(key, value) in mapping.product_specifics">{{ key }}: {{ value }}</div>
+                                <br/><strong><?php echo L::t("Specifics Custom values"); ?>:</strong><br/>
+                                <div ng-repeat="(key, value) in mapping.product_specifics_custom">{{ key }}: {{ value }}</div>
+                            </td>
+                            <td>
+                                <a href ng-click="mappingCtrl.remove($index)">
+                                    <img title="Delete" alt="Delete" src="../img/admin/delete.gif">
+                                </a>
+                                <a href ng-click="mappingCtrl.edit($index)">
+                                    <img title="Edit" alt="Edit" src="../img/admin/edit.gif">
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <?php echo HtmlHelper::blockEnd(); ?>
+        </div>
+        <br/>
+
+
+    </div>
+</div>

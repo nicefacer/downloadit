@@ -1,0 +1,71 @@
+/**
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ * We offer the best and most useful modules PrestaShop and modifications for your online store.
+ *
+ * @author    knowband.com <support@knowband.com>
+ * @copyright 2017 Knowband
+ * @license   see file: LICENSE.txt
+ * @category  PrestaShop Module
+ *
+ *
+ * Description
+ *
+ */
+
+.velsof_overlay {
+    display: none;
+    font-size: 50px;
+    position: fixed;
+    z-index: 999;
+    width: 100%;
+    text-align: center;
+    height: 100%;
+    background-color: rgba(255,255,255,0.6);
+}
+
+.knowband_product_sorting_val {
+    text-align: center;
+    width: 40% !important;
+}
+
+.list-group-item{
+    cursor: pointer;
+}
+.error_field{
+    border: 1px solid red;
+}
+.error_message{
+    color: red;
+}
+
+.prod_opt_loader, .opt_categories_loader, .opt_cms_loader, .opt_manufacturer_loader, .meta_pro_loader, .meta_cat_loader, .meta_man_loader{
+    background-image: url("../../img/admin/loader.gif");
+    display: none;
+    position: absolute;
+}
+
+.prod_opt_loader img, .opt_categories_loader img, .opt_cms_loader img, .opt_manufacturer_loader img, .meta_pro_loader img, .meta_cat_loader img, .meta_man_loader img{
+width: 25%;
+}
+
+#kbgc_image_create_block form{
+    display: inline-block;
+    width: 70%;
+}
+.knowband_meta_default_fields{
+    float: right;
+    width: 30%;
+    padding-left: 5%;
+    font-size: 14px;
+    line-height: 26px;
+}
+
+.free-disabled:hover{
+   opacity:0.3 !important;
+   cursor: not-allowed !important;
+   
+}

@@ -1,0 +1,7 @@
+<h2><?php echo $grid->getHeader(); ?></h2>
+
+<div class="content-header">
+    <?php foreach ($grid->getButtons() as $button) {
+        echo "&nbsp;".$button->getHtml();
+    } ?>
+</div>

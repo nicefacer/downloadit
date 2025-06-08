@@ -1,0 +1,47 @@
+<?php
+/**
+ * File specifics.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php
+    $isEditMode = isset($hdbk['specifics']) && is_array($hdbk['specifics']) && count($hdbk['specifics']) > 0;
+    $isEditEmptyMode = isset($hdbk['specifics']) && (!is_array($hdbk['specifics']) || count($hdbk['specifics']) == 0);
+
+    $isEditModeAttribute = isset($hdbk['attribute_specifics']) && is_array($hdbk['attribute_specifics']) && count($hdbk['attribute_specifics']) > 0;
+    $isEditAttributeEmptyMode = isset($hdbk['attribute_specifics']) && (!is_array($hdbk['attribute_specifics']) || count($hdbk['attribute_specifics']) == 0);
+
+    $isShowCategoryMappingBlock = isset($model->ebay_category_mode) && $model->ebay_category_mode == ProfilesModel::EBAY_CATEGORY_MODE_MAPPING;
+
+?>
+<?php echo HtmlHelper::tabBlockStart("Specifics"); ?>
+
+<div class="category-mode-mapping-blocks" style="<?php echo $isShowCategoryMappingBlock?'':'display:none;'; ?>"><?php echo L::t("Specific information you can find in Category Mapping"); ?></div>
+
+<div class="category-mode-profile-blocks" style="<?php echo $isShowCategoryMappingBlock?'display:none;':''; ?>">
+    <div id="product_specifics_not_select" class="hide-notice" style="<?php echo ($isEditMode || $isEditEmptyMode || $isEditModeAttribute || $isEditAttributeEmptyMode)?'display:none;':'';?>"><?php echo L::t("Please select <b>Primary Category</b> to access this section");?></div>
+    <div id="product_specifics_empty" class="hide-notice" style="<?php echo (!$isEditEmptyMode || !$isEditAttributeEmptyMode)?'display:none;':'';?>"><?php echo L::t("Selected <b>Primary Category</b> not required to fill <b>Product Specifics</b>");?></div>
+
+    <table id="product_specifics" cellpadding="5" width="100%" style="<?php echo (!$isEditMode)?'display:none;':'';?>">
+        <?php if ($isEditMode) { ?>
+            <?php echo RenderHelper::view("profiles/edit/specifics/specifics-list.phtml", array('specificsList' => $hdbk['specifics'], 'model' => $model, 'isAngular' => false), false); ?>
+         <?php } //if isEditMode ?>
+    </table>
+</div>
+<?php echo HtmlHelper::tabBlockEnd(); ?>

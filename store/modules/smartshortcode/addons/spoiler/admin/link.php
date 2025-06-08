@@ -1,0 +1,1 @@
+<a href="spoiler"><i class="icon-tasks"></i> Spoiler</a>

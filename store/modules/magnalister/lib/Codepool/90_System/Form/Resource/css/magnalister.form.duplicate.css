@@ -1,0 +1,6 @@
+.magnalisterForm div.duplicate{display:table;width:100%;}
+.magnalisterForm div.duplicate>div{display:table-row;border:1px solid silver;}
+.magnalisterForm div.duplicate>div>*{display:table-cell;vertical-align: top;padding:.5em;}
+.magnalisterForm div.duplicate>div>div{width:100%;}
+.magnalisterForm div.duplicate>div>span{width:auto;white-space:nowrap;}
+div#content .magnalisterForm div.duplicate>div>span .button{font-size:1.5em;margin:0;}

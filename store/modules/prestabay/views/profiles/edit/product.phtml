@@ -1,0 +1,413 @@
+<?php
+/**
+ * File product.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<?php echo HtmlHelper::tabBlockStart("Product"); ?>
+
+<table cellpadding="5" width="100%">
+    <tr>
+        <td colspan="2">
+            <b><?php echo L::t("General Information");?></b>
+            <hr class="clear"/>
+            <br />
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="item_title"><?php echo L::t("Item Title");?> <em>*</em></label></td>
+        <td>
+            <input id="item_title" name="item_title" type="text" value="<?php echo ($model->item_title!="")?$model->item_title:"[product_name]";?>"/>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="subtitle"><?php echo L::t("Item Subtitle");?></label></td>
+        <td>
+            <input id="subtitle" name="subtitle" type="text" value="<?php echo ($model->subtitle!="")?$model->subtitle:"";?>"/>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="remove_more_80"><?php echo L::t("Cut Item Title to 80 Chars");?></label></td>
+        <td>
+	      <select name="remove_more_80" id="remove_more_80">
+		  <option value="0" <?php echo ($model->remove_more_80 == 0)?'selected="selected"':'';?>><?php echo L::t("No");?></option>
+		  <option value="1" <?php echo ($model->remove_more_80 == 1)?'selected="selected"':'';?>><?php echo L::t("Yes");?></option>
+	      </select>
+	      <p><?php echo L::t("Remove chars from titles that exceeds required 80 symbols length.");?></p>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="item_sku"><?php echo L::t("Item SKU");?> <em>*</em></label></td>
+        <td>
+            <select id="item_sku" name="item_sku">
+                <option value="0" <?php echo ($model->item_sku == 0)?'selected="selected"':'';?>><?php echo L::t("None");?></option>
+                <option value="1" <?php echo ($model->item_sku == 1)?'selected="selected"':'';?>><?php echo L::t("Product Reference");?></option>
+            </select>
+        </td>
+    </tr>
+    <?php $isShowCategoryMappingBlock = isset($model->ebay_category_mode) && $model->ebay_category_mode == ProfilesModel::EBAY_CATEGORY_MODE_MAPPING; ?>
+    <tr class="category-mode-profile-blocks" <?php echo (isset($hdbk['conditions']) && count($hdbk['conditions']) == 0) || $isShowCategoryMappingBlock?'style="display:none;"':''; ?>>
+        <td class="col-left"><label class="control-label" for="item_condition"><?php echo L::t("Item Condition");?> <em>*</em></label></td>
+        <td>
+            <div class="hide-notice" <?php echo isset($hdbk['conditions'])?'style="display:none;"':"";?>><?php echo L::t("Please select <b>Primary Category</b> to access this field");?></div>
+            <select name="item_condition" id="item_condition" <?php echo !isset($hdbk['conditions'])?'class="hidden-option"':'';?>>
+                <?php if (isset($hdbk['conditions']) && count($hdbk['conditions']) > 0) { ?>
+                    <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                    <?php foreach ($hdbk['conditions'] as $condition) { ?>
+                    <option
+                        value="<?php echo $condition['id'];?>"
+                        <?php echo ($model->item_condition == $condition['id'])?"selected='selected'":"";?>>
+                            <?php echo $condition['label'];?>
+                    </option>
+                    <?php } ?>
+                    <option value="<?php echo ProfilesModel::ITEM_CONDITION_PRODUCT_DATA; ?>" <?php echo ($model->item_condition == ProfilesModel::ITEM_CONDITION_PRODUCT_DATA)?"selected='selected'":"";?>><?php echo L::t("PrestaShop product value"); ?></option>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+
+    <tr class="category-mode-profile-blocks">
+        <td class="col-left"><label class="control-label" for="item_condition_description"><?php echo L::t("Item Condition Description");?></label></td>
+        <td>
+            <div class="hide-notice" <?php echo isset($hdbk['conditions'])?'style="display:none;"':"";?>><?php echo L::t("Please select <b>Primary Category</b> to access this field");?></div>
+            <select name="item_condition_description" id="item_condition_description" <?php echo !isset($hdbk['conditions'])?'class="hidden-option"':'';?>>
+                    <option value=""></option>
+                    <?php echo ReplaceHelper::getAllSupportedSpecificOptions($model->item_condition_description, false); // $model->item_condition_description ?>
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="item_qty_mode"><?php echo L::t("Item QTY");?> <em>*</em></label></td>
+        <td>
+            <select name="item_qty_mode" id="item_qty_mode">
+                <option value="<?php echo ProfilesModel::ITEM_QTY_MODE_SINGLE; ?>" <?php echo ($model->item_qty_mode == ProfilesModel::ITEM_QTY_MODE_SINGLE)?"selected='selected'":"";?>><?php echo L::t("Single Item");?></option>
+                <option value="<?php echo ProfilesModel::ITEM_QTY_MODE_PRODUCT; ?>" <?php echo ($model->item_qty_mode == ProfilesModel::ITEM_QTY_MODE_PRODUCT || is_null($model->item_qty_mode))?"selected='selected'":"";?> <?php echo (ProfilesModel::AUCTION_TYPE_CHINESE == $model->auction_type)?'style="display:none;"':""; ?>><?php echo L::t("Product QTY");?></option>
+                <option value="<?php echo ProfilesModel::ITEM_QTY_MODE_CUSTOM; ?>" <?php echo ($model->item_qty_mode == ProfilesModel::ITEM_QTY_MODE_CUSTOM)?"selected='selected'":"";?> <?php echo (ProfilesModel::AUCTION_TYPE_CHINESE == $model->auction_type)?'style="display:none;"':""; ?>><?php echo L::t("Custom QTY");?></option>
+                <option value="<?php echo ProfilesModel::ITEM_QTY_MODE_NOT_MORE_THAT; ?>" <?php echo ($model->item_qty_mode == ProfilesModel::ITEM_QTY_MODE_NOT_MORE_THAT)?"selected='selected'":"";?> <?php echo (ProfilesModel::AUCTION_TYPE_CHINESE == $model->auction_type)?'style="display:none;"':""; ?>><?php echo L::t("Not more that QTY");?></option>
+                <option value="<?php echo ProfilesModel::ITEM_QTY_MODE_RESERVED_VALUE; ?>" <?php echo ($model->item_qty_mode == ProfilesModel::ITEM_QTY_MODE_RESERVED_VALUE)?"selected='selected'":"";?> <?php echo (ProfilesModel::AUCTION_TYPE_CHINESE == $model->auction_type)?'style="display:none;"':""; ?>><?php echo L::t("Reserve in PS QTY");?></option>
+            </select>
+            <input id="item_qty_value" 
+                   name="item_qty_value"
+                   type="text"
+                   value="<?php echo ($model->item_qty_value!=null)?$model->item_qty_value:1;?>"
+                   <?php echo ($model->item_qty_mode == ProfilesModel::ITEM_QTY_MODE_CUSTOM || $model->item_qty_mode == ProfilesModel::ITEM_QTY_MODE_NOT_MORE_THAT || $model->item_qty_mode == ProfilesModel::ITEM_QTY_MODE_RESERVED_VALUE )? "": "style='display:none'"; ?>/>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="item_vat"><?php echo L::t("VAT Percent");?></label></td>
+        <td>
+            <input id="item_vat" name="item_vat" type="text" value="<?php echo ($model->item_vat > 0)?$model->item_vat:""; ?>" />
+            <p><?php echo L::t("You need to have a VAT-ID registered with eBay and marketplace need to be VAT-enabled");?></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="gift_icon"><?php echo L::t("Gift Icon");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList("gift_icon", $model->gift_icon, array(
+                ProfilesModel::GIFT_ICON_NO => L::t('No'),
+                ProfilesModel::GIFT_ICON_YES => L::t('Yes'),
+            ), array(
+                'id' => 'gift_icon'
+            )); ?>
+            <p><?php echo L::t("This parameter allows the seller to offer one or more gift services to buyers, and a generic gift icon displays next to the listing's title in search and view item page.");?></p>
+        </td>
+    </tr>
+    
+    <tr id="gift_services_row" <?php echo $model->gift_icon != ProfilesModel::GIFT_ICON_YES?"style='display:none'":""; ?>>
+        <td class="col-left"><label class="control-label" for="gift_services"><?php echo L::t("Gift Services");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList("gift_services[]", $model->getGiftServices(), array(
+                ProfilesModel::GIFT_SERVICE_EXPRESS_SHIPPING => "Express Shipping",
+                ProfilesModel::GIFT_SERVICE_SHIP_TO_RECIPIENT => "Ship To Recipient",
+                ProfilesModel::GIFT_SERVICE_WRAP => "Wrap",
+            ), array(
+                'id' => 'gift_services',
+                'multiple' => "multiple"
+            )); ?>
+            <p><?php echo L::t("<b>Express Shipping</b> - The seller is offering to ship the item via an express shipping method as explained in the item description. <br/><b>Ship To Recipient</b> - The seller is offering to ship to the gift recipient (instead of to the buyer) after payment clears. <br/><b>Wrap</b> - The seller is offering to wrap the item (and optionally include a card) as explained in the item description. <br/>");?></p>
+        </td>
+    </tr>
+
+    <tr <?php echo (ProfilesModel::AUCTION_TYPE_CHINESE == $model->auction_type)?'style="display:none;"':""; ?>>
+        <td class="col-left"><label class="control-label" for="use_multivariation"><?php echo L::t("Use Multi-variation");?></label></td>
+        <td>
+            <select name="use_multivariation" id="use_multivariation">
+                <option value="<?php echo ProfilesModel::USE_MULTI_VARIATION_NO; ?>" <?php echo ($model->use_multivariation == ProfilesModel::USE_MULTI_VARIATION_NO  || is_null($model->use_multivariation))?"selected='selected'":"";?>><?php echo L::t("No");?></option>
+                <option value="<?php echo ProfilesModel::USE_MULTI_VARIATION_YES; ?>" <?php echo ($model->use_multivariation == ProfilesModel::USE_MULTI_VARIATION_YES)?"selected='selected'":"";?>><?php echo L::t("Yes");?></option>
+            </select>
+            <p><?php echo L::t("Not all categories support multi-variation listings");?></p>
+        </td>
+    </tr>
+
+    <tr id="variation-images-row" <?php echo (ProfilesModel::AUCTION_TYPE_CHINESE == $model->auction_type || ($model->use_multivariation == ProfilesModel::USE_MULTI_VARIATION_NO  || is_null($model->use_multivariation)) )?'style="display:none;"':""; ?>>
+        <td class="col-left"><label class="control-label" for="multivariation_images"><?php echo L::t("Send Images for variation");?></label></td>
+        <td>
+            <select name="multivariation_images" id="multivariation_images">
+                <option value="<?php echo ProfilesModel::VARIATION_IMAGES_NO; ?>" <?php echo ($model->multivariation_images == ProfilesModel::VARIATION_IMAGES_NO  || is_null($model->multivariation_images))?"selected='selected'":"";?>><?php echo L::t("No");?></option>
+                <option value="<?php echo ProfilesModel::VARIATION_IMAGES_YES; ?>" <?php echo ($model->multivariation_images == ProfilesModel::VARIATION_IMAGES_YES)?"selected='selected'":"";?>><?php echo L::t("Yes");?></option>
+            </select>
+            <p><?php echo L::t("When activated only images assigned to variation options will be send. When no images found send general product images");?></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="2">
+            <b><?php echo L::t("Product Identify");?></b>
+            <hr class="clear"/>
+            <br />
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="ean"><?php echo L::t("Include Product EAN");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList("ean", $model->ean, array(
+                ProfilesModel::EAN_INCLUDE_NO => L::t('No'),
+                ProfilesModel::EAN_INCLUDE_YES => L::t('Yes'),
+            ), array(
+                'id' => 'ean'
+            )); ?>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="upc"><?php echo L::t("Include Product UPC");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList("upc", $model->upc, array(
+                ProfilesModel::UPC_INCLUDE_NO => L::t('No'),
+                ProfilesModel::UPC_INCLUDE_YES => L::t('Yes'),
+            ), array(
+                'id' => 'upc'
+            )); ?>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="mpn"><?php echo L::t("Include Product MPN");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList("mpn", $model->mpn, array(
+                ProfilesModel::MPN_INCLUDE_NO => L::t('No'),
+                ProfilesModel::MPN_INCLUDE_YES => L::t('Yes'),
+            ), array(
+                'id' => 'mpn'
+            )); ?>
+            <p><?php echo L::t('To make it work you will need to install PrestaAttributes module, see https://github.com/involic/PrestaAttributes'); ?></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="isbn"><?php echo L::t("Include Product ISBN");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList("isbn", $model->isbn, array(
+                ProfilesModel::ISBN_INCLUDE_NO => L::t('No'),
+                ProfilesModel::ISBN_INCLUDE_YES => L::t('Yes'),
+            ), array(
+                'id' => 'isbn'
+            )); ?>
+            <p><?php echo L::t('To make it work you will need to install PrestaAttributes module, see https://github.com/involic/PrestaAttributes'); ?></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="identify_variation"><?php echo L::t("Send Identify for Variation");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList("identify_variation", $model->identify_variation, array(
+                ProfilesModel::IDENTIFY_FOR_VARIATION_NO => L::t('No'),
+                ProfilesModel::IDENTIFY_FOR_VARIATION_YES => L::t('Yes'),
+            ), array(
+                'id' => 'identify_variation'
+            )); ?>
+            <p><?php echo L::t("Send EAN/UPC for variation data."); ?></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="sku_variation"><?php echo L::t("Send SKU for Variation");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList("sku_variation", $model->sku_variation, array(
+                ProfilesModel::SKU_FOR_VARIATION_NO => L::t('No'),
+                ProfilesModel::SKU_FOR_VARIATION_YES => L::t('Yes'),
+            ), array(
+                'id' => 'sku_variation'
+            )); ?>
+            <p><?php echo L::t("Send SKU for variation data. Each combination should have unique SKU."); ?></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="isbn"><?php echo L::t("Product Identify Not Available");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList("identify_not_available", $model->identify_not_available, array(
+                ProfilesModel::IDENTIFY_NOT_AVAILABLE_NO => L::t('No'),
+                ProfilesModel::IDENTIFY_NOT_AVAILABLE_YES => L::t('Yes'),
+            ), array(
+                'id' => 'identify_not_available'
+            )); ?>
+            <p><?php echo L::t("If product don't have EAN/UPC/MPN/ISBN send 'Does not apply'. Be careful listing may get penalized in search. "); ?></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="2">
+            <b><?php echo L::t("Best Offer");?></b>
+            <hr class="clear"/>
+            <br />
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="best_offer_enabled"><?php echo L::t("Best Offer");?></label></td>
+        <td>
+            <select name="best_offer_enabled" id="best_offer_enabled">
+                <option value="<?php echo ProfilesModel::BEST_OFFER_NO; ?>" <?php echo ($model->best_offer_enabled == ProfilesModel::BEST_OFFER_NO  || is_null($model->best_offer_enabled))?"selected='selected'":"";?>><?php echo L::t("No");?></option>
+                <option value="<?php echo ProfilesModel::BEST_OFFER_YES; ?>" <?php echo ($model->best_offer_enabled == ProfilesModel::BEST_OFFER_YES)?"selected='selected'":"";?>><?php echo L::t("Yes");?></option>
+            </select>
+        </td>
+    </tr>
+
+    <tr class="best-offer-related-row" <?php echo $model->best_offer_enabled != ProfilesModel::BEST_OFFER_YES?"style='display:none'":""; ?>>
+        <td class="col-left"><label class="control-label" for="best_offer_minimum_price"><?php echo L::t("Minimum Offer Price");?></label></td>
+        <td>
+             <input id="best_offer_minimum_price" name="best_offer_minimum_price" type="text" value="<?php echo ($model->best_offer_minimum_price!="")?$model->best_offer_minimum_price:"";?>"/> %
+            <p class="notice"><?php echo L::t("Specifies the minimum acceptable best offer price. The offer that is below this value is automatically declined. Please specify it in percent.");?></p>
+        </td>
+    </tr>
+
+    <tr class="best-offer-related-row" <?php echo $model->best_offer_enabled != ProfilesModel::BEST_OFFER_YES?"style='display:none'":""; ?>>
+        <td class="col-left"><label class="control-label" for="best_offer_auto_accept_price"><?php echo L::t("Auto Accept Offer Price");?></label></td>
+        <td>
+             <input id="best_offer_auto_accept_price" name="best_offer_auto_accept_price" type="text" value="<?php echo ($model->best_offer_auto_accept_price!="")?$model->best_offer_auto_accept_price:"";?>"/> %
+            <p class="notice"><?php echo L::t("The price at which best offers are automatically accepted. The offer that is above this value is automatically accepted. Please specify it in percent.");?></p>
+        </td>
+    </tr>
+    <tr class="checkbox-row">
+        <td class="col-left">
+            <label class="control-label"><?php echo L::t("Listing Enhancement");?></label>
+        </td>
+        <td>
+            <table class="short-table">
+                <?php echo HtmlHelper::checkBoxList('enhancement', $model->getEnhancement(), ProfilesModel::getEnhancementList()); ?>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="2">
+            <b><?php echo L::t("Product Layout");?></b>
+            <hr class="clear"/>
+            <br />
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="item_image"><?php echo L::t("Image");?> <em>*</em></label></td>
+        <td>
+            <select name="item_image" id="item_image">
+                <option value="<?php echo ProfilesModel::IMAGE_MODE_NONE; ?>" <?php echo ($model->item_image == ProfilesModel::IMAGE_MODE_NONE)?"selected='selected'":"";?>><?php echo L::t("No Image");?></option>
+                <option value="<?php echo ProfilesModel::IMAGE_MODE_MAIN; ?>" <?php echo ($model->item_image == ProfilesModel::IMAGE_MODE_MAIN || is_null($model->item_image))?"selected='selected'":"";?>><?php echo L::t("Main Product Image");?></option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="ps_image_type"><?php echo L::t("PrestaShop Image Type");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList('ps_image_type', $model->ps_image_type, ProfilesModel::getAvailableImageTypes(), array(
+                'id' => 'ps_image_type'
+            )); ?>
+            <p class="notice"><?php echo L::t("Images with selected type(size) will be ussed for eBay Item pictures.");?></p>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="item_image_count"><?php echo L::t("Gallery");?> <em>*</em></label></td>
+        <td>
+            <select name="item_image_count" id="item_image_count">
+                <option value="" <?php echo ($model->item_image_count == "")?"selected='selected'":"";?>><?php echo L::t("No Gallery");?></option>
+                <?php for ($_i = 2; $_i <= 12; $_i++) { ?>
+                    <option value="<?php echo $_i; ?>" <?php echo ($model->item_image_count == $_i)?"selected='selected'":"";?>><?php echo $_i; ?> <?php echo L::t("Images");?></option>
+                <?php } ?>
+            </select>
+            <p class="notice"><?php echo L::t("Free Gallery available for sites: US, CA, CAFR, ES, FR, IT, and NL.");?></p>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="gallery_type"><?php echo L::t("Gallery Type");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList('gallery_type', $model->gallery_type, ProfilesModel::getGalleryTypeList(), array(
+                'id' => 'gallery_type'
+            )); ?>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="photo_display"><?php echo L::t("Photo Display");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList('photo_display', $model->photo_display, ProfilesModel::getPhotoDisplayList(), array(
+                'id' => 'photo_display'
+            )); ?>
+        </td>
+    </tr>
+    
+<?php 
+    $hitCounterOptions = array(
+	"NoHitCounter" => L::t("No Hit Counter"),
+	"BasicStyle" => L::t("Basic Style"),
+	"GreenLED" => L::t("Green LED"),
+	"HiddenStyle" => L::t("Hidden Style"),
+	"HonestyStyle" => L::t("Honesty Style"),
+	"RetroStyle" => L::t("Retro Style"),
+    );
+?>
+    <tr>
+	<td class="col-left"><label class="control-label" for="hit_counter"><?php echo L::t("Hit Counter");?></label></td>
+	<td>
+	    <select id="hit_counter" name="hit_counter">
+	    <?php foreach ($hitCounterOptions as $hitKey => $hitText) { ?>
+                <option value="<?php echo $hitKey; ?>" <?php echo ($model->hit_counter == $hitKey)?'selected="selected"':''; ?>><?php echo $hitText; ?></option>
+            <?php } ?> 
+            </select>
+            <p><?php echo L::t("'Green LED', 'Honesty Style' available only on US-marketplace");?></p>
+	</td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="item_description_mode"><?php echo L::t("Description");?> <em>*</em></label></td>
+        <td>
+            <select name="item_description_mode" id="item_description_mode">
+                <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                <option value="1" <?php echo ($model->item_description_mode == ProfilesModel::ITEM_DESCRIPTION_MODE_PRODUCT)?"selected='selected'":"";?>><?php echo L::t("Product Description");?></option>
+                <option value="2" <?php echo ($model->item_description_mode == ProfilesModel::ITEM_DESCRIPTION_MODE_CUSTOM)?"selected='selected'":"";?>><?php echo L::t("Custom Template");?></option>
+                    <?php echo ProfilesHelper::getDescriptionTemplatesOptions($model->item_description_mode == ProfilesModel::ITEM_DESCRIPTION_MODE_TEMPLATE?$model->description_template_id:0); ?>
+            </select>
+        </td>
+    </tr>
+
+    <tr id="item_description_mode_custom_row" <?php echo ($model->item_description_mode != ProfilesModel::ITEM_DESCRIPTION_MODE_CUSTOM)?"style='display:none'":""; ?>>
+        <td valign="top"><label class="control-label" for="item_description_custom"><?php echo L::t("Custom Description Template");?> <em>*</em></label></td>
+        <td>
+            <textarea cols="80" rows="40" class="autoload_tinymce" id="item_description_custom" name="item_description_custom" style="width: 600px; height: 400px;"><?php echo $model->item_description_custom; ?></textarea>
+            <div class="error-container" for='item_description_custom'></div>
+            <a id="tinymce-custom-description-toggle"><?php echo L::t("Toggle Editor");?></a>
+            <br/><br/>
+            <select id="item_description_custom_variable">
+                <?php echo ReplaceHelper::getAllSupportedVariablesOptions(); ?>
+            </select>
+            <input id="item_description_custom_variable_insert" type="button" class="button" value="<?php echo L::t("Insert Variable");?>" />
+        </td>
+    </tr>
+</table>
+<?php echo HtmlHelper::tabBlockEnd(); ?>

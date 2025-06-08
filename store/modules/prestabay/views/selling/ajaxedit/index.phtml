@@ -1,0 +1,276 @@
+<?php echo $grid; ?>
+<script type="text/javascript">
+    function showSellingSelection() {
+        return false;
+    }
+</script>
+
+<script>
+    $(function(){
+        $("[data-toggle=popover]").popover();
+    });
+
+    Object.defineProperty(Array.prototype, 'chunk_inefficient', {
+        value: function(chunkSize) {
+            var array=this;
+            return [].concat.apply([],
+                array.map(function(elem,i) {
+                    return i%chunkSize ? [] : [array.slice(i,i+chunkSize)];
+                })
+            );
+        }
+    });
+
+function EbayActions(ajaxControllerInstance, selectedIds, settings) {
+    var instance = this;
+    var keyItems = [];
+    var rowIndex = -1;
+    var itemIndex = 0;
+    var currentPercent = 10;
+    var percentStep = 90;
+    var actionName;
+    var actionUrlRoute;
+    var columnName;
+    var pendingStatusString;
+    var processingStatusString;
+    var itemsPerCall = 1;
+
+    this.reset = function() {
+        keyItems = instance.generateKeyItems();
+        rowIndex = -1;
+        itemIndex = 0;
+        currentPercent = 10;
+        var totalItems = keyItems.length;
+        percentStep = 90/totalItems;
+
+        // itemsPerCall -> 1,2,3
+        // number of cl
+
+        ajaxControllerInstance.progressActive = true;
+        ajaxControllerInstance.progressPercent = currentPercent + '%';
+    };
+
+    this.generateKeyItems = function() {
+        var keyItems = [];
+        for (var key in selectedIds) {
+            var itemId = selectedIds[key];
+
+            for (var keyItem in ajaxControllerInstance.items) {
+                var item = ajaxControllerInstance.items[keyItem];
+                if (item[ajaxControllerInstance.primaryKeyName] == itemId) {
+                    item[columnName] = pendingStatusString;
+                    keyItems.push(keyItem);
+                }
+            }
+        }
+
+        return keyItems.chunk_inefficient(itemsPerCall);
+    };
+
+    this.nextItemAction = function() {
+        rowIndex++;
+        if (rowIndex >= keyItems.length) {
+            // All done
+            ajaxControllerInstance.progressPercent = '100%';
+            ajaxControllerInstance.progressActive = false;
+
+            if (rowIndex > 0) {
+                ajaxControllerInstance.refresh();
+            }
+            return;
+        }
+        if (rowIndex > 0) {
+            // manipulate progress bar
+            currentPercent += percentStep * itemsPerCall;
+            ajaxControllerInstance.progressPercent = currentPercent + '%';
+            ajaxControllerInstance.refresh();
+        }
+
+        itemIndex = keyItems[rowIndex];
+        instance.doItemAction();
+    };
+
+    this.doItemAction = function() {
+        var sellingIds = [];
+        for (var i = 0; i < itemIndex.length; ++i) {
+            ajaxControllerInstance.items[itemIndex[i]][columnName] = processingStatusString;
+            sellingIds.push({
+                'index': itemIndex[i],
+                'id': ajaxControllerInstance.items[itemIndex[i]][ajaxControllerInstance.primaryKeyName]
+            });
+        }
+
+        if (rowIndex > 0) {
+            ajaxControllerInstance.refresh();
+        }
+
+        $.ajax({
+            type: "POST",
+            url: actionUrlRoute,
+            data: {
+                'type': 'customAction',
+                'actionName': actionName,
+                'sellingItemIds': sellingIds
+            },
+            success: function (data) {
+                if (!data.success) {
+                    ajaxControllerInstance.hasError = true;
+                    ajaxControllerInstance.errorMessage = data['message'];
+                    // Reset progress bar
+                    ajaxControllerInstance.progressPercent = '100%';
+                    ajaxControllerInstance.progressActive = false;
+                    ajaxControllerInstance.refresh();
+                    return;
+                }
+                var itemProcessingResult = data.result;
+                for (var key in itemProcessingResult) {
+                    if (!itemProcessingResult.hasOwnProperty(key)) {
+                        continue;
+                    }
+                    var row = itemProcessingResult[key];
+                    var responseText = 'N/A'
+                    if (row['success']) {
+                        responseText = '<div>' + row['newState'] + '</div>';
+                        ajaxControllerInstance.items[row['index']]['qty'] = '?';
+                        ajaxControllerInstance.items[row['index']]['price'] = '?';
+                    } else {
+                        responseText = '<div>Error</div>';
+                    }
+                    var feeMessage = '';
+                    if (row.item.fee != undefined) {
+                        feeMessage += "<b><?php echo L::t("Fee"); ?>:</b><br/>" + row.item.fee.total + " " + row.item.fee.currency;
+                        feeMessage += "<ul class='fee-list'>";
+                        for (var fee in row.item.fee.list) {
+                            feeMessage += "<li>" + fee + ": " + row.item.fee.list[fee] + " " + row.item.fee.currency + "</li>";
+                        }
+                        feeMessage += "</ul>";
+                    }
+
+                    if (feeMessage != '') {
+                        responseText += '&nbsp;<a href="javascript:void(0)" data-toggle="popover" data-placement="auto" data-html="true" data-content="' + feeMessage + '">';
+                        responseText += '<span class="icon-briefcase" title="Fee"></span>';
+                        responseText += '</a>';
+                    }
+
+                    if (row['errors'] != '') {
+                        responseText += '&nbsp;<a href="javascript:void(0)" data-toggle="popover" data-placement="auto" data-html="true" data-content="<b>Errors:</b><br/>' + row['errors'] + '">';
+                        responseText += '<span class="icon-exclamation-sign" style="color:red" title="Error"></span>';
+                        responseText += '</a>';
+                    }
+                    if (row['warnings'] != '') {
+                        responseText += '&nbsp;<a href="javascript:void(0)" data-toggle="popover" data-placement="auto" data-html="true" data-content="<b>Warnings:</b><br/>' + row['warnings'] + '">';
+                        responseText += '<span class="icon-warning-sign" style="color:orange" title="Warning"></span>';
+                        responseText += '</a>';
+                    }
+
+                    ajaxControllerInstance.items[row['index']][columnName] = responseText;
+                }
+                ajaxControllerInstance.refresh();
+                jQuery("[data-toggle=popover]").popover();
+                instance.nextItemAction();
+            },
+            dataType: 'json'
+        });
+    };
+
+    // constructor
+    {
+        actionName = settings['actionName'];
+        columnName = settings['column'];
+        actionUrlRoute = settings['actionUrl'];
+        pendingStatusString = settings['pendingStatusString'];
+        processingStatusString = settings['processingStatusString'];
+        itemsPerCall = settings['itemsPerCall'];
+        instance.reset();
+
+    }
+}
+
+    sendItemHandler = function (ajaxControllerInstance, selectedIds) {
+        var sendAction = new EbayActions(ajaxControllerInstance, selectedIds, {
+            'actionName': 'sendItem',
+            'column': 'status',
+            'actionUrl': routes['gridUrl'],
+            'pendingStatusString': '<i>Pending...</i>',
+            'processingStatusString': '<i>Send Item...</i>',
+            'itemsPerCall': 3
+        });
+
+        sendAction.nextItemAction();
+    };
+
+    stopItemHandler = function (ajaxControllerInstance, selectedIds) {
+        var stopAction = new EbayActions(ajaxControllerInstance, selectedIds, {
+            'actionName': 'stopItem',
+            'column': 'status',
+            'actionUrl': routes['gridUrl'],
+            'pendingStatusString': '<i>Pending...</i>',
+            'processingStatusString': '<i>Stop Item...</i>',
+            'itemsPerCall': 1
+        });
+
+        stopAction.nextItemAction();
+    }
+
+    reviseItemHandler = function (ajaxControllerInstance, selectedIds) {
+        var reviseAction = new EbayActions(ajaxControllerInstance, selectedIds, {
+            'actionName': 'reviseItem',
+            'column': 'status',
+            'actionUrl': routes['gridUrl'],
+            'pendingStatusString': '<i>Pending...</i>',
+            'processingStatusString': '<i>Revise Item...</i>',
+            'itemsPerCall': 1
+        });
+
+        reviseAction.nextItemAction();
+    };
+
+    revisePriceQtyItemHandler = function (ajaxControllerInstance, selectedIds) {
+        var reviseAction = new EbayActions(ajaxControllerInstance, selectedIds, {
+            'actionName': 'reviseItem',
+            'column': 'status',
+            'actionUrl': routes['gridUrl'],
+            'pendingStatusString': '<i>Pending...</i>',
+            'processingStatusString': '<i>QTY & Price Revise...</i>',
+            'itemsPerCall': 1
+        });
+
+        reviseAction.nextItemAction();
+    };
+
+    relistItemHandler = function (ajaxControllerInstance, selectedIds) {
+        var relistAction = new EbayActions(ajaxControllerInstance, selectedIds, {
+            'actionName': 'relistItem',
+            'column': 'status',
+            'actionUrl': routes['gridUrl'],
+            'pendingStatusString': '<i>Pending...</i>',
+            'processingStatusString': '<i>Relist Item...</i>',
+            'itemsPerCall': 3
+        });
+
+        relistAction.nextItemAction();
+    };
+
+    removeItemHandler = function (ajaxControllerInstance, selectedIds) {
+        if (selectedIds.length == 0) {
+            ajaxControllerInstance.hasError = true;
+            ajaxControllerInstance.errorMessage = "Please select item to remove";
+        } else {
+            ajaxControllerInstance.reload();
+            ajaxControllerInstance.hasWarning = true;
+            ajaxControllerInstance.warningMessage = "Item(s) removed from Selling List, but still can be active on ebay";
+        }
+    };
+
+    moveItemsHandler = function (ajaxControllerInstance, selectedIds) {
+        if (selectedIds.length == 0) {
+            ajaxControllerInstance.hasError = true;
+            ajaxControllerInstance.errorMessage = "Please select item to move";
+        } else {
+            ajaxControllerInstance.reload();
+            ajaxControllerInstance.hasWarning = true;
+            ajaxControllerInstance.warningMessage = "Item(s) moved to another Selling List";
+        }
+    };
+
+</script>

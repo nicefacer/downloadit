@@ -1,0 +1,190 @@
+<?php
+$defaultAddress = array(
+    'fistname' => 'N/A',
+    'lastname' => '',
+    'street' => array('N/A', ''),
+    'state' => '',
+    'postal_code' => '',
+    'country' => '',
+    'city' => '',
+    'phone' => '',
+);
+$address = $order->getBuyerAddress();
+
+if (!is_array($address)) {
+    $address = array();
+}
+$address = $address + $defaultAddress;
+?>
+
+<div class="modal-dialog" id="changeAddressModalContent">
+    <div class="modal-content" >
+        <div ng-controller="ChangeAddressController as changeAddressController">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><?php echo L::t("Change Address"); ?></h4>
+            </div>
+            <div class="modal-body tab-panel">
+                <?php if (!$order->id) { ?>
+                    <?php echo L::t("Invalid parameter in request"); ?>
+                <?php } else { ?>
+                    <p>NB! <?php echo L::t('Changing buyer address modify data only in PrestaBay order. Ebay and PrestaShop order remain unchanged.'); ?></p>
+                    <div class="bootstrap" ng-show="changeAddressController.errorMessage != ''">
+                        <div class="module_error alert alert-danger" ng-bind-html="changeAddressController.errorMessage">
+                        </div>
+                    </div>
+                    <form class="form-horizontal"
+                          name="changeAddressForm"
+                          ng-submit="changeAddressController.sendNewAddress()"
+                          ng-class="{submitted:trySubmit}"
+                          novalidate>
+                        <table cellpadding="5" width="100%">
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("Order Id");?>:</label>
+                                </td>
+                                <td>
+                                    <span><?php echo $order->order_id; ?></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("First name");?>:</label>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="changeAddressController.firstname" required/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("Last name");?>:</label>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="changeAddressController.lastname" required/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("Street");?>:</label>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="changeAddressController.street1" required/>
+                                    <input type="text" ng-model="changeAddressController.street2"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("State");?>:</label>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="changeAddressController.state" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("Postal Code");?>:</label>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="changeAddressController.postalCode" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("Country");?>:</label>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="changeAddressController.country" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("City");?>:</label>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="changeAddressController.city" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-left">
+                                    <label class="control-label" ><?php echo L::t("Phone");?>:</label>
+                                </td>
+                                <td>
+                                    <input type="text" ng-model="changeAddressController.phone" />
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+                <?php } ?>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo L::t("Cancel"); ?></button>
+                <button type="button"
+                        class="btn btn-primary"
+                        ng-click="changeAddressController.sendNewAddress()"
+                        ng-disabled="changeAddressController.isLoading">
+                    <img src="../modules/prestabay/img/ajax-small-loader.gif" alt="" border="0" ng-show="changeAddressController.isLoading"/><?php echo L::t("Change Address"); ?>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var routes = {
+        'updateAddress': '<?php echo UrlHelper::getUrl('ebayOrder/changeAddressAjax'); ?>'
+    };
+
+    (function () {
+        var app = angular.module("changeAddress", []);
+
+        app.controller("ChangeAddressController", ['$scope', '$http', '$sce', function ($scope, $http, $sce) {
+
+            instance = this;
+            instance.isLoading = false;
+            instance.id = '<?php echo $order->id; ?>';
+            instance.firstname = '<?php echo $address['firstname']; ?>';
+            instance.lastname = '<?php echo $address['lastname']; ?>';
+            instance.street1 = '<?php echo $address['street'][0]; ?>';
+            instance.street2 = '<?php echo $address['street'][1]; ?>';
+            instance.state = '<?php echo $address['state']; ?>';
+            instance.postalCode = '<?php echo $address['postal_code']; ?>';
+            instance.country = '<?php echo $address['country']; ?>';
+            instance.city = '<?php echo $address['city']; ?>';
+            instance.phone = '<?php echo $address['phone']; ?>';
+
+            instance.errorMessage = "";
+
+            // update order address request
+            instance.sendNewAddress = function() {
+                if (!$scope.changeAddressForm.$valid) {
+                    $scope.trySubmit = true;
+                    return false;
+                }
+                instance.isLoading = true;
+                $http.post(routes['updateAddress'], {
+                    'id': instance.id,
+                    'address': {
+                        firstname: instance.firstname,
+                        lastname: instance.lastname,
+                        street: [instance.street1, instance.street2],
+                        state: instance.state,
+                        postal_code: instance.postalCode,
+                        country: instance.country,
+                        city: instance.city,
+                        phone: instance.phone
+                    }
+                }).success(function (data) {
+                    instance.isLoading = false;
+                    if (data.success == true) {
+
+                        $('#changeAddressModal').modal('hide');
+                        window.location.reload(false);
+                    } else {
+                        instance.errorMessage = $sce.trustAsHtml('Error update Address. ' + ' ' + data.message);
+                    }
+                });
+            };
+        }]);
+    })();
+</script>

@@ -1,0 +1,98 @@
+<?php
+/**
+ * File preview.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <style>
+.prestashop-button {
+    -moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #FFF6D3;
+    border-color: #FFF6D3 #DFD5AF #DFD5AF #FFF6D3;
+    border-right: 1px solid #DFD5AF;
+    border-style: solid;
+    border-width: 1px;
+    color: #268CCD;
+    padding: 3px;
+}
+
+.prestashop-label {
+    font-weight: bold; padding: 0.2em 0.5em 0 0;
+    font-size: 14px;
+}
+
+.prestashop-input {
+     border: 1px solid #E0D0B1;
+}
+.prestashop-fieldset {
+    background-color: #FFFFF0;
+    border: 1px solid #DFD5C3;
+    font-size: 1.1em;
+    margin: 0;
+    padding: 1em;
+    font-family: Arial,Verdana,Helvetica,sans-serif;
+}
+.prestashop-fieldset p {
+    color: #7F7F7F;
+    font-size: 14px;
+    margin: 0.5em 0 0;
+    padding: 0 0 0.5em;
+}
+</style>
+    </head>
+    <body>
+       <fieldset class="prestashop-fieldset">
+            <form id="showPreviewForm" name="showPreviewForm" action="<?php echo UrlHelper::getUrl('descriptionTemplates/preview', array('id' => $templateId)); ?>" method="post">
+                <p><?php echo L::t("To generate preview we required to know product for witch it should generate. Please specify product id or click on 'Random Product' to select random product from your store");?></p>
+                <label class="prestashop-label"><?php echo L::t('Product ID'); ?>:</label>
+                <input type="text" name="productId" value="<?php echo $productId; ?>" class="prestashop-input"/>
+                <button type="submit" name="button-preview" class="prestashop-button"><?php echo L::t('Preview'); ?></button>
+                <button type="submit" name="button-random" class="prestashop-button"><?php echo L::t('Random Product'); ?></button>
+                <br/>
+                <label class="prestashop-label"><?php echo L::t('Language'); ?>:</label>
+                <select id="languageId" name="languageId">
+                    <?php foreach ($languageList as $singleLanguage) { ?>
+                        <option value="<?php echo $singleLanguage['id_lang']; ?>"
+                                <?php echo ($languageId == $singleLanguage['id_lang'])?'selected="selected"':'';?>><?php echo $singleLanguage['name']; ?></option>
+                    <?php } ?>
+                </select>
+                <br/>
+                <label class="prestashop-label"><?php echo L::t('Profile'); ?>:</label>
+                <?php $profileModel = new ProfilesModel(); ?>
+                <?php  //var_dump($profileModel->getSelect()->getItems()); ?>
+                <?php echo HtmlHelper::dropDownList('profileId', $profileId, $profileModel->getSelect()->getItems(), array(
+                    'id' => 'profileId',
+                    'keyInData' => 'profile_name'
+                )); ?>
+            
+            </form>
+       </fieldset>
+
+        <hr/>
+        <div class="item_description">
+            <?php echo $generatedContent; ;?>
+        </div>
+    </body>
+</html>

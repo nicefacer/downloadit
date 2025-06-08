@@ -1,0 +1,204 @@
+<?php echo $grid; ?>
+
+<script>
+
+    downloadMarketplaceHandler = function (ajaxControllerInstance, selectedIds) {
+
+        var keyItems = [];
+        for (key in selectedIds) {
+            var itemId = selectedIds[key];
+
+            for (keyItem in ajaxControllerInstance.items) {
+                var item = ajaxControllerInstance.items[keyItem];
+                if (item[ajaxControllerInstance.primaryKeyName] == itemId) {
+                    item['status'] = '<i>Pending...</i>';
+                    keyItems.push(keyItem);
+                }
+            }
+        }
+
+        var marketplaceIndex = -1;
+        var itemIndex = 0;
+        var newCategoryVersion = 0;
+        var currentPercent = 10;
+        var percentStep = 90/keyItems.length;
+
+        ajaxControllerInstance.progressActive = true;
+        ajaxControllerInstance.progressPercent = currentPercent + '%';
+
+        startMarketplaceImport();
+
+        function startMarketplaceImport() {
+            marketplaceIndex++;
+            if (marketplaceIndex >= keyItems.length) {
+                // All done
+                ajaxControllerInstance.progressPercent = '100%';
+                ajaxControllerInstance.progressActive = false;
+
+                if (marketplaceIndex > 0) {
+                    ajaxControllerInstance.refresh();
+                }
+                return;
+            }
+            if (marketplaceIndex > 0) {
+                // manipulate progress bar
+                currentPercent += percentStep;
+                ajaxControllerInstance.progressPercent = currentPercent + '%';
+                ajaxControllerInstance.refresh();
+            }
+
+            itemIndex = keyItems[marketplaceIndex];
+            checkMarketplaceVersion();
+        }
+
+        function checkMarketplaceVersion() {
+            ajaxControllerInstance.items[itemIndex]['status'] = '<i>Check version...</i>';
+            if (marketplaceIndex > 0) {
+                ajaxControllerInstance.refresh();
+            }
+            $.ajax({
+                type: "POST",
+                url: routes['gridUrl'],
+                indexValue: itemIndex,
+                data: {
+                    'type': 'customAction',
+                    'actionName': 'getVersion',
+                    'marketplaceId': ajaxControllerInstance.items[itemIndex][ajaxControllerInstance.primaryKeyName]
+                },
+                success: function (data) {
+                    if (data.success) {
+                        if (data.next == false) {
+                            ajaxControllerInstance.items[this.indexValue]['status'] = 'Latest version';
+                            ajaxControllerInstance.refresh();
+                            startMarketplaceImport();
+                            return;
+                        } else {
+                            newCategoryVersion = data.version;
+                            downloadCategoryFromEbay();
+                        }
+                    } else {
+                        ajaxControllerInstance.items[this.indexValue]['status'] = 'Error:' + data['message'];
+                        ajaxControllerInstance.refresh();
+                    }
+
+                },
+                dataType: 'json'
+            });
+        }
+
+        function downloadCategoryFromEbay() {
+            ajaxControllerInstance.items[itemIndex]['status'] = '<i>Download categories...</i>';
+            ajaxControllerInstance.refresh();
+            $.ajax({
+                type: "POST",
+                url: routes['gridUrl'],
+                indexValue: itemIndex,
+                data: {
+                    'type': 'customAction',
+                    'actionName': 'getCategories',
+                    'marketplaceId': ajaxControllerInstance.items[itemIndex][ajaxControllerInstance.primaryKeyName]
+                },
+                success: function (data) {
+                    if (!data.success) {
+                        ajaxControllerInstance.items[this.indexValue]['status'] = 'Error:' + data['message'];
+                        ajaxControllerInstance.refresh();
+                        return;
+                    }
+                    if (data.next == false) {
+                        ajaxControllerInstance.items[this.indexValue]['status'] = 'Unknown error';
+                        ajaxControllerInstance.refresh();
+                        startMarketplaceImport();
+                        return;
+                    }
+
+                    importCategoryToDb();
+                },
+                dataType: 'json'
+            });
+        }
+
+        function importCategoryToDb() {
+            ajaxControllerInstance.items[itemIndex]['status'] = '<i>Import into DB...</i>';
+            ajaxControllerInstance.refresh();
+            $.ajax({
+                type: "POST",
+                url: routes['gridUrl'],
+                indexValue: itemIndex,
+                data: {
+                    'type': 'customAction',
+                    'actionName': 'importCategories',
+                    'marketplaceId': ajaxControllerInstance.items[itemIndex][ajaxControllerInstance.primaryKeyName],
+                    'version': newCategoryVersion
+                },
+                success: function (data) {
+                    if (!data.success) {
+                        ajaxControllerInstance.items[this.indexValue]['status'] = 'Error:' + data['message'];
+                        ajaxControllerInstance.refresh();
+                        return;
+                    }
+                    ajaxControllerInstance.items[this.indexValue]['status'] = ' Downloaded';
+                    ajaxControllerInstance.items[this.indexValue]['version'] = data.version;
+                    ajaxControllerInstance.items[this.indexValue]['date_upd'] = data.date_update;
+
+                    ajaxControllerInstance.refresh();
+
+                    // next page
+                    startMarketplaceImport();
+                },
+                dataType: 'json'
+            });
+        }
+
+    };
+
+
+    cleanMarketplaceHandler = function (ajaxControllerInstance, selectedIds) {
+        var keyItems = [];
+        for (key in selectedIds) {
+            var itemId = selectedIds[key];
+
+            for (keyItem in ajaxControllerInstance.items) {
+                var item = ajaxControllerInstance.items[keyItem];
+                if (item[ajaxControllerInstance.primaryKeyName] == itemId) {
+                    keyItems.push(keyItem);
+                }
+            }
+        }
+
+        for (i in keyItems) {
+            var keyItem = keyItems[i];
+            ajaxControllerInstance.items[keyItem]['status'] = '<i>Pending...</i>';
+        }
+
+        $.ajax({
+                type: "POST",
+                url: routes['gridUrl'],
+                indexValue: keyItem,
+                data: {
+                    'type': 'customAction',
+                    'actionName': 'clearMarketplace',
+                    'marketplacesIdList': selectedIds
+                },
+                success: function (data) {
+                    if (data.success) {
+                        for (i in keyItems) {
+                            var keyItem = keyItems[i];
+                            ajaxControllerInstance.items[keyItem]['status'] = 'Not Downloaded';
+                            ajaxControllerInstance.items[keyItem]['version'] = '0';
+                            ajaxControllerInstance.items[keyItem]['date_upd'] = '';
+                        }
+                    } else {
+                        ajaxControllerInstance.hasError = true;
+                        ajaxControllerInstance.errorMessage = data['message'];
+                    }
+                    ajaxControllerInstance.refresh();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    ajaxControllerInstance.hasError = true;
+                    ajaxControllerInstance.errorMessage = 'Problem with get JSON data.\n' + jqXHR.responseText;
+                    ajaxControllerInstance.refresh();
+                },
+                dataType: 'json'
+            });
+    };
+</script>

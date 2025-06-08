@@ -1,0 +1,54 @@
+.magna .nobootstrap {
+	min-width: auto;
+}
+
+body.page-sidebar #nav-sidebar ul.menu  li.maintab-AdminMainMagnalister > a.title {
+    background-image: url("../img/AdminMainMagnalister_v160.png");
+    background-repeat: no-repeat;
+    background-position: 7px center;
+    background-size: 17px 15px;
+}
+
+body.page-sidebar #nav-sidebar ul.menu  li.maintab-AdminMainMagnalister > a.title i {
+	background-image: url("../img/AdminMainMagnalister_v160h.png");
+	background-position: 3px center;
+	background-repeat: no-repeat;
+	background-size: 17px 15px;
+	display: inline-block;
+	float: left;
+	height: 28px;
+	opacity: 0;
+	-webkit-transition: opacity 0.4s ease-out;
+	transition: opacity 0.4s ease-out;
+	width: 22px;
+}
+
+body.page-sidebar #nav-sidebar ul.menu  li.maintab-AdminMainMagnalister:hover > a.title i,
+body.page-sidebar #nav-sidebar ul.menu  li.maintab-AdminMainMagnalister.active > a.title i {
+   opacity: 1;
+}
+
+body.page-sidebar-closed #nav-sidebar ul.menu li.maintab-AdminMainMagnalister > a.title {
+    background-position: 12px center;
+    background-size: 28px 24px;
+}
+
+body.page-sidebar-closed #nav-sidebar ul.menu li.maintab-AdminMainMagnalister > a.title i {
+    background-position: 8px 5px;
+    background-size: 28px 24px;
+    margin-right: 11px;
+    width: 35px;
+}
+
+@media (min-height:851px) {
+	body.page-sidebar #nav-sidebar ul.menu  li.maintab-AdminMainMagnalister > a.title {
+		background-position: 12px center;
+		background-size: 28px 24px;
+	}
+	body.page-sidebar #nav-sidebar ul.menu li.maintab-AdminMainMagnalister > a.title i {
+		background-position: 8px 5px;
+		background-size: 28px 24px;
+		margin-right: 11px;
+		width: 35px;
+	}
+}

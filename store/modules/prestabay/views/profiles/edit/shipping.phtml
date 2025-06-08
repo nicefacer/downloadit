@@ -1,0 +1,615 @@
+<?php
+/**
+ * File shipping.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<?php
+    $localShippingList = $model->getLocalShipping();
+    $localShippingIndex = is_array($localShippingList)?count($localShippingList):0;
+    $intShippingList = $model->getInternationalShipping();
+    $intShippingIndex = is_array($intShippingList)?count($intShippingList):0;
+
+    $shippingTemplates = Shipping_TemplateModel::getTemplatesList();
+    $shippingTemplatesFormated = array(
+            array(
+                'id' => 0,
+                'label' => L::t('Custom'),
+            ),
+    );
+    foreach ($shippingTemplates as $singleTemplate) {
+        $shippingTemplatesFormated[] = array(
+            'id' => $singleTemplate['id'],
+            'label' => $singleTemplate['name'],
+            'group' => L::t('Template')
+        );
+    }
+
+     $allowedCalculatedShipping = in_array($model->ebay_site, array(1, 2, 100, 210, 15));
+     $showCalculatedBlock = false;
+     if ($allowedCalculatedShipping) {
+          $showCalculatedBlock = ($model->shipping_local_type == ProfilesModel::SHIPPING_TYPE_CALCULATED || $model->shipping_int_type == ProfilesModel::SHIPPING_TYPE_CALCULATED);
+     }
+     $allowedInsurace = in_array($model->ebay_site, array(15, 71, 101));
+?>
+<script>
+    var localShippingList = <?php echo isset($hdbk['local_shippings'])?json_encode($hdbk['local_shippings']):"[]"; ?>;
+    var localShippingIndex = <?php echo $localShippingIndex; ?>;
+    var intShippingList = <?php echo isset($hdbk['international_shippings'])?json_encode($hdbk['international_shippings']):"[]"; ?>;
+    var intShippingIndex = <?php echo $intShippingIndex; ?>;
+    var intLocationList = <?php echo isset($hdbk['location_shipping'])?json_encode($hdbk['location_shipping']):"[]"; ?>;
+    var shippingModeElementHtml = "<?php echo HtmlHelper::dropDownListWithGroup(
+                                                '',
+                                                '',
+                                                $shippingTemplatesFormated,
+                                                array('onlyElements' => true)
+                                          );
+                                    ?>";
+</script>
+
+<?php echo HtmlHelper::tabBlockStart("Shipping"); ?>
+
+<table cellpadding="5" width="100%">
+    <tr>
+        <td colspan="2">
+            <b><?php echo L::t("Item Shipped From");?></b>
+            <hr class="clear"/>
+            <br />
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="shipping_country"><?php echo L::t("Country");?> <em>*</em></label></td>
+        <td>
+            <select name="shipping_country" id="shipping_country">
+                <option value=""></option>
+                <?php foreach (ProfilesModel::$COUNTRY_LIST as $scKey => $scValue) { ?>
+                    <option value="<?php echo $scKey; ?>" <?php echo ($scKey == $model->shipping_country)?"selected='selected'":""?>><?php echo $scValue; ?></option>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="shipping_location"><?php echo L::t("Location");?> <em>*</em></label></td>
+        <td>
+            <input id="shipping_location" type="text" name="shipping_location" value="<?php echo $model->shipping_location; ?>"/>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="shipping_dispatch"><?php echo L::t("Dispatch time");?> <em>*</em></label></td>
+        <td>
+            <div class="hide-notice" <?php echo isset($hdbk['dispatch'])?"style='display:none'":"";?>><?php echo L::t("Please select <b>Marketplace</b> to access this field");?></div>
+            <select name="shipping_dispatch" id="shipping_dispatch" <?php echo (!isset($hdbk['dispatch']))?"class='hidden-option'":'';?>>
+                <?php if (isset($hdbk['dispatch'])) { ?>
+                    <?php foreach ($hdbk['dispatch'] as $dispatchValue) {  ?>
+                        <option value="<?php echo $dispatchValue['id'];?>" <?php echo ($model->shipping_dispatch == $dispatchValue['id'])?"selected='selected'":"";?>><?php echo $dispatchValue['label'];?></option>
+                    <?php } ?>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="get_it_fast"><?php echo L::t("Get it Fast");?> <em>*</em></label></td>
+        <td>
+            <select name="get_it_fast" id="get_it_fast">
+                <option value="<?php echo ProfilesModel::GET_IT_FAST_NO; ?>" <?php echo (ProfilesModel::GET_IT_FAST_NO == $model->get_it_fast)?'selected="selected"':""; ?>><?php echo L::t("No");?></option>
+                <option value="<?php echo ProfilesModel::GET_IT_FAST_YES; ?>" <?php echo (ProfilesModel::GET_IT_FAST_YES == $model->get_it_fast)?'selected="selected"':""; ?>><?php echo L::t("Yes");?></option>
+            </select>
+            <p><?php echo L::t("To offer 'Get It Fast' service you need to set first priority domestic shipping service is an expedited shipping service.");?></p>
+        </td>
+    </tr>
+    <tr id="global-shipping-row" <?php echo ($model->ebay_site != 1 && $model->ebay_site != 3)?'style="display:none;"':''; ?>>>
+        <td class="col-left"><label class="control-label" for="global_shipping"><?php echo L::t("Global Shipping");?> <em>*</em></label></td>
+        <td>
+            <select name="global_shipping" id="global_shipping">
+                <option value="<?php echo ProfilesModel::GLOBAL_SHIPPING_NO; ?>" <?php echo (ProfilesModel::GLOBAL_SHIPPING_NO == $model->global_shipping)?'selected="selected"':""; ?>><?php echo L::t("No");?></option>
+                <option value="<?php echo ProfilesModel::GLOBAL_SHIPPING_YES; ?>" <?php echo (ProfilesModel::GLOBAL_SHIPPING_YES == $model->global_shipping)?'selected="selected"':""; ?>><?php echo L::t("Yes");?></option>
+            </select>
+            <p><?php echo L::t("Indicates whether eBay's Global Shipping Program is offered for the listing.");?> <a href="http://pages.ebay.com/sellerinformation/ship-smart/advanced-shipping/Global-Shipping-Program/GSPUAFAQs.html" target="_blank"><?php echo L::t("More Inforamtion"); ?></a></p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <br />
+            <b><?php echo L::t("Domestic Shipping Settings");?></b>
+            <hr class="clear"/>
+            <br />
+        </td>
+    </tr>
+
+    <?php // @todo Potencial need to one-page validatation for shipping ?>
+    <tr id="local_shipping_mode_row" <?php echo $allowedCalculatedShipping?'':'style="display:none;"'; ?>>
+        <td class="col-left">
+            <label class="control-label" for="shipping_local_type"><?php echo L::t("Shipping Mode");?></label>
+        </td>
+        <td>
+            <?php echo HtmlHelper::dropDownList('shipping_local_type', $model->shipping_local_type, array(
+                ProfilesModel::SHIPPING_TYPE_FLAT => L::t('Flat'),
+                ProfilesModel::SHIPPING_TYPE_CALCULATED => L::t('Calculated'),
+            ), array('id' => 'shipping_local_type')); ?>
+            <p><?php echo L::t("For 'Calculated' shipping mode values in fields 'Item cost' and 'Additional Item cost' ignored"); ?></p>
+        </td>
+    </tr>
+    <tr class="insurance_row" style="<?php echo $allowedInsurace?'':'display:none;';?>">
+        <td class="col-left"><label class="control-label" for="insurance_option"><?php echo L::t("Insurance Option");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList('insurance_option', $model->insurance_option, array(
+                ProfilesModel::INSURANCE_OPTION_NOT_OFFERED => L::t('Not Offered'),
+                ProfilesModel::INSURANCE_OPTION_INCLUDED_IN_SHIPPING_HANDLING => L::t('Included In Shipping Handling'),
+                ProfilesModel::INSURANCE_OPTION_OPTIONAL => L::t('Optional'),
+                ProfilesModel::INSURANCE_OPTION_REQUIRED => L::t('Required'),
+            ), array(
+                'id' => 'insurance_option'
+            )); ?>
+        </td>
+    </tr>
+    <tr class="insurance_row" style="<?php echo $allowedInsurace?'':'display:none;';?>">
+        <td class="col-left"><label class="control-label" for="insurance_fee"><?php echo L::t("Insurance Fee"); ?></label></td>
+        <td>
+            <input id="insurance_fee"
+                type="text"
+                name="insurance_fee"
+                value="<?php echo $model->insurance_fee ?>"
+                />
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="promotional_shipping_discount"><?php echo L::t("Promotional Shipping Discount");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList('promotional_shipping_discount', $model->promotional_shipping_discount, array(
+                ProfilesModel::PROMOTIONAL_SHIPPING_DISCOUNT_NO => L::t('No'),
+                ProfilesModel::PROMOTIONAL_SHIPPING_DISCOUNT_YES => L::t('Yes'),
+            ), array(
+                'id' => 'promotional_shipping_discount'
+            )); ?>
+            <p><?php echo L::t("Offer the promotional shipping discount for the domestic shipping services of this listing (only applicable if the seller has a promotional shipping discount in effect at the moment)."); ?></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="shipping_discount_profile_id"><?php echo L::t("Shipping Discount Profile");?></label></td>
+        <td>
+            <div class="shipping_discount_message" <?php echo isset($hdbk['shipping_discount_profiles'])?'style="display:none"':''; ?>>
+                <?php echo L::t("Please select <b>eBay Account</b> to access this section");?>
+            </div>
+            
+            <div class="shipping_discount_container" <?php echo !isset($hdbk['shipping_discount_profiles'])?'style="display:none"':''; ?>>
+                <?php echo HtmlHelper::dropDownList('shipping_discount_profile_id', $model->shipping_discount_profile_id,
+                        isset($hdbk['shipping_discount_profiles'])?$hdbk['shipping_discount_profiles']:array(), array(
+                    'id' => 'shipping_discount_profile_id',
+                    'addSelect' => true
+                )); ?>
+                <p><?php echo L::t("The Profile of the shipping discount to offer for the domestic shipping services."); ?></p>
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="2">
+            <div class="hide-notice" <?php echo isset($hdbk['local_shippings'])?"style='display:none'":"";?>><?php echo L::t("Please select <b>Marketplace</b> to access this section");?></div>
+            <table id="shipping_local_list" cellspacing="0" cellpadding="0" style="width: 72em;" class="table <?php echo (!isset($hdbk['local_shippings']))?"hidden-option":'';?>">
+                <thead>
+                    <tr>
+                        <th><?php echo L::t('Method Name');?></th>
+                        <th width="100px"><?php echo L::t('Mode');?></th>
+                        <th width="150px"><?php echo L::t('Item cost');?></th>
+                        <th width="150px"><?php echo L::t('Additional Item cost');?></th>
+                        <th width="100px"><?php echo L::t('Priority');?></th>
+                        <th width="30px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (isset($hdbk['local_shippings']) && $localShippingList) { ?>
+                        <?php $localShippingIndex = 0; ?>
+                        <?php foreach ($localShippingList as $localShippingInfo) { ?>
+                            <tr>
+                                <td>
+                                    <?php echo HtmlHelper::dropDownList('shippingList['.$localShippingIndex.'][name]', $localShippingInfo['name'], $hdbk['local_shippings'], array('addSelect' => true)); ?>
+                                </td>
+                                <td>
+                                    <!-- Mode -->
+                                    <?php $isReadonly = isset($localShippingInfo['mode']) && $localShippingInfo['mode'] != ProfilesModel::SHIPPING_MODE_CUSTOM_PRICE; ?>
+                                    <?php echo HtmlHelper::dropDownListWithGroup(
+                                                'shippingList['.$localShippingIndex.'][mode]',
+                                                isset($localShippingInfo['mode'])?$localShippingInfo['mode']:ProfilesModel::SHIPPING_MODE_CUSTOM_PRICE,
+                                                $shippingTemplatesFormated,
+                                                array(
+                                                    'class' => 'shipping-mode-local small-width',
+                                                )
+                                          );
+                                    ?>
+                                </td>
+                                <td>
+                                    <input type="text" 
+                                           name="shippingList[<?php echo $localShippingIndex;?>][plain]"
+                                           value="<?php echo $localShippingInfo['plain']; ?>"
+                                           class="small-width"
+                                           <?php echo $isReadonly?'readonly="readonly"':''; ?>/>
+                                </td>
+                                <td>
+                                    <input type="text"
+                                           name="shippingList[<?php echo $localShippingIndex;?>][additional]"
+                                           value="<?php echo $localShippingInfo['additional']; ?>"
+                                           class="small-width"
+                                           <?php echo $isReadonly?'readonly="readonly"':''; ?>/>
+                                </td>
+                                <td>
+                                    <input type="text" name="shippingList[<?php echo $localShippingIndex;?>][priority]" value="<?php echo $localShippingInfo['priority']; ?>" class="small-width local-priority"/>
+                                </td>
+                                <td>
+                                    <img src="../img/admin/disabled.gif" class="remove-local-shipping-row" />
+                                </td>
+                            </tr>
+                        <?php $localShippingIndex++; ?>
+                        <?php } ?>
+                    <?php } ?>
+
+                </tbody>
+            </table>
+            <div class="new-shipping-container<?php echo (!isset($hdbk['local_shippings']))?" hidden-option":'';?>">
+                <a id="new-local-shipping" href=""><img border="0" src="../img/admin/add.gif">&nbsp;&nbsp;New Domestic Shipping Service</a>
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="2">
+            <br />
+            <b><?php echo L::t("International Shipping Settings");?></b>
+            <hr class="clear"/>
+            <br />
+        </td>
+    </tr>
+    <tr id="int_shipping_mode_row" <?php echo $allowedCalculatedShipping?'':'style="display:none;"'; ?>>
+        <td class="col-left">
+            <label class="control-label" for="shipping_int_type"><?php echo L::t("Shipping Mode");?></label>
+        </td>
+        <td>
+            <?php echo HtmlHelper::dropDownList('shipping_int_type', $model->shipping_int_type, array(
+                ProfilesModel::SHIPPING_TYPE_FLAT => L::t('Flat'),
+                ProfilesModel::SHIPPING_TYPE_CALCULATED => L::t('Calculated'),
+            ), array('id' => 'shipping_int_type')); ?>
+            <p><?php echo L::t("For 'Calculated' shipping mode values in fields 'Item cost' and 'Additional Item cost' ignored"); ?></p>
+        </td>
+    </tr>
+    <tr class="insurance_international_row" style="<?php echo $allowedInsurace?'':'display:none;';?>">
+        <td class="col-left"><label class="control-label" for="insurance_option"><?php echo L::t("Insurance Option");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList('insurance_international_option', $model->insurance_international_option, array(
+                ProfilesModel::INSURANCE_OPTION_NOT_OFFERED => 'Not Offered',
+                ProfilesModel::INSURANCE_OPTION_INCLUDED_IN_SHIPPING_HANDLING => 'Included In Shipping Handling',
+                ProfilesModel::INSURANCE_OPTION_OPTIONAL => 'Optional',
+                ProfilesModel::INSURANCE_OPTION_REQUIRED => 'Required',
+            ), array(
+                'id' => 'insurance_option'
+            )); ?>
+        </td>
+    </tr>
+    <tr class="insurance_international_row" style="<?php echo $allowedInsurace?'':'display:none;';?>">
+        <td class="col-left"><label class="control-label" for="insurance_international_fee"><?php echo L::t("Insurance Fee"); ?></label></td>
+        <td>
+            <input id="insurance_international_fee"
+                type="text"
+                name="insurance_international_fee"
+                value="<?php echo $model->insurance_international_fee ?>"
+                />
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="promotional_int_shipping_discount"><?php echo L::t("International Promotional Shipping Discount");?></label></td>
+        <td>
+            <?php echo HtmlHelper::dropDownList('promotional_int_shipping_discount', $model->promotional_int_shipping_discount, array(
+                ProfilesModel::PROMOTIONAL_SHIPPING_DISCOUNT_NO => L::t('No'),
+                ProfilesModel::PROMOTIONAL_SHIPPING_DISCOUNT_YES => L::t('Yes'),
+            ), array(
+                'id' => 'promotional_int_shipping_discount'
+            )); ?>
+            <p><?php echo L::t("Offer the promotional shipping discount for the international shipping services of this listing (only applicable if the seller has a promotional shipping discount in effect at the moment)."); ?></p>
+        </td>
+    </tr>
+
+    <tr>
+        <td class="col-left"><label class="control-label" for="int_shipping_discount_profile_id"><?php echo L::t("International Shipping Discount Profile");?></label></td>
+        <td>
+            <div class="shipping_discount_message" <?php echo isset($hdbk['shipping_discount_profiles'])?'style="display:none"':''; ?>>
+                <?php echo L::t("Please select <b>eBay Account</b> to access this section");?>
+            </div>
+
+            <div class="shipping_discount_container" <?php echo !isset($hdbk['shipping_discount_profiles'])?'style="display:none"':''; ?>>
+                <?php echo HtmlHelper::dropDownList('int_shipping_discount_profile_id', $model->int_shipping_discount_profile_id,
+                        isset($hdbk['shipping_discount_profiles'])?$hdbk['shipping_discount_profiles']:array(), array(
+                    'id' => 'int_shipping_discount_profile_id',
+                    'addSelect' => true
+                )); ?>
+                <p><?php echo L::t("The Profile of the shipping discount to offer for the international shipping services."); ?></p>
+            </div>
+        </td>
+    </tr>
+    
+    <tr id="shipping_international_list_row">
+        <td colspan="2">
+            <div class="hide-notice" <?php echo isset($hdbk['international_shippings'])?"style='display:none'":"";?>><?php echo L::t("Please select <b>Marketplace</b> to access this section");?></div>
+            <table id="shipping_international_list" cellspacing="0" cellpadding="0" style="width: 72em;" class="table <?php echo (!isset($hdbk['international_shippings']))?"hidden-option":'';?>">
+                <thead>
+                    <tr>
+                        <th><?php echo L::t('Method Name'); ?></th>
+                        <th width="100px"><?php echo L::t('Mode'); ?></th>
+                        <th width="150px"><?php echo L::t('Item cost'); ?></th>
+                        <th width="150px"><?php echo L::t('Additional Item cost'); ?></th>
+                        <th width="100px"><?php echo L::t('Priority'); ?></th>
+                        <th width="30px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (isset($hdbk['international_shippings']) && isset($hdbk['location_shipping']) && $intShippingList) { ?>
+                        <?php $intShippingIndex = 0; ?>
+                        <?php foreach ($intShippingList as $intShippingInfo) { ?>
+                            <tr class="int-shipping-row">
+                                <td>
+                                    <?php echo HtmlHelper::dropDownList('shippingIntList['.$intShippingIndex.'][name]', $intShippingInfo['name'], $hdbk['international_shippings'], array('addSelect' => true)); ?>
+                                </td>
+                                <td>
+                                    <?php $isReadonly = isset($intShippingInfo['mode']) && $intShippingInfo['mode'] != ProfilesModel::SHIPPING_MODE_CUSTOM_PRICE; ?>
+                                    <?php echo HtmlHelper::dropDownListWithGroup(
+                                                'shippingIntList['.$intShippingIndex.'][mode]',
+                                                isset($intShippingInfo['mode'])?$intShippingInfo['mode']:ProfilesModel::SHIPPING_MODE_CUSTOM_PRICE,
+                                                $shippingTemplatesFormated,
+                                                array(
+                                                    'class' => 'shipping-mode-int small-width',
+                                                )
+                                          );
+                                    ?>
+                                </td>
+                                <td>
+                                    <input type="text"
+                                           name="shippingIntList[<?php echo $intShippingIndex;?>][plain]"
+                                           value="<?php echo $intShippingInfo['plain']; ?>"
+                                           class="small-width"
+                                           <?php echo $isReadonly?'readonly="readonly"':''; ?>/>
+                                </td>
+                                <td>
+                                    <input type="text"
+                                           name="shippingIntList[<?php echo $intShippingIndex;?>][additional]"
+                                           value="<?php echo $intShippingInfo['additional']; ?>"
+                                           class="small-width"
+                                           <?php echo $isReadonly?'readonly="readonly"':''; ?>/>
+                                </td>
+                                <td>
+                                    <input type="text" name="shippingIntList[<?php echo $intShippingIndex;?>][priority]" value="<?php echo $intShippingInfo['priority']; ?>" class="small-width international-priority"/>
+                                </td>
+                                <td>
+                                    <img src="../img/admin/disabled.gif" class="remove-int-shipping-row" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="location-row" colspan="6">
+                                    <strong><?php echo L::t('Ship to Location');?>:</strong><br/>
+                                    <ul class="ship-to-location-list">
+                                        <?php $selectedLocations = isset($intShippingInfo['locations'])?$intShippingInfo['locations']:array(); ?>
+                                        <?php foreach ($hdbk['location_shipping'] as $singleLocation) { ?>
+                                            <li>
+                                                <input type="checkbox"
+                                                       name="shippingIntList[<?php echo $intShippingIndex;?>][locations][]"
+                                                       id="internation_ship_to_location_<?php echo $intShippingIndex."_".$singleLocation['id']; ?>"
+                                                       value="<?php echo $singleLocation['id']; ?>"
+                                                       <?php echo in_array($singleLocation['id'], $selectedLocations)?"checked='checked'":""; ?> />
+                                                <label class="control-label" for="internation_ship_to_location_<?php echo $intShippingIndex."_".$singleLocation['id']; ?>">
+                                                    <?php echo $singleLocation['label']; ?>
+                                                </label>
+                                            </li>
+                                        <?php } ?>
+                                    </ul>
+                                </td>
+                            </tr>
+                        <?php $intShippingIndex++; ?>
+                        <?php } ?>
+                    <?php } ?>
+                </tbody>
+            </table>
+            <div class="new-shipping-container<?php echo (!isset($hdbk['international_shippings']))?" hidden-option":'';?>">
+                <a id="new-int-shipping" href=""><img border="0" src="../img/admin/add.gif"/>&nbsp;&nbsp;<?php echo L::t('New International Shipping Service');?></a>
+            </div>
+        </td>
+    </tr>
+
+    <tr id="calculated_shipping_row" <?php echo ($showCalculatedBlock)?'':'style="display:none;"'; ?>>
+        <td colspan="2">
+            <b><?php echo L::t("Calculated Shipping Settings"); ?></b>
+            <hr class="clear">
+            <br/>
+            <table>
+                <tr>
+                    <td class="col-left"><label class="control-label" for="shipping_calculated_local_handling_cost"><?php echo L::t("Domestic Handling Cost");?></label></td>
+                    <td>
+                        <input id="shipping_calculated_local_handling_cost"
+                               value="<?php echo $model->shipping_calculated_local_handling_cost; ?>"
+                               name="shipping_calculated_local_handling_cost"
+                               type="text"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-left"><label class="control-label" for="shipping_calculated_int_handling_cost"><?php echo L::t("International Handling Cost");?></label></td>
+                    <td>
+                        <input id="shipping_calculated_int_handling_cost"
+                               value="<?php echo $model->shipping_calculated_int_handling_cost; ?>"
+                               name="shipping_calculated_int_handling_cost"
+                               type="text"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-left"><label class="control-label" for="shipping_calculated_measurement"><?php echo L::t("Measurement System");?></label></td>
+                    <td>
+                        <!-- English: US, Metric: CA, CAFR, AU-->
+                        <select id="shipping_calculated_measurement" name="shipping_calculated_measurement">
+                            <option value="<?php echo ProfilesModel::SHIPPING_CALCULATED_MEASUREMENT_ENGLISH; ?>"
+                                    <?php echo ($model->shipping_calculated_measurement == ProfilesModel::SHIPPING_CALCULATED_MEASUREMENT_ENGLISH)?'selected="selected"':''; ?>
+                                    <?php echo ($model->ebay_site != 1 && $model->ebay_site != 100)?'style="display:none;"':''; ?>>
+                                    <?php echo L::t("English"); ?>
+                            </option>
+                            <option value="<?php echo ProfilesModel::SHIPPING_CALCULATED_MEASUREMENT_METRIC; ?>"
+                                    <?php echo ($model->shipping_calculated_measurement == ProfilesModel::SHIPPING_CALCULATED_MEASUREMENT_METRIC)?'selected="selected"':''; ?>
+                                    <?php echo ($model->ebay_site == 1 || $model->ebay_site == 100)?'style="display:none;"':''; ?>>
+                                    <?php echo L::t("Metric"); ?>
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-left"><label class="control-label" for="shipping_calculated_package"><?php echo L::t("Package Size");?></label></td>
+                    <td>
+                        <?php echo HtmlHelper::dropDownList('shipping_calculated_package', $model->shipping_calculated_package, isset($hdbk['shipping_packages'])?$hdbk['shipping_packages']:array(), array(
+                                                'id' => 'shipping_calculated_package' ,
+                                                'addSelect' => true
+                                            ));
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-left"><label class="control-label"><?php echo L::t("Dimension");?></label></td>
+                    <td>
+                        <br/>
+                        <table class="subtable">
+                            <tbody>
+                                <tr>
+                                    <td class="col-left"><label class="control-label" for="shipping_calculated_depth"><?php echo L::t("Depth");?></label></td>
+                                    <td>
+                                        <?php
+                                            echo HtmlHelper::dropDownList('shipping_calculated_depth', $model->shipping_calculated_depth, array(
+                                                    ProfilesModel::SHIPPING_CALCULATED_DEPTH_MODE_PRODUCT => L::t("Product Depth"),
+                                                    ProfilesModel::SHIPPING_CALCULATED_DEPTH_MODE_CUSTOM => L::t("Custom Value"),
+                                            ), array(
+                                                'id' => 'shipping_calculated_depth' ,
+                                                'class' => 'small-width'
+                                            ));
+                                        ?>
+                                        <input type="text"
+                                               name="shipping_calculated_depth_custom"
+                                               class="small-width <?php echo $model->shipping_calculated_depth == ProfilesModel::SHIPPING_CALCULATED_DEPTH_MODE_PRODUCT?'hidden-option':''; ?>"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-left"><label class="control-label" for="shipping_calculated_length"><?php echo L::t("Height");?></label></td>
+                                    <td>
+                                        <?php
+                                            echo HtmlHelper::dropDownList('shipping_calculated_length', $model->shipping_calculated_length, array(
+                                                    ProfilesModel::SHIPPING_CALCULATED_LENGTH_MODE_PRODUCT => L::t("Product Height"),
+                                                    ProfilesModel::SHIPPING_CALCULATED_LENGTH_MODE_CUSTOM => L::t("Custom Value"),
+                                            ), array(
+                                                'id' => 'shipping_calculated_length' ,
+                                                'class' => 'small-width'
+                                            ));
+                                        ?>
+                                        <input type="text"
+                                               name="shipping_calculated_length_custom"
+                                               class="small-width <?php echo $model->shipping_calculated_length == ProfilesModel::SHIPPING_CALCULATED_LENGTH_MODE_PRODUCT?'hidden-option':''; ?>"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-left"><label class="control-label" for="shipping_calculated_width"><?php echo L::t("Width");?></label></td>
+                                    <td>
+                                        <?php
+                                            echo HtmlHelper::dropDownList('shipping_calculated_width', $model->shipping_calculated_width, array(
+                                                    ProfilesModel::SHIPPING_CALCULATED_WIDTH_MODE_PRODUCT => L::t("Product Width"),
+                                                    ProfilesModel::SHIPPING_CALCULATED_WIDTH_MODE_CUSTOM => L::t("Custom Value"),
+                                            ), array(
+                                                'id' => 'shipping_calculated_width' ,
+                                                'class' => 'small-width'
+                                            ));
+                                        ?>
+                                        <input type="text"
+                                               name="shipping_calculated_width_custom"
+                                               class="small-width <?php echo $model->shipping_calculated_width == ProfilesModel::SHIPPING_CALCULATED_WIDTH_MODE_PRODUCT?'hidden-option':''; ?>"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-left"><label class="control-label" for="shipping_calculated_weight"><?php echo L::t("Weight");?></label></td>
+                    <td>
+                                        <?php
+                                            echo HtmlHelper::dropDownList('shipping_calculated_weight', $model->shipping_calculated_weight, array(
+                                                    ProfilesModel::SHIPPING_CALCULATED_WEIGHT_MODE_PRODUCT => L::t("Product Weight"),
+                                                    ProfilesModel::SHIPPING_CALCULATED_WEIGHT_MODE_CUSTOM => L::t("Custom Value"),
+                                            ), array(
+                                                'id' => 'shipping_calculated_weight' ,
+                                                'class' => ''
+                                            ));
+                                        ?>
+                                        <input type="text"
+                                               name="shipping_calculated_weight_custom"
+                                               class="small-width <?php echo $model->shipping_calculated_weight == ProfilesModel::SHIPPING_CALCULATED_WEIGHT_MODE_PRODUCT?'hidden-option':''; ?>"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-left"><label class="control-label" for="shipping_calculated_postal"><?php echo L::t("Originating Postal Code");?></label></td>
+                    <td>
+                        <input id="shipping_calculated_postal"
+                               value="<?php echo $model->shipping_calculated_postal; ?>"
+                               name="shipping_calculated_postal"
+                               type="text"/>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+
+    <tr id="shipping-allowed-location-row" class="checkbox-row <?php echo (!isset($hdbk['location_shipping']))?"hidden-option":'';?>">
+        <td colspan="2">
+            <br />
+            <b><?php echo L::t("International Shipped Locations");?></b>
+            <p><?php echo L::t("Location where you can send item. If for some location not selected International Shipping method user will see message 'Contact Seller for Cost'"); ?></p>
+            <table id="shipping-allowed-location-box" class="<?php echo CoreHelper::isPS16()?'':'table';?> short-table">
+                <?php echo HtmlHelper::checkBoxList('shipping_allowed_location', $model->getShippingAllowedLocation(), isset($hdbk['location_shipping'])?$hdbk['location_shipping']:array(), array(
+                    'value' => 'id',
+                    'label'=>'label'));
+                ?>
+            </table>
+        </td>
+    </tr>
+    
+    <tr id="exclude-location-row" class="<?php echo (!isset($hdbk['exclude_location']))?"hidden-option":'';?>">
+        <td colspan="2">
+            <br />
+            <b><?php echo L::t("Exclude Shipping Location");?></b>
+            <p><?php echo L::t('Important! If you select any value from this section, it nullifies the default settings in your "Exclude Ship-To List" from "My eBay"');?></p>
+            <hr class="clear"/>
+            <ul id="exclude-location-selected-list">
+                <?php 
+                    $excludeList = $model->getShippingExcludeLocation();
+                    if ($excludeList != false) {
+                        foreach ($excludeList as $singleExclude) { ?>
+                            <li>
+                                <input type='hidden' name='shippingExcludeLocations[]' value='<?php echo $singleExclude; ?>'/>
+                                <?php echo isset($hdbk['exclude_location_values'][$singleExclude])?$hdbk['exclude_location_values'][$singleExclude]:''; ?>
+                                &nbsp;<img class='remove-exclude-location' src='../img/admin/disabled.gif'/>
+                            </li>
+                <?php   }
+                    }
+                ?>
+
+            </ul>
+            <span id="exclude-location-select-container">
+                <?php echo isset($hdbk['exclude_location'])?$hdbk['exclude_location']:''; ?>
+            </span>
+            <a id="new-exclude-location" href=""><img border="0" src="../img/admin/add.gif"/>&nbsp;&nbsp;<?php echo L::t('Add Exclude Location');?></a>
+        </td>
+    </tr>
+</table>
+<?php echo HtmlHelper::tabBlockEnd(); ?>

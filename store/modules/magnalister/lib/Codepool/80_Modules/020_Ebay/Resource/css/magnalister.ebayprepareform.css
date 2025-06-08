@@ -1,0 +1,12 @@
+#ebay_prepare_form table.ebayPrice{border-style:none ;table-layout: auto;}
+#ebay_prepare_form table.ebayPrice td, table.ebayPrice th{border:none;white-space: nowrap}
+#ebay_prepare_form table.ebayPrice th{color:gray;}
+#ebay_prepare_form table.ebayPrice tr.buynow div.optional>div{display:inline;float:right}
+#ebay_prepare_form table.ebayPrice tr.buynow div.optional>span{display:inline;float:left;width:150px;margin-right:1em}
+
+#ebay_prepare_form #noteVariationsEnabled>div{margin:0;}
+#ebay_prepare_form .ebay-shipping{display:table;width:100%;}
+#ebay_prepare_form .ebay-shipping>*{display:table-row;}
+#ebay_prepare_form .ebay-shipping>*>*{display:table-cell;}
+#ebay_prepare_form .ebay-shipping>*>*.text{padding-left:2em;padding-right:1em;text-align: right}
+#ebay_prepare_form .shipping .profile{padding:.5em;}

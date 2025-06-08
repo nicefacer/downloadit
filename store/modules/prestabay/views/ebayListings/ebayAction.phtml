@@ -1,0 +1,136 @@
+<?php
+/**
+ * File action.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php RenderHelper::addScript("progress.js"); ?>
+
+<h2><?php echo L::t("eBay Listings Action"); ?></h2>
+<?php if (CoreHelper::isPS16()) { ?>
+    <?php $warningMessage = L::t("<u>Important!</u> Don't close window until process not finished."); ?>
+    <div class="alert alert-warning">
+        <h4><?php echo $warningMessage; ?></h4>
+    </div>
+<?php } else { ?>
+    <h3 class="notify"><?php echo $warningMessage; ?></h3>
+<?php } ?>
+<br/>
+
+<script type="text/javascript">
+
+    var ebayListingsIds = <?php echo json_encode($ebayListingsIds); ?>;
+
+    var productIndex = 0;
+
+    jQuery(document).ready(function() {
+        initProductAction();
+    });
+
+    function initProductAction() {
+        if (productIndex >= ebayListingsIds.length) {
+            appendMessage('finish-process', "<?php echo L::t("Action with eBay Completed");?>", "success");
+            appendReturnButton("<?php echo L::t("Return to eBay Listings");?>", "<?php echo UrlHelper::getUrl("ebayListings/index")?>");
+            return;
+        }
+       productAction();
+    }
+
+    function productAction() {
+        appendMessage('product-action-' + productIndex, "Product #" + ebayListingsIds[productIndex]['id'] + " (" + ebayListingsIds[productIndex]['product_name'] + ")" + " <?php echo L::t("action");?> <?php echo ucfirst($action); ?>. ");
+
+        jQuery.ajax({
+            url: '<?php echo UrlHelper::getUrl("ebayListings/".$action."Ajax")?>',
+            type: "post",
+            dataType: 'json',
+            data: {
+                   ebayListingsId: ebayListingsIds[productIndex]['id']
+            },
+            success: function(data) {
+                   var messageToAppend =  "<?php echo L::t("Product");?> #" + ebayListingsIds[productIndex]['id'] + " (" + ebayListingsIds[productIndex]['product_name'] + ")" + " <?php echo L::t("action");?> <?php echo ucfirst($action); ?>. <?php echo L::t("Result");?>: ";
+                   if (data.success == true) {
+                        messageToAppend += "<b><?php echo L::t("Done");?>.</b><br/>";
+                        if (data.item.ebay_id != undefined) {
+                            messageToAppend += "<b><?php echo L::t("eBay Item ID");?>:</b> " + data.item.ebay_id
+                        }
+                        if (data.item.item_path != undefined) {
+                            messageToAppend += " &mdash; <a href='"+data.item.item_path+"' target='_blank'><?php echo L::t("View");?></a>";
+                        }
+
+                        if (data.item.fee != undefined) {
+                            messageToAppend += "<br/>";
+                            messageToAppend += "<b><?php echo L::t("Fee"); ?>:</b>" + data.item.fee.total + " " + data.item.fee.currency
+                                    + " <span class='strike-dot fee-expand'><?php echo L::t("expand"); ?></span>"
+                            messageToAppend += "<ul class='fee-list' style='display: none'>";
+                            for (var fee in data.item.fee.list) {
+                                messageToAppend += "<li>" + fee + ": " + data.item.fee.list[fee] + " " + data.item.fee.currency + "</li>";
+                            }
+                            messageToAppend += "</ul>";
+                        }
+                        messageToAppend += "<br/>";
+                   } else {
+                       messageToAppend += "<b><?php echo L::t("Fail");?>.</b><br/>"
+                   }
+
+                   if (data.warnings!="") {
+                        messageToAppend += "<u><?php echo L::t("Warnings");?>:</u><br/>"+data.warnings;
+                   }
+                   if (data.errors!="") {
+                        messageToAppend += "<u><?php echo L::t("Errors");?>:</u><br/>"+data.errors;
+                   }
+
+                   var resultOfCall = (data.success == true)?"success":"error";
+                   if (data.errors!="") {
+                       resultOfCall = "error";
+                   } else if (data.warnings!="") {
+                       resultOfCall = "warning";
+                   }
+
+                   appendMessage('product-action-' + productIndex, messageToAppend, resultOfCall);
+                   initFeeExpand();
+                   productIndex++;
+                   initProductAction();
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                alert('Problem with get JSON data.\n' + textStatus + "\n" + errorThrown);
+            }
+        });
+    }
+
+    function initFeeExpand() {
+        jQuery(".fee-expand").unbind("click", feeExpand);
+        jQuery(".fee-expand").click(feeExpand);
+    }
+
+    function feeExpand() {
+        var divColapse = jQuery(this).next();
+        if (divColapse.hasClass('expand')) {
+            jQuery(this).text('<?php echo L::t('expand'); ?>');
+            divColapse.hide();
+            divColapse.removeClass('expand');
+        } else {
+            jQuery(this).text('<?php echo L::t('collapse'); ?>');
+            divColapse.show();
+            divColapse.addClass('expand');
+        }
+    }
+    
+
+</script>
+<div id="synchronize-process"></div>

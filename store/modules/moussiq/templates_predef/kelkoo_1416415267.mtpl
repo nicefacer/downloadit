@@ -1,0 +1,7 @@
+name|^|kelkoo
+template|^|{"fields": [{"field": "product_link", "fieldTitle": "url", "before": "", "after": "", "value": "", "withTax": "", "withShipping": "", "withReduction": "", "largePicture": "", "allPictures": "", "fee": ""}, {"field": "name", "fieldTitle": "title", "before": "", "after": "", "value": "", "withTax": "", "withShipping": "", "withReduction": "", "largePicture": "", "allPictures": "", "fee": ""}, {"field": "description", "fieldTitle": "description", "before": "", "after": "", "value": "", "withTax": "", "withShipping": "", "withReduction": "", "largePicture": "", "allPictures": "", "fee": ""}, {"field": "price", "fieldTitle": "price", "before": "", "after": "", "value": "", "withTax": "0", "withShipping": "0", "withReduction": "0", "largePicture": "", "allPictures": "", "fee": ""}, {"field": "picture_link", "fieldTitle": "picture_link", "before": "", "after": "", "value": "", "withTax": "", "withShipping": "", "withReduction": "", "largePicture": "0", "allPictures": "0", "fee": ""}, {"field": "quantity", "fieldTitle": "availability", "before": "", "after": "", "value": "", "withTax": "", "withShipping": "", "withReduction": "", "largePicture": "", "allPictures": "", "fee": ""}, {"field": "shipping_price", "fieldTitle": "deliverycost", "before": "", "after": "", "value": "", "withTax": "0", "withShipping": "", "withReduction": "", "largePicture": "", "allPictures": "", "fee": ""}]}
+enclosure|^|-1
+delimiter|^|
+combination_name|^|0
+combinations|^|0
+header|^|0

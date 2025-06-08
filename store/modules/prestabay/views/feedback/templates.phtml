@@ -1,0 +1,117 @@
+<?php RenderHelper::addScript("angular.min.js"); ?>
+
+<div ng-app="feedbackTemplates">
+    <div ng-controller="FeedbackController as feedbackCtrl">
+        <div class="<?php echo CoreHelper::isPS16() ? 'col-lg-6' : 'column-left'; ?>">
+            <?php echo HtmlHelper::blockStart("Positive Feedback Templates"); ?>
+                <table class="table table-striped">
+                    <colgroup>
+                        <col>
+                        <col style="width: 15%;">
+                    </colgroup>
+                    <tr ng-repeat="feedback in feedbackCtrl.positiveFeedbacks">
+                        <td>{{ feedback.message }}</td>
+                        <td><a href ng-click="feedbackCtrl.remove($index, 'positive')">
+                                <img title="Delete" alt="Delete" src="../img/admin/delete.gif">
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            <?php echo HtmlHelper::blockEnd(); ?>
+        </div>
+
+        <div class="<?php echo CoreHelper::isPS16() ? 'col-lg-6' : 'column-right'; ?>">
+            <?php echo HtmlHelper::blockStart("Add New Feedback Template"); ?>
+            <form name="newFeedbackForm"
+                  ng-submit="feedbackCtrl.addFeedback()"
+                  ng-class="{submitted:feedbackCtrl.trySubmit}"
+                  class="form-horizontal"
+                  novalidate>
+                <div class="form-group ">
+                    <label for="feedback_type" class="control-label col-lg-3 required"><?php echo L::t("Feedback Type"); ?>
+                        :</label>
+
+                    <div class="col-lg-3 ">
+                        <?php echo HtmlHelper::dropDownList(
+                            'Positive', '', Feedbacks_FeedbacksModel::getTypesList(), array(
+                                'ng-model' => "feedbackCtrl.newFeedback.feedback_type",
+                                'id'       => 'feedback_type',
+                                'disabled' => 'disabled'
+                            )
+                        ); ?>
+                        <?php echo CoreHelper::isPS16() ? "" : "<sup>*</sup>"; ?>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedback_message" class="control-label col-lg-3 required"><?php echo L::t("Message"); ?>: </label>
+
+                    <div class="col-lg-9">
+                        <input type="text" id="feedback_message" ng-model="feedbackCtrl.newFeedback.message" required
+                               maxlength="80"/>
+
+                        <p><?php echo L::t("Maximum 80 chars"); ?></p>
+                        <br/>
+                        <div>
+                            <button type="submit" class="btn btn-success"><i class="icon-plus-sign icon-white"></i> <?php echo L::t("Add"); ?></button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <?php echo HtmlHelper::blockEnd(); ?>
+        </div>
+    </div>
+</div>
+
+<script>
+    var routes = {
+        'templateList': '<?php echo UrlHelper::getUrl('feedback/templateListAjax'); ?>',
+        'saveTemplate': '<?php echo UrlHelper::getUrl('feedback/saveTemplateAjax'); ?>',
+        'removeTemplate': '<?php echo UrlHelper::getUrl('feedback/removeTemplateAjax'); ?>'
+    };
+
+    (function () {
+        var app = angular.module("feedbackTemplates", []);
+
+        app.controller("FeedbackController", ['$scope', '$http', '$log', function ($scope, $http, $log) {
+            instance = this;
+
+            instance.positiveFeedbacks = [];
+            instance.newFeedback = {'feedback_type': 'Positive'}
+            instance.trySubmit = false;
+
+            $http.get(routes['templateList']).success(function (data) {
+                instance.positiveFeedbacks = data.positive;
+            });
+
+            this.addFeedback = function () {
+                if (!$scope.newFeedbackForm.$valid) {
+                    instance.trySubmit = true;
+                    return false;
+                }
+
+                $http.post(routes['saveTemplate'], instance.newFeedback).success(function (data) {
+                    if (data.success == true) {
+                        instance.newFeedback.id = data.id;
+                        instance.positiveFeedbacks.push(instance.newFeedback);
+
+                        instance.newFeedback = {'feedback_type': 'Positive'};
+                        instance.trySubmit = false;
+                        $scope.newFeedbackForm.$setPristine();
+                    } else {
+                        alert('Error adding Feedback Template');
+                    }
+                });
+            };
+
+            this.remove = function (index, type) {
+                var feedbackRefToDelete = instance.positiveFeedbacks;
+                var feedbackToDelete = feedbackRefToDelete[index];
+                $http.post(routes['removeTemplate'], {id: feedbackToDelete.id}).success(function (data) {
+                    feedbackRefToDelete.splice(index, 1);
+                });
+            };
+        }]);
+
+    })();
+</script>

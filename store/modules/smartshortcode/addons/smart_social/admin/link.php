@@ -1,0 +1,1 @@
+<a href="smart_social"><i class="icon-thumbs-up-alt"></i> Social Icons</a>

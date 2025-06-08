@@ -1,0 +1,117 @@
+<?php
+/**
+ * File edit.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<script>
+    var isPS16 = <?php echo var_export(CoreHelper::isPS16()); ?>;
+</script>
+<?php
+    RenderHelper::addScript("jquery.idTabs.min.js");
+    RenderHelper::addScript("htmlHelper.js");
+
+    RenderHelper::view("main/tinymce.php", array('element' => 'item_description_custom', 'width' => 600, 'height' => 400));
+
+    RenderHelper::addScript("profile.js");
+    RenderHelper::addScript("jquery.validate.min.js");
+?>
+<?php if (!CoreHelper::isPS15()) { ?>
+    <link type="text/css" rel="stylesheet" href="../css/tabpane.css" />
+<?php } ?>
+
+<div id="ajaxloader"><table><tr><td align="center" valign="middle"><img src="../modules/prestabay/img/ajax-loader.gif" alt="Loading... Please wait." border="0"/></td></tr></table></div>
+
+<form id="profileForm" name="profileForm" action="<?php echo UrlHelper::getUrl('profiles/save'); ?>" method="post" class="validate-form form-horizontal">
+    <input id="profileId" type="hidden" name="profileId" value="<?php echo $model->id; ?>"/>
+    
+    <h2><?php echo ($isEdit) ? L::t("Edit") : L::t("Create New"); ?> <?php echo L::t("Selling Profile");?></h2>
+    <div class="content-header">
+        <button class="button btn btn-small float-left"
+                type="button"
+                onclick="document.location.href='<?php echo UrlHelper::getUrl('profiles/index'); ?>'">
+                <i class="icon-arrow-left"></i> <?php echo L::t("Back");?>
+        </button>
+        <button class="button btn btn-primary btn-small"
+                type="button"
+                onclick="document.location.href=document.location.href">
+                <?php echo L::t("Reset");?>
+        </button>
+        <button class="button btn btn-primary btn-small"
+                type="button"
+                onclick="duplicateForm();">
+                <?php echo L::t("Duplicate");?>
+        </button>
+
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-continue">
+                <?php echo L::t("Save&amp;Continue Edit");?>
+        </button>
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-return">
+                <i class="icon-ok-sign icon-white"></i> <?php echo L::t("Save");?>
+        </button>
+    </div>
+    <?php
+        $tabs = array(
+            'general' => "General",
+            'product' => "Product",
+            'specifics' => "Specifics",
+            'price' => "Price",
+            'store' => "eBay Store",
+            'payment' => "Payment",
+            'shipping' => "Shipping",
+            'polices' => "Policies",
+        );
+
+        if (CoreHelper::isPS16()) {
+            RenderHelper::view("profiles/tabs16.phtml", array('tabs'=> $tabs, 'hdbk' => $hdbk, 'model' => $model));
+        } else {
+            RenderHelper::view("profiles/tabs.phtml", array('tabs'=> $tabs, 'hdbk' => $hdbk, 'model' => $model));
+        }
+    ?>
+
+    <div class="clear"></div>
+</form>
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        var profileForm = ProfileForm(<?php echo $jsSettingsList; ?>);
+        jQuery(".hidden-option").hide();
+    });
+
+    function showLoader() {
+        $("#ajaxloader").show();
+    }
+
+    function hideLoader() {
+        $("#ajaxloader").hide();
+    }
+
+    function duplicateForm() {
+            showLoader();
+            jQuery("#profileForm h2").html("Create New Selling Profile");
+            jQuery("#profileId").attr("value", "");
+            jQuery("#profile_name").attr("value", "");
+            hideLoader();
+    }
+
+</script>

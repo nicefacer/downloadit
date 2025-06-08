@@ -1,0 +1,360 @@
+/**
+ * FINALmenu
+ *
+ * author: Matej Berka
+ * site: www.marpaweb.eu
+ */
+
+#footer {
+    display: none !important;
+}
+
+.panel-footer {
+    margin-top: -15px;
+}
+
+.panel-footer button[type="submit"] {
+    display: block !important;
+}
+
+table.desktop_menu_tabs thead .filter,
+table.vertical_menu_tabs thead .filter,
+table.mobile_menu_tabs thead .filter {
+    display: none;
+}
+
+
+/* ************************************************************************************************
+  GENERAL
+ ************************************************************************************************ */
+
+.options-wrapper {
+    margin: 20px 0px;
+}
+
+#tabs-menu a.selected {
+    background-color: #8BC954;
+    color: white;
+}
+
+.layout-picker {
+    overflow: hidden;
+    margin-left: -10px;
+}
+
+#desktop_menu_tabs_form input[name=sticky_menu_transparency],
+#vertical_menu_tabs_form .input-group,
+#desktop_menu_tabs_form .input-group {
+    width: 200px;
+}
+
+.bootstrap label.control-label {
+    padding-right: 20px;
+}
+
+.layout-picker div {
+    width: 174px;
+    height: 90px;
+    border-radius: 4px;
+    border: 5px solid #C2C1C1;
+    margin: 5px;
+    float: left;
+    cursor: pointer;
+}
+
+label[for=menu_layout_holder] {
+    line-height: 86px;
+}
+
+.layout-picker div#layout-1 {
+    background: url('../../img/layout.png') no-repeat 0px 0px;
+}
+
+.layout-picker div#layout-2 {
+    background: url('../../img/layout.png') no-repeat -170px 0px;
+}
+
+.layout-picker div#layout-3 {
+    background: url('../../img/layout.png') no-repeat -340px 0px;
+}
+
+.layout-picker div#layout-4 {
+    background: url('../../img/layout.png') no-repeat -510px 0px;
+}
+
+.selected-menu-layout {
+    border-color: #79BD3C !important;
+}
+
+/* ************************************************************************************************
+  ADVANCE MENU STYLES
+ ************************************************************************************************ */
+
+#advance-menu {
+    margin: 20px 0px;
+}
+
+#advance-menu #topbar-available-blocks {
+    min-height: 50px;
+    background: #FCFDFE;
+    border: solid 1px #EEE;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+#topbar-available-blocks span.btn.btn-default {
+    height: 45px;
+    line-height: 35px;
+}
+#topbar-available-blocks span.btn.btn-default i {
+    padding: 5px;
+}
+
+.tab-wrapper-title i {
+    display: none;
+}
+
+#advance-menu #tab-view {
+    position: relative;
+    min-height: 200px;
+    background: #FFFFFF;
+    padding: 5px;
+    border: dashed 1px #ADA4A4;
+}
+
+.draggable-item span {
+    margin: 10px 5px 10px 0px;
+    height: 30px;
+    float: left;
+    line-height: 30px;
+    vertical-align: middle;
+}
+
+#advance-menu .tab-wrapper {
+    background: #c8c8c8;
+    padding: 0px;
+    height: 200px;
+}
+
+#advance-menu .tab-placeholder.tab-wrapper {
+    height: 200px !important;
+}
+
+#advance-menu .tab-placeholder.tab-wrapper,
+#advance-menu .inner-tab-wrapper {
+    background: #ededed;
+    cursor: move;
+    clear: right;
+    border: 1px solid #E2E2E2;
+    height: 100%;
+    min-height: 50px;
+    position: relative;
+}
+
+#advance-menu .tab-wrapper-title {
+    font-size: 12px;
+    color: #FFF;
+    background: #333;
+    position: absolute;
+    padding: 4px;
+    top: 0px;
+    left: 0px;
+}
+
+#advance-menu .tab-wrapper .draggable-tab-header {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: #333;
+    overflow: hidden;
+}
+
+#advance-menu .tab-wrapper .draggable-tab-header i {
+    color: #ffffff;
+    padding: 5px;
+    cursor: pointer;
+}
+
+#advance-menu #tab-helper {
+    position: relative;
+    width: 181px !important;
+    z-index: 9999;
+}
+
+#advance-menu h4 {
+    margin: 10px 5px;
+}
+
+/*------------------------------------*\
+    tab wrapper disabled
+\*------------------------------------*/
+
+#advance-menu .tab-disable .draggable-tab-header {
+    display: none;
+}
+/*------------------------------------*\
+    tab wrapper active
+\*------------------------------------*/
+
+#advance-menu .tab-active {
+    border: dashed 1px #ADA4A4;
+}
+
+/* style the sortable placeholder */
+#tab-view .tab-placeholder {
+    border: 1px dashed #ADA4A4;
+    background: #ddd;
+}
+
+/* ************************************************************************************************
+  SETTINGS
+ ************************************************************************************************ */
+
+#block-layout {
+    overflow: hidden;
+    padding-top: 20px;
+    width: 100%;
+}
+
+.block-layout {
+    margin: 20px 0px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.select-box {
+    float: left;
+}
+
+.option-block {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 20px 0px;
+}
+
+#advance-menu textarea {
+    min-height: 250px;
+}
+
+/*------------------------------------*\
+    block settings specific
+\*------------------------------------*/
+
+.option-block {
+    display: none;
+}
+
+.xdebug-var-dump {
+    margin-top: 150px;
+    margin-left: 50px;
+}
+
+/*------------------------------------*\
+    icon picker
+\*------------------------------------*/
+
+.icons-selector {
+    display: none;
+    background: #EDEDED;
+    border: 1px solid #DDD;
+    padding: 10px;
+    position: absolute;
+    z-index: 999;
+    top: 30px;
+    width: 400px;
+    left: 4px;
+}
+
+.icons-selector i {
+    font-size: 18px;
+    padding: 2px;
+}
+
+.icons-selector i:hover {
+    color: #7caa3d;
+    cursor: pointer;
+}
+
+.icon-select:hover {
+    cursor: pointer;
+    color: #79BD3C;
+}
+
+.link-select-show-box, .product-select-show-box {
+    display: none;
+}
+
+#manufacturers .view-grid,
+#suppliers .view-grid {
+    display: none;
+}
+
+#advance-menu textarea {
+    width: 80%;
+    margin-left: 20px;
+    margin-top: 35px;
+}
+
+/*------------------------------------*\
+    category view
+\*------------------------------------*/
+
+.category-view-select {
+    margin: 20px 0px 40px 20px;
+}
+
+.category-view {
+    overflow: hidden;
+    float: left;
+    margin-right: 20px;
+}
+
+.edit-button {
+    margin: 20px auto;
+    clear: both;
+    float: left;
+}
+
+.category-select-wrapper {
+    overflow: hidden;
+    clear: both;
+}
+
+#category-info {
+    overflow: hidden;
+    clear: both;
+    margin-top: 20px;
+}
+
+#category-info .form-group {
+    margin: 50px 0px;
+    clear: both;
+    overflow: hidden;
+}
+
+#category-info textarea {
+    margin: 0px;
+    width: 100%;
+}
+
+option:disabled {
+    color: #ededed;
+}
+
+#item-number-of-columns {
+    margin-bottom: 20px;
+}
+
+.category-grip-view {
+    overflow: hidden;
+}
+
+#category-info .control-label.short-desc {
+    padding: 0px 0px 15px 0px;
+    text-align: left;
+}
+ 
+.hide-for-vertical {
+    display: none;
+}

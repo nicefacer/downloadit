@@ -1,0 +1,49 @@
+<?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ *  It is available through the world-wide-web at this URL:
+ *  http://involic.com/license.txt
+ *  If you are unable to obtain it through the world-wide-web,
+ *  please send an email to license@involic.com so
+ *  we can send you a copy immediately.
+ *
+ *  PrestaBay - eBay Integration with PrestaShop e-commerce platform.
+ *  Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ *  @author      Involic <contacts@involic.com>
+ *  @copyright   Copyright (c) 2011- 2016 by Involic (http://www.involic.com)
+ *  @license     http://involic.com/license.txt
+ */
+?>
+
+
+<form action="<?php echo UrlHelper::getUrl("fee/index"); ?>" id="account_filter" name="account_filter" method="get">
+    <div>
+        <div class="float-right"><?php echo L::t("Filter by account"); ?>: <?php echo HtmlHelper::dropDownList('account', $selectedAccountId, $accountsList, array('addSelect' => true, 'id' => 'account_select')); ?></div>
+    </div>
+</form>
+<?php if (CoreHelper::isPS16()) { ?>
+    <br clear="both"/><br/>
+<?php } ?>
+
+<?php echo $grid; ?>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        jQuery("#account_select").change(function() {
+            jQuery("#account_filter").submit();
+        });
+
+
+        jQuery("#account_filter").submit(function(e) {
+            e.preventDefault();
+            var filter = "account_select=" + jQuery("#account_select").val();
+            document.location.href = "<?php echo UrlHelper::getUrl("fee/index"); ?>&"+filter;
+
+            return false;
+        });
+
+    });
+</script>

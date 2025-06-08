@@ -1,0 +1,12 @@
+/* Shopware css */
+
+body.shopware div.magna table#tableWrap {
+    padding: 0 25px !important;
+}
+
+body.shopware div.magna form{
+    display: inline;
+}
+html{
+    overflow:auto;
+}

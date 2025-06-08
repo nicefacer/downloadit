@@ -1,0 +1,27 @@
+<?php /*%%SmartyHeaderCode:1661229411665f0b553c9a49-28596852%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+$_valid = $_smarty_tpl->decodeProperties(array (
+  'file_dependency' => 
+  array (
+    '405194e6f111ac9881c52d4cd2702c13d35007ae' => 
+    array (
+      0 => '/homepages/40/d657041287/htdocs/modules/editorial/editorial.tpl',
+      1 => 1603055838,
+      2 => 'file',
+    ),
+  ),
+  'nocache_hash' => '1661229411665f0b553c9a49-28596852',
+  'variables' => 
+  array (
+    'editorial' => 0,
+    'homepage_logo' => 0,
+    'image_path' => 0,
+    'link' => 0,
+    'image_width' => 0,
+    'image_height' => 0,
+  ),
+  'has_nocache_code' => false,
+  'version' => 'Smarty-3.1.19',
+  'unifunc' => 'content_665f0b553ee333_36445997',
+  'cache_lifetime' => 31536000,
+),true); /*/%%SmartyHeaderCode%%*/?>
+<?php if ($_valid && !is_callable('content_665f0b553ee333_36445997')) {function content_665f0b553ee333_36445997($_smarty_tpl) {?><div id="editorial_block_center" class="editorial_block"><div class="rte"><h2 style="text-align: left;"><span style="font-size: 18pt;"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="font-size: 24pt;"><em><span style="text-decoration: underline;">Unsere&nbsp;Hersteller:</span></em><br /><br /></span></strong></span><strong><span style="font-size: 14pt; color: #43bebd;"><span><img src="https://www.barhocker-direkt.de/img/cms/mayer-sitzmoebel.jpg" alt="" width="102" height="54" />&nbsp;</span>&nbsp;Barhocker, Tresenhocker&nbsp;und Wohntrends von Mayer&nbsp;</span></strong></h2><div style="text-align: left;"><strong>Moderne Sitzm&ouml;bel und Designsitzm&ouml;bel sind heute Stand der Zeit.&nbsp; Ob St&uuml;hle, Bar-/Tresenhocker, Homeoffice, Profi Office,&nbsp;Objektsitzm&ouml;bel f&uuml;r die unterschiedlichsten Bedarfssituationen &ndash; das Haus MAYER-Sitzm&ouml;bel hat die perfekten Sitzl&ouml;sungen.&nbsp;Beste Sitzm&ouml;bel f&uuml;r den t&auml;glichen Gebrauch sind das Spezialgebiet von MAYER-Sitzm&ouml;bel.</strong></div><div style="text-align: left;"><strong><strong><br />&nbsp;<b><img src="https://www.barhocker-direkt.de/img/cms/Bildschirmfoto 2016-11-05 um 15-32-27.png" width="166" height="37" />&nbsp;&nbsp;</b></strong></strong><span style="font-size: 12pt; color: #43bebd;"><b><span style="font-size: 14pt;">Garderoben im Set von Bienenm&uuml;hle</span></b></span><span style="font-size: 14pt;"><b>&nbsp;</b></span></div><div style="text-align: left;"><strong>Hochwertig verarbeitete individuelle Massivholzm&ouml;bel, hergestellt in Deutschland. Daf&uuml;r steht Bienenm&uuml;hle, das Traditionsunternehmen aus dem Erzgebirge. Wir bieten Ihnen hochwertige M&ouml;bel nach Ma&szlig;, die Sie in unserem Shop einfach online bestellen k&ouml;nnen<br /></strong><span style="font-size: 12pt; color: #43bebd;"><b><span style="font-size: 14pt;"><img src="https://www.barhocker-direkt.de/img/cms/Sch-sswender-Logo-190x190.jpg" width="170" height="73" />&nbsp; Eck-Bankgruppen und vieles mehr von Sch&ouml;sswender</span>&nbsp;</b></span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</div><div style="text-align: left;"><strong>Design, Qualit&auml;t und die Erf&uuml;llung Ihrer W&uuml;nsche. Das sind unsere Anspr&uuml;che, die uns zur Nummer Eins machen. Sch&ouml;sswender, als Gro&szlig;tischlerei beheimatet im ober&ouml;sterreichischen Franking. Aus diesen Voraussetzungen entsteht Ihr Traumessplatz, als Unikat und passend zu Ihrer bestehenden oder neuen K&uuml;che.</strong></div><div style="text-align: center;"><span style="color: #000000;"><br /><br /><br /><br /><strong><span style="text-decoration: underline;"><span style="font-size: 18pt; color: #43bebd; text-decoration: underline;">Verkaufshits</span></span></strong></span></div></div></div><?php }} ?>

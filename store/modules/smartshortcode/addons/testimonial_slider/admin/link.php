@@ -1,0 +1,1 @@
+<a href="testimonial_slider"><i class="icon-edit"></i> Testimonial Slider</a>

@@ -1,0 +1,47 @@
+<?php
+/**
+ * File variables.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<form action="" id="variablesForm" name="variablesForm" method="post" class="form-horizontal">
+    <div class="content-header">
+        <button class="button btn btn-small float-left"
+                type="button"
+                onclick="document.location.href='<?php echo UrlHelper::getUrl('config/index'); ?>'">
+            <i class="icon-arrow-left"></i> <?php echo L::t("Back");?>
+        </button>
+
+        <button type="submit" class="button btn btn-success btn-small" onclick="submitForm()">
+            <?php echo L::t("Save And Return"); ?>
+        </button>
+    </div>
+    <?php echo HtmlHelper::blockStart("Config Variables", ""); ?>
+        <?php foreach ($variablesList as $variable) { ?>
+        <div class="form-group">
+            <label class="control-label col-lg-3 required"><?php echo $variable; ?></label>
+            <div class="col-lg-9 margin-form">
+                <input name="config[<?php echo $variable; ?>]" value="<?php echo Configuration::get($variable); ?>"/>
+            </div>
+        </div>
+        <?php } ?>
+    <?php echo HtmlHelper::blockEnd(); ?>
+    <br/>
+    <a class="footer_link" href="<?php echo UrlHelper::getUrl("config/recalculateTax"); ?>"><?php echo L::t("Recalculate TAX for imported orders")." (".L::t("backup DB before click").")"; ?></a><br/>
+    <a class="footer_link" href="<?php echo UrlHelper::getUrl("config/updateProductMapping"); ?>"><?php echo L::t("Update Product mapping")." (".L::t("backup DB before click").")"; ?></a>
+</form>

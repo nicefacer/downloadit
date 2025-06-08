@@ -1,0 +1,367 @@
+<?php
+/**
+ * File edit.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php
+    $leftClass = "column-half-left";
+    $rightClass = "column-half-right";
+    $isPS16 = false;
+    if (CoreHelper::isPS16()) {
+        $rightClass = $leftClass = "col-md-6";
+        $isPS16 = true;
+    }
+
+    RenderHelper::addScript("jquery.validate.min.js");
+?>
+
+<form id="storeMappingForm" name="storeMappingForm" action="<?php echo UrlHelper::getUrl('storeMapping/save'); ?>" method="post" class="validate-form form-horizontal">
+    <input id="storeMappingId" type="hidden" name="storeMappingId" value="<?php echo $model->id; ?>"/>
+    <input id="mappingInformation" type="hidden" name="mappingInformation" value=""/>
+
+    <?php $blockTitle = ($isEdit ? L::t("Edit") : L::t("Add")) . " " . L::t("Store Mapping"); ?>
+    <?php if (!CoreHelper::isPS16()): ?><h2><?php echo $blockTitle ?></h2><?php endif; ?>
+
+    <div class="content-header">
+        <button class="button btn btn-small float-left"
+                type="button"
+                onclick="document.location.href='<?php echo UrlHelper::getUrl('storeMapping/index'); ?>'">
+            <i class="icon-arrow-left"></i> <?php echo L::t("Back");?>
+        </button>
+        <button class="button btn btn-primary btn-small"
+                type="button"
+                onclick="document.location.href=document.location.href">
+            <?php echo L::t("Reset");?>
+        </button>
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-continue">
+            <?php echo L::t("Save&amp;Continue Edit");?>
+        </button>
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-return">
+            <i class="icon-ok-sign icon-white"></i> <?php echo L::t("Save");?>
+        </button>
+    </div>
+
+    <?php echo HtmlHelper::blockStart(CoreHelper::isPS16() ? $blockTitle : "", "", ""); ?>
+    <ul class="error-container">
+
+    </ul>
+
+    <label><?php echo L::t("Name");?> <sup>*</sup></label>
+    <div class="margin-form">
+        <input type="text" size="30" maxlength="32" name="name"
+               value="<?php echo $model->name; ?>"
+               class="required" title="<?php echo L::t("Please enter correct 'Name'");?>"/>
+    </div>
+
+    <label><?php echo L::t("Account");?> <sup>*</sup></label>
+    <div class="margin-form">
+        <?php echo HtmlHelper::dropDownList('account_id', $model->account_id, $accountList,
+            array(
+                'id' => 'account_id',
+                'addSelect' => true,
+                'class' => 'required',
+                'title' => L::t('Please select account'))); ?>
+    </div>
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+    <br clear="all"/>
+    <div class="text-center">
+        <button id="add-mapping-button" type="button" class="btn btn-success"><i class="icon-plus-sign icon-white"></i> <?php echo L::t("Add Mapping"); ?></button>
+    </div>
+    <br clear="all"/>
+    <div class="<?php echo $leftClass; ?>">
+        <?php echo HtmlHelper::blockStart("Ebay Store Categories"); ?>
+            <div id="ebay_account_store_not_select"><?php echo L::t("Please select <b>eBay Account</b> to access this section");?></div>
+            <div id="ebay_account_store_empty" style="display:none;"><?php echo L::t("Selected eBay Account don't have store subscription");?></div>
+
+            <label class="control-label ebay_store_category_label" for="ebay_store_category_main"><?php echo L::t("Store Category Main");?></label>
+            <div class="margin-form">
+                <select id="ebay_store_category_main" name="ebay_store_category_main" class="ebay_store_category"></select>
+             </div>
+
+            <label class="control-label ebay_store_category_label" for="ebay_store_category_secondary"><?php echo L::t("Store Category Secondary");?></label>
+            <div class="margin-form">
+                <select id="ebay_store_category_secondary" name="ebay_store_category_secondary" class="ebay_store_category"></select>
+            </div>
+        <div class="text-right">
+        <small><u><a href="<?php echo UrlHelper::getUrl('config/clearCache'); ?>" target="_blank"><?php echo L::t("Reset Ebay Store Categories cache"); ?></php></a></u></small>
+        </div>
+        <?php echo HtmlHelper::blockEnd(); ?>
+
+    </div>
+
+    <div class="<?php echo $rightClass; ?>">
+        <?php echo HtmlHelper::blockStart("PrestaShop Categories"); ?>
+        <select id="category_id"
+                name="category_id[]"
+                multiple="multiple" style="min-height: 300px;width:100%;">
+            <?php echo HtmlHelper::recurseCategory($categories, $categories[0][1], 1, false); ?>
+        </select>
+        <?php echo HtmlHelper::blockEnd(); ?>
+    </div>
+    <br clear="all"/>
+    <div class="">
+        <?php echo HtmlHelper::blockStart("Mapping", "", CoreHelper::isPS16()?"width-868":""); ?>
+        <div>
+            <table class="table" cellpadding="0" cellspacing="0" <?php echo CoreHelper::isOnlyPS15()?'style="width:100%;"':""; ?>>
+                <thead>
+                    <tr class="nodrag nodrop">
+                        <th>
+                            <?php if ($isPS16) { ?>
+                                <span class="title_box">
+                            <?php } ?>
+                            <?php echo L::t("Store Primary category"); ?>
+                            <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+                        <th>
+                            <?php if ($isPS16) { ?>
+                            <span class="title_box">
+                            <?php } ?>
+                                <?php echo L::t("Store Secondary category"); ?>
+                                <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+                        <th>
+                            <?php if ($isPS16) { ?>
+                            <span class="title_box">
+                            <?php } ?>
+                                <?php echo L::t("PrestaShop Categories"); ?>
+                                <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+                        <th>
+                            <?php if ($isPS16) { ?>
+                            <span class="title_box">
+                            <?php } ?>
+
+                                <?php echo $isPS16?'</span>':''; ?>
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody id="mapping-grid-body">
+                </tbody>
+            </table>
+        </div>
+        <?php echo HtmlHelper::blockEnd(); ?>
+    </div>
+    <br/>
+</form>
+
+<script>
+    var addedAssignment = <?php echo json_encode($mappingList); ?>;
+    var initialLoading = true;
+
+    jQuery(document).ready(function() {
+
+        $.validator.addMethod("mappingRequired", function (value, element) {
+            return addedAssignment.length > 0;
+        }, '<?php echo L::t("Please add at least one mapping"); ?>');
+
+
+        $("#storeMappingForm").validate({
+            errorLabelContainer: $("#storeMappingForm ul.error-container"),
+            errorClass: 'invalid',
+            errorElement: "li",
+            rules: {
+                mappingInformation: "mappingRequired"
+            },
+            submitHandler: function(form) {
+                $('#mappingInformation').val("");
+                if (addedAssignment.length > 0) {
+                    $('#mappingInformation').val(JSON.stringify(addedAssignment));
+                }
+                form.submit();
+            }
+
+        });
+
+        jQuery('#account_id').bind('change', function(){
+            var accountId = jQuery(this).val();
+            jQuery("#ebay_account_store_not_select").show();
+            jQuery(".ebay_store_category").html('').hide();
+            jQuery("#ebay_account_store_empty").hide();
+            jQuery(".ebay_store_category_label").hide();
+            jQuery("#mapping-grid-body").empty();
+            jQuery("#category_id option").removeAttr("disabled");
+
+            if (!initialLoading) {
+                addedAssignment = [];
+            }
+
+            if (accountId != "") {
+                jQuery.ajax({
+                    url: '<?php echo UrlHelper::getUrl('profiles/getAccountInformation'); ?>',
+                    type: "post",
+                    dataType: 'json',
+                    data: {
+                        id: accountId
+                    },
+                    success: function(result) {
+                        jQuery("#ebay_account_store_not_select").hide();
+                        if (result.success == true) {
+                            if (result.no_store == true) {
+                                accountShowNoStoreSubscription();
+                            } else {
+                                jQuery(".ebay_store_category").html(result.categoryOptionsHtml).show();
+                                jQuery(".ebay_store_category_label").show();
+                                if (initialLoading) {
+                                    restoreAddedAssignment();
+                                    initialLoading = false;
+                                }
+                            }
+                        } else {
+                            alert('Problem with retrieve account information');
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown){
+                        // log the error to the console
+                        alert('Problem with get JSON data.\n' + textStatus + "\n" + errorThrown);
+                    },
+                    complete: function() {
+//                        hideLoader();
+                    }
+                });
+            }
+        });
+        jQuery('#account_id').change();
+
+        jQuery("#add-mapping-button").bind('click', function() {
+
+            var categoryPrimaryValue = $("#ebay_store_category_main").val();
+            var categorySecondaryValue = $("#ebay_store_category_secondary").val();
+            var categories = $("#category_id").val();
+
+            if (!categoryPrimaryValue || !categories) {
+                alert('Please select Ebay Store category and corresponding PrestaShop categories');
+                return false;
+            }
+
+            addAssignment(categoryPrimaryValue, categorySecondaryValue, categories, true);
+
+            $("#ebay_store_category_main").val("");
+            $("#ebay_store_category_secondary").val("");
+            $("#category_id").val("");
+            return false;
+        })
+
+
+    });
+
+    function restoreAddedAssignment() {
+        for (key in addedAssignment) {
+            var assignmentLine = addedAssignment[key];
+            addAssignment(assignmentLine.primary, assignmentLine.secondary, assignmentLine.categories, false);
+        }
+    }
+
+    function addAssignment(primary, secondary, categories, addToArray) {
+        var psCategoryList = "";
+        for (key in categories) {
+            var optionValue = categories[key];
+            var optionElement = $("#category_id option[value="+optionValue+"]");
+            var optionLevel = optionElement.attr("level");
+            var categoryPath = optionElement.attr("category-name");
+            optionElement.prevAll().each(function() {
+                if ($(this).attr("level") < optionLevel) {
+                    optionLevel = $(this).attr("level");
+                    categoryPath = $(this).attr("category-name") + ">" + categoryPath;
+                }
+            });
+            psCategoryList = psCategoryList +  categoryPath + "<br/>";
+            optionElement.attr('disabled', 'disabled');
+        }
+
+        var primarySelectedElement = $("#ebay_store_category_main [value="+primary+"]");
+
+        var categoryPrimaryString =  getStoreParentCategories(primarySelectedElement);
+        var categorySecondaryString = "";
+
+        primarySelectedElement.attr('disabled', 'disabled');
+
+        if (secondary && secondary != "0" ) {
+            var secondarySelectedElement = $("#ebay_store_category_secondary [value="+secondary+"]");
+            categorySecondaryString = getStoreParentCategories(secondarySelectedElement);
+            secondarySelectedElement.attr("disabled", "disabled");
+        }
+
+        addTableMappingRow(categoryPrimaryString, categorySecondaryString, psCategoryList);
+
+        jQuery(".removeMappingRow").unbind("click");
+        jQuery(".removeMappingRow").bind("click", removeRow);
+
+        if (addToArray) {
+            var mappingObject = {
+                primary: primary,
+                secondary: secondary,
+                categories:categories
+            }
+
+            addedAssignment.push(mappingObject);
+        }
+    }
+
+    function getStoreParentCategories(element) {
+
+        var categoryList = element.attr("categoryName");
+        var newParentId = element.attr('parentId');
+
+        if (newParentId != "0") {
+            categoryList = getStoreParentCategories($("#ebay_store_category_main [value="+newParentId+"]")) + ">" + categoryList;
+        }
+        return categoryList;
+    }
+
+    function addTableMappingRow(primaryCategoryString, secondaryCategoryString, psCategoryList) {
+        $("#mapping-grid-body").append("<tr>" +
+            "<td>" + primaryCategoryString + "</td>" +
+            "<td>" + secondaryCategoryString + "</td>" +
+            "<td>" + psCategoryList + "</td>" +
+            '<td><a href="#" title="" class="removeMappingRow"><img title="Delete" alt="Delete" src="../img/admin/delete.gif"></a></td>' +
+            "</tr>");
+    }
+
+    function removeRow() {
+        var rowElement = jQuery(this).parent().parent();
+        var elementIndex = rowElement.index();
+        enableCategories(addedAssignment[elementIndex]);
+        addedAssignment.splice(elementIndex, 1);
+        rowElement.remove();
+        return false;
+    }
+
+    function enableCategories(addedAssignmentObject) {
+        $("#ebay_store_category_main [value="+addedAssignmentObject.primary+"]").removeAttr("disabled");
+        $("#ebay_store_category_secondary [value="+addedAssignmentObject.secondary+"]").removeAttr("disabled");
+
+        for (key in addedAssignmentObject.categories) {
+             $("#category_id option[value="+addedAssignmentObject.categories[key]+"]").removeAttr("disabled");
+        }
+    }
+
+    function accountShowNoStoreSubscription() {
+        jQuery("#ebay_account_store_empty").show();
+        jQuery(".ebay_store_category").html('').hide();
+    }
+
+</script>
+

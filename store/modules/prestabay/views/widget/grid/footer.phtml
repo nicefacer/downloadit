@@ -1,0 +1,44 @@
+</td></tr></table>
+<div class="content-footer">
+    <?php if ($grid->isMassactions()) { ?>
+        <div class="float-right">
+            <input id="massaction-submit" type="hidden" name="massaction-submit" value="0">
+            <label for="grid-massactions" style="padding-top: 4px;"><?php echo L::t("Massactions");?>:</label>
+            <select id="grid-massactions" name="grid-massactions"  class="float-right">
+                <option value=""></option>
+                <?php foreach ($grid->getMessactions() as $massaction) { ?>
+                    <option value="<?php echo $massaction['url']; ?>"><?php echo $massaction['label']; ?></option>
+                <?php }?>
+            </select>
+        </div>
+    <?php } ?>
+    <div class="float-left">
+        <?php foreach ($grid->getFooterButtons() as $footerButton) {
+            echo "&nbsp;".$footerButton->getHtml();
+        } ?>
+    </div>
+</div>
+
+<script>
+    <?php if ($grid->isMassactions()) { ?>
+    jQuery("#grid-massactions").change(function() {
+        var newPath = jQuery(this).val();
+        if (newPath!="" && confirm("Are you sure?")) {
+            <?php if ($grid->getMassactionsType() == Grid::MASSACTION_TYPE_REDIRECT) { ?>
+                if (newPath.indexOf('javascript:') == 0) {
+                    var actionFunction = newPath.substr(11);
+                    window[actionFunction]();
+                } else {
+                    // redirect
+                    document.location.href = newPath;
+                }
+            <?php } else if ($grid->getMassactionsType() == Grid::MASSACTION_TYPE_SUBMIT) { ?>
+                jQuery("#massaction-submit").val(1);
+                jQuery(this).parents("form:eq(0)").submit();
+            <?php } ?>
+        } else {
+            jQuery(this).val("");
+        }
+    });
+    <?php } ?>
+</script>

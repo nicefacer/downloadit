@@ -1,0 +1,25 @@
+<?php $blockTitle =  $model->title; ?>
+
+<?php
+    $messageDate = new DateTime($model->date);
+?>
+
+<?php if (!CoreHelper::isPS16()): ?><h2><?php echo $blockTitle ?></h2><?php endif; ?>
+<div class="content-header">
+    <button class="button btn btn-small float-left"
+            type="button"
+            onclick="document.location.href='<?php echo UrlHelper::getUrl('notification/index'); ?>'">
+        <i class="icon-arrow-left"></i> <?php echo L::t("Back"); ?>
+    </button>
+</div>
+<br><br/>
+<?php echo HtmlHelper::blockStart(CoreHelper::isPS16() ? $blockTitle : "", ""); ?>
+
+    <div>
+            <?php echo $model->message; ?></strong>
+    </div>
+    <hr/>
+    <div><strong><?php echo L::t('Level'); ?>:</strong> <?php echo $model->level; ?></div>
+    <div><strong><?php echo L::t('Date'); ?>:</strong> <?php echo $messageDate->format('d/m/y'); ?></div>
+
+<?php echo HtmlHelper::blockEnd(); ?>

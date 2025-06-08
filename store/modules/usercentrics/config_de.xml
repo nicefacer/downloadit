@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>usercentrics</name>
+	<displayName><![CDATA[Usercentrics]]></displayName>
+	<version><![CDATA[1.0.3]]></version>
+	<description><![CDATA[Usercentrics]]></description>
+	<author><![CDATA[Silbersaiten]]></author>
+	<tab><![CDATA[front_office_features]]></tab>
+	<confirmUninstall><![CDATA[Sind Sie sicher, dass Sie das Modul deinstallieren möchten?]]></confirmUninstall>
+	<is_configurable>1</is_configurable>
+	<need_instance>0</need_instance>
+	<limited_countries></limited_countries>
+</module>

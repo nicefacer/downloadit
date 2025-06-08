@@ -1,0 +1,4 @@
+magnaview:before{content:attr(data-content);display:none;position:absolute;font-style:italic;background:orange;padding:.5em;line-height:1em;margin-top:-2.2em;outline:2px solid black;opacity:.85;white-space: nowrap}
+magnaview.visible:before{display:block}
+magnaview.visible{outline: 2px solid black;}
+magnaview{margin:0;padding:0;}

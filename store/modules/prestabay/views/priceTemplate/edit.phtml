@@ -1,0 +1,192 @@
+<?php
+/**
+ * File edit.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<script type="text/javascript">
+    var totalConditions = 0;
+
+    function bindPriceTypeChange() {
+            switch (jQuery(this).val()) {
+                case '<?php echo Price_ConditionsModel::CONDITION_TYPE_ANY; ?>':
+                    hideNextField(this);
+                    break;
+                case '<?php echo Price_ConditionsModel::CONDITION_TYPE_RANGE; ?>':
+                    showNextField(this);
+                    break;
+            }
+    }
+
+    function bindPriceSourceChange() {
+            switch (jQuery(this).val()) {
+                case '<?php echo Price_ConditionsModel::CONDITION_SOURCE_PRODUCT; ?>':
+                    hideNextField(this);
+                    break;
+                case '<?php echo Price_ConditionsModel::CONDITION_SOURCE_CUSTOM; ?>':
+                    showNextField(this);
+                    break;
+            }
+    }
+
+    function bindRemoveConditionRowClick() {
+        jQuery(this).parent().parent().remove();
+    }
+
+    jQuery(document).ready(function() {
+        jQuery('#new-condition').bind('click', function(){
+            newCondition();
+            return false;
+        })
+
+        <?php foreach ($conditions as $condition) { ?>
+           newCondition(<?php echo $condition['source']; ?>, '<?php echo $condition['type']; ?>','<?php echo $condition['price_from']; ?>', '<?php echo $condition['price_to']; ?>', '<?php echo $condition['price_source']; ?>', '<?php echo $condition['price_custom_value']; ?>', '<?php echo $condition['price_ratio']; ?>');
+        <?php } ?>
+
+    });
+
+    function showNextField(element) {
+        $(element).next().show();
+    }
+
+    function hideNextField(element) {
+        $(element).next().hide();
+    }
+
+    function newCondition(source, priceType, priceFrom, priceTo, priceSource, priceCustomValue, priceRatio) {
+        totalConditions++;
+        jQuery("#conditionsCount").val(totalConditions);
+        if (isNaN(source)) {
+            source = <?php echo Price_ConditionsModel::TYPE_SOURCE_PRICE; ?>;
+        }
+
+        if (isNaN(priceType)) {
+            priceType = <?php echo Price_ConditionsModel::CONDITION_TYPE_ANY; ?>;
+        }
+        if (isNaN(priceFrom)) {
+            priceFrom = '';
+        }
+        if (isNaN(priceTo)) {
+            priceTo = '';
+        }
+        if (isNaN(priceSource)) {
+            priceSource = <?php echo Price_ConditionsModel::CONDITION_SOURCE_PRODUCT; ?>;
+        }
+        if (typeof priceCustomValue == 'undefined') {
+            priceCustomValue = '';
+        }
+        if (typeof priceRatio == 'undefined') {
+            priceRatio = 'x1';
+        }
+        var conditionRow = jQuery('<tr valign="top">\
+                    <td>IF</td>\
+                    <td class="title-100px">\
+                        <select name="source['+totalConditions+']" class="source">\
+                            <option value="<?php echo Price_ConditionsModel::TYPE_SOURCE_PRICE; ?>"><?php echo L::t("Price");?></option>\
+                            <option value="<?php echo Price_ConditionsModel::TYPE_SOURCE_WEIGHT; ?>"><?php echo L::t("Weight");?></option>\
+                        </select>\
+                    </td>\
+                    <td class="product-price-condition">\
+                        <select name="price_type['+totalConditions+']" class="price-type">\
+                            <option value="<?php echo Price_ConditionsModel::CONDITION_TYPE_ANY; ?>"><?php echo L::t("Any");?></option>\
+                            <option value="<?php echo Price_ConditionsModel::CONDITION_TYPE_RANGE; ?>"><?php echo L::t("In Range");?></option>\
+                        </select>\
+                        <div class="hidden-option">\
+                            <label><?php echo L::t("From");?>:</label> <input type="text" name="price_from['+totalConditions+']" value="'+priceFrom+'"/> <br/>\
+                            <label><?php echo L::t("To");?>:</label> <input type="text" name="price_to['+totalConditions+']" value="'+priceTo+'"/>\
+                        </div>\
+                    </td>\
+                    <td class="padding-center-10px"><?php echo L::t("THEN");?></td>\
+                    <td class="title-75px"><b><?php echo L::t("eBay Price");?>:</b></td>\
+                    <td>\
+                        <select name="price_source['+totalConditions+']" class="price-source">\
+                            <option value="<?php echo Price_ConditionsModel::CONDITION_SOURCE_PRODUCT; ?>"><?php echo L::t("Original");?></option>\
+                            <option value="<?php echo Price_ConditionsModel::CONDITION_SOURCE_CUSTOM; ?>"><?php echo L::t("Custom");?></option>\
+                        </select>\
+                        <div class="hidden-option">\
+                            <input class="price-custom-value" type="text" name="price_custom_value['+totalConditions+']" value="'+priceCustomValue+'"/>\
+                        </div>\
+                    </td>\
+                    <td>\
+                        <input type="text" name="price_ratio['+totalConditions+']" value="'+priceRatio+'">\
+                        <p><sup>▲</sup> <?php echo L::t("Coefficient: for example +3, x1.2, -1.5");?></p>\
+                    </td>\
+                    <td><img class="remove-condition-row" src="../img/admin/disabled.gif" /></td>\
+        </tr>');
+
+        jQuery('#conditions-list tbody').append(conditionRow);
+
+        jQuery('.price-type').unbind('change', bindPriceTypeChange);
+        jQuery('.price-source').unbind('change', bindPriceSourceChange);
+        jQuery('.remove-condition-row').unbind('click', bindRemoveConditionRowClick);
+
+        jQuery('.price-type').bind('change', bindPriceTypeChange);
+        jQuery('.price-source').bind('change', bindPriceSourceChange);
+        jQuery('.remove-condition-row').bind('click', bindRemoveConditionRowClick);
+
+        conditionRow.find(".source").val(source).change();
+        conditionRow.find(".price-type").val(priceType).change();
+        conditionRow.find(".price-source").val(priceSource).change();
+    }
+
+</script>
+
+<form id="priceTemplateForm" name="priceTemplateForm" action="<?php echo UrlHelper::getUrl('priceTemplates/save'); ?>" method="post" class="validate-form form-horizontal">
+    <input id="priceTemplateId" type="hidden" name="priceTemplateId" value="<?php echo $model->id; ?>"/>
+    <input id="conditionsCount" type="hidden" name="conditionsCount" value="0"/>
+
+    <?php $blockTitle = ($isEdit ? L::t("Edit") : L::t("Add")) . " " . L::t("Price Template"); ?>
+    <?php if (!CoreHelper::isPS16()): ?><h2><?php echo $blockTitle ?></h2><?php endif; ?>
+
+    <div class="content-header">
+        <button class="button btn btn-small float-left"
+                type="button"
+                onclick="document.location.href='<?php echo UrlHelper::getUrl('priceTemplates/index'); ?>'">
+                <i class="icon-arrow-left"></i> <?php echo L::t("Back");?>
+        </button>
+        <button class="button btn btn-primary btn-small"
+                type="button"
+                onclick="document.location.href=document.location.href">
+                <?php echo L::t("Reset");?>
+        </button>
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-continue">
+                <?php echo L::t("Save&amp;Continue Edit");?>
+        </button>
+        <button class="button btn btn-success btn-small"
+                type="submit"
+                name="save-and-return">
+                <i class="icon-ok-sign icon-white"></i> <?php echo L::t("Save");?>
+        </button>
+    </div>
+
+    <?php echo HtmlHelper::blockStart(CoreHelper::isPS16() ? $blockTitle : "", "", "price-conditions"); ?>
+
+        <label><?php echo L::t("Name");?> <sup>*</sup></label>
+        <div class="margin-form">
+            <input type="text" size="30" maxlength="32" name="name" value="<?php echo $model->name; ?>" class="required" required="required" title="<?php echo L::t("Please enter correct 'Name'");?>"/>
+        </div>
+        <b><?php echo L::t("Conditions");?></b> <a id="new-condition" href="#"><img border="0" src="../img/admin/add.gif"/><?php echo L::t("Add a New Conditions");?></a>
+        <hr class="clear"/>
+        <table id="conditions-list" border="0" class="table">
+            <tbody>
+            </tbody>
+        </table>
+    <?php echo HtmlHelper::blockEnd(); ?>
+</form>

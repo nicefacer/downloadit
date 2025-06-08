@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>masspricefree</name>
+	<displayName><![CDATA[Mass alter prices by percentage value]]></displayName>
+	<version><![CDATA[1.2.4]]></version>
+	<description><![CDATA[With this module you can quickly alter prices of your products by % (decrease or increase)]]></description>
+	<author><![CDATA[MyPresta.eu]]></author>
+	<tab><![CDATA[]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+	<limited_countries></limited_countries>
+</module>

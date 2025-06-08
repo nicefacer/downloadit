@@ -1,0 +1,123 @@
+<?php
+
+/**
+ * File index.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+RenderHelper::addScript("angular.min.js");
+?>
+
+<?php if (CoreHelper::isOnlyPS15()) { ?>
+    <?php RenderHelper::addCss("modal.css"); ?>
+
+    <style>
+        #setProductIdkModal {
+            margin-top: 150px;
+            border: 0px;
+        }
+    </style>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js" ></script>
+<?php } ?>
+
+
+<form action="<?php echo UrlHelper::getUrl("ebayListings/index"); ?>" id="account_filter" name="account_filter" method="get">
+    <div>
+        <div class="float-right"><?php echo L::t("Filter by account"); ?>: <?php echo HtmlHelper::dropDownList('account', $selectedAccountId, $accountsList, array('addSelect' => true, 'id' => 'account_select')); ?></div>
+    </div>
+</form>
+<?php if (CoreHelper::isPS16()) { ?>
+    <br clear="both"/><br/>
+<?php } ?>
+<?php echo $grid; ?>
+<br/>
+
+<div id="sellingSellection" style="display:none">
+    <?php echo HtmlHelper::blockStart(""); ?>
+    <?php
+    echo HtmlHelper::dropDownList('sellingSelection', '', $sellingList, array(
+        'id' => 'sellingSelection'
+    ));
+    ?>
+    <button type="button"
+            onclick="confirmSellingSelection()"
+            class="button btn btn-primary btn-small"
+        ><?php echo L::t("Confirm"); ?></button>
+    <?php echo HtmlHelper::blockEnd(); ?>
+</div>
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        jQuery("#account_select").change(function() {
+            jQuery("#account_filter").submit();
+        });
+
+        jQuery("#account_filter").submit(function(e) {
+              e.preventDefault();
+              var filter = "account_select=" + jQuery("#account_select").val();
+              document.location.href = "<?php echo UrlHelper::getUrl("ebayListings/index"); ?>&"+filter;
+
+              return false;
+        });
+
+        jQuery(".setProductId").bind('click', function(e){
+            var baseUrl = '<?php echo UrlHelper::getUrl('ebayListings/setProductIdModal'); ?>';
+            baseUrl = baseUrl + "&rowid=" + jQuery(this).parent().parent().attr('data-rowid');
+
+            $('#setProductIdModal').modal({
+                'show': true
+            }).load(baseUrl, function (e) {
+                angular.bootstrap(jQuery("#setProductIdModalContent"), ['setProductId']);
+            });
+
+            e.preventDefault();
+            return false;
+        });
+
+        jQuery('#setProductIdModal').on('hidden.bs.modal', function(){
+            jQuery(this).removeData('bs.modal');
+        })
+    });
+
+    function showSellingSelection() {
+        jQuery("#sellingSellection").toggle();
+        return false;
+    }
+
+    function confirmSellingSelection() {
+        jQuery("#hidden_moveTo").val(jQuery("#sellingSelection").val());
+        jQuery("#massaction-submit").val(1);
+        jQuery("#ebay_listings").submit();
+    }
+
+    function submitAutodetect() {
+        jQuery("#massaction-submit").val(2);
+        jQuery("#ebay_listings").submit();
+    }
+
+    function submitAutodetectAll() {
+        jQuery("#massaction-submit").val(3);
+        jQuery("#ebay_listings").submit();
+    }
+
+</script>
+
+
+<div class="modal fade" id="setProductIdModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+</div>

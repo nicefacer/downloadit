@@ -1,0 +1,9 @@
+.ml-plist.amazon .actionLeft {
+    white-space: nowrap;
+}
+.ml-plist.amazon .actionLeft {
+	display: inline-flex;
+}
+table#errorlog thead tr td:last-child {
+    min-width: 130px;
+}

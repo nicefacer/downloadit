@@ -1,0 +1,26 @@
+<div id="tabs-container" class="dynamic-tab-pane-control tab-pane">
+    <div class="tab-row">
+        <?php $isFirst = true; ?>
+        <?php foreach($tabs as $tabKey => $tabLabel) { ?>
+            <h4 class="tab<?php echo $isFirst?' selected':''; ?>"><a href="#<?php echo $tabKey; ?>"><?php echo L::t($tabLabel);?></a></h4>
+            <?php $isFirst = false; ?>
+        <?php } ?>
+    </div>
+
+    <?php foreach($tabs as $tabKey => $tabLabel) { ?>
+        <div id="<?php echo $tabKey; ?>" class="tab-page">
+            <?php RenderHelper::view("profiles/edit/".$tabKey.".phtml", array('hdbk' => $hdbk, 'model' => $model)); ?>
+        </div>
+    <?php } ?>
+</div>
+
+<script type="text/javascript">
+    jQuery("#tabs-container div").idTabs(function(id,list,set){
+        jQuery("h4", set).removeClass("selected");
+        jQuery("h4 a", set).filter("[href='"+id+"']").parent().addClass("selected");
+        for(i in list)
+            jQuery(list[i]).hide();
+        jQuery(id).show();
+        return false;
+    });
+</script>

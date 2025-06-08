@@ -1,0 +1,203 @@
+<?php
+/**
+ * File general.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php echo HtmlHelper::tabBlockStart("Profile Global Configuration"); ?>
+
+<table cellpadding="5" width="100%">
+    <tr>
+        <td class="col-left"><label class="control-label" for="profile_name"><?php echo L::t("Profile Name");?> <em>*</em></label></td>
+        <td>
+            <div  class="col-lg-5">
+                <input id="profile_name" name="profile_name" type="text" value="<?php echo $model->profile_name; ?>" />
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="ebay_account"><?php echo L::t("eBay Account");?> <em>*</em></label></td>
+        <td>
+            <select name="ebay_account" id="ebay_account" class="col-lg-5">
+                <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                <?php foreach ($hdbk['accounts'] as $account) : ?>
+                    <option value="<?php echo $account['id']; ?>" <?php echo ($account['id'] == $model->ebay_account)?'selected="selected"':""; ?>>
+                        <?php echo $account['name']; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="ebay_site"><?php echo L::t("Marketplace");?><em>*</em></label></td>
+        <td>
+            <select name="ebay_site" id="ebay_site" class="col-lg-5">
+                <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                <?php foreach ($hdbk['marketplaces'] as $marketplace) : ?>
+                    <option value="<?php echo $marketplace['id']; ?>" <?php echo ($marketplace['id'] == $model->ebay_site)?'selected="selected"':""; ?>>
+                        <?php echo $marketplace['label']; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="ebay_category_mode"><?php echo L::t("eBay Category Mode");?><em>*</em></label></td>
+        <td>
+            <div class="hide-notice" <?php echo ($model->ebay_site > 0)?'style="display:none"':'';?>><?php echo L::t("Please select <b>Marketplace</b> to access this field");?></div>
+
+            <select name="ebay_category_mode" id="ebay_category_mode" <?php echo !isset($hdbk['ebay_category_mapping_options'])?'class="hidden-option"':'';?>>
+                <?php if (isset($hdbk['ebay_category_mapping_options'])) { ?>
+                    <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                    <option value="<?php echo ProfilesModel::EBAY_CATEGORY_MODE_PROFILE; ?>" <?php echo ($model->ebay_category_mode == ProfilesModel::EBAY_CATEGORY_MODE_PROFILE)?"selected='selected'":"";?>><?php echo L::t("Selling Profile");?></option>
+                    <?php $isCategoryMappingMode = $model->ebay_category_mode == ProfilesModel::EBAY_CATEGORY_MODE_MAPPING; ?>
+                    <optgroup label="<?php echo L::t("Ebay Category Mappings"); ?>">
+                    <?php foreach ($hdbk['ebay_category_mapping_options'] as $option) { ?>
+                        <option
+                            value="d-<?php echo $option['id'];?>"
+                            <?php echo ($isCategoryMappingMode && $model->ebay_category_mapping_id == $option['id'])?"selected='selected'":"";?>>
+                            <?php echo $option['label'];?>
+                        </option>
+                    <?php } ?>
+                    </optgroup>
+                <?php } ?>
+
+
+                <?php // echo ProfilesHelper::getStoreMappingOptions($model->ebay_category_mode == ProfilesModel::EBAY_CATEGORY_MODE_MAPPING ? $model->ebay_category_mapping_id:0); ?>
+            </select>
+
+        </td>
+    </tr>
+    <?php $isShowCategoryMappingBlock = isset($model->ebay_category_mode) && $model->ebay_category_mode == ProfilesModel::EBAY_CATEGORY_MODE_MAPPING; ?>
+    <tr class="category-mode-profile-blocks" style="<?php echo $isShowCategoryMappingBlock?'display:none;':''; ?>">
+        <td class="col-left"><label class="control-label" for="ebay_primary_category_0"><?php echo L::t("eBay Category Main");?><em>*</em></label></td>
+        <td>
+            <input type="hidden" id="ebay_primary_category_name" name="ebay_primary_category_name" value="<?php echo $model->ebay_primary_category_name; ?>"/>
+            <input type="hidden" id="ebay_primary_category_value" name="ebay_primary_category_value" value="<?php echo $model->ebay_primary_category_value; ?>" />
+
+            <span id="primary_category_label"><?php echo $model->ebay_primary_category_name; ?></span>
+            <?php $isEdit = true; ?>
+            <?php if ($model->ebay_primary_category_value > 0) { ?>
+            <br clear="both"/>
+            <input type='button' id='change_primary_category' class='button' value='<?php echo L::t("Change");?>'/>
+            <input type='button' id='reset_primary_category' class='button' value='<?php echo L::t("Reset");?>'/>
+            <?php } else {
+                 $isEdit = false;
+            } ?>
+                <div class="hide-notice" <?php echo ($isEdit)?'style="display:none"':'';?>><?php echo L::t("Please select <b>Marketplace</b> to access this field");?></div>
+                <select id="ebay_primary_category_0" level="0" class="ebay_primary_category hidden-option col-lg-5"></select>
+            
+            <div class="error-container" for="ebay_primary_category_value"></div>
+        </td>
+    </tr>
+    <tr class="category-mode-profile-blocks" style="<?php echo $isShowCategoryMappingBlock?'display:none;':''; ?>">
+        <td class="col-left"><label class="control-label" for="ebay_secondary_category_0"><?php echo L::t("eBay Category Secondary");?></label></td>
+        <td>
+            <input type="hidden" id="ebay_secondary_category_name" name="ebay_secondary_category_name" value="<?php echo $model->ebay_secondary_category_name; ?>"/>
+            <input type="hidden" id="ebay_secondary_category_value" name="ebay_secondary_category_value" value="<?php echo $model->ebay_secondary_category_value; ?>" />
+
+            <span id="secondary_category_label"><?php echo $model->ebay_secondary_category_name; ?></span>
+            <?php $isEdit = true; $isNoSelected = false; ?>
+            <?php if ($model->ebay_secondary_category_value > 0) { // selected some category ?>
+            <br/>
+            <input type='button' id='change_secondary_category' class='button' value='<?php echo L::t("Change");?>'/>
+            <input type='button' id='reset_secondary_category' class='button' value='<?php echo L::t("Reset");?>'/>
+            <?php } else if ($model->ebay_primary_category_value > 0 && isset($hdbk['marketplace_main_category'])) {  // category not selected
+                 $isNoSelected = true;
+            } else {
+                $isEdit = false;
+            }
+            ?>
+            <div class="hide-notice" <?php echo ($isEdit)?'style="display:none"':'';?>><?php echo L::t("Please select <b>Marketplace</b> to access this field");?></div>
+            <select id="ebay_secondary_category_0" level="0" class="col-lg-5 ebay_secondary_category <?php echo ($isNoSelected)?'':'hidden-option';?>">
+                    <?php if ($isNoSelected) { ?>
+                        <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                     <?php foreach ($hdbk['marketplace_main_category'] as $singleMainCategory) { ?>
+                                <option value="<?php echo $singleMainCategory['id']; ?>"><?php echo $singleMainCategory['label']; ?></option>
+                    <?php   }
+                          }
+                    ?>
+            </select>
+            
+            <div class="error-container" for="ebay_secondary_category_value"></div>
+        </td>
+    </tr>    
+    
+    <tr>
+        <td class="col-left"><label class="control-label" for="auction_type"><?php echo L::t("Auction Type");?> <em>*</em></label></td>
+        <td>
+            <select name="auction_type" id="auction_type" class="col-lg-5">
+                <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                <option value="<?php echo ProfilesModel::AUCTION_TYPE_CHINESE; ?>" <?php echo (ProfilesModel::AUCTION_TYPE_CHINESE == $model->auction_type)?'selected="selected"':""; ?>><?php echo L::t("Auction / Chinese");?></option>
+                <option value="<?php echo ProfilesModel::AUCTION_TYPE_FIXEDPRICE; ?>" <?php echo (ProfilesModel::AUCTION_TYPE_FIXEDPRICE == $model->auction_type)?'selected="selected"':""; ?>><?php echo L::t("Fixed Price Item");?></option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="auction_duration"><?php echo L::t("Duration");?> <em>*</em></label></td>
+        <td class="value">
+            <?php
+                $possibleDurationValues = array(
+                        "Days_1" => L::t("1 Day"),
+                        "Days_3" => L::t("3 Days"),
+                        "Days_5" => L::t("5 Days"),
+                        "Days_7" => L::t("7 Days"),
+                        "Days_10" => L::t("10 Days"),
+                        "Days_30" => L::t("30 Days"),
+                        "GTC" => L::t("GTC"),
+                );
+            ?>
+            <select class="col-lg-5" name="auction_duration" id="auction_duration">
+                <option value="">-- <?php echo L::t("Please select");?> --</option>
+                <?php foreach ($possibleDurationValues as $durationEbayKey => $durationTextView) { ?>
+                    <option
+                        value="<?php echo $durationEbayKey; ?>"
+                        <?php echo ($durationEbayKey == $model->auction_duration)?'selected="selected"':""; ?>
+                        <?php echo ($model->auction_type == 1 && ($durationEbayKey == "GTC" || $durationEbayKey == "Days_30"))?'style="display:none;"':"" ?>
+                        <?php echo ($model->auction_type == 2 && $durationEbayKey == "Days_1")?'style="display:none;"':"" ?>>
+                        <?php echo $durationTextView; ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="col-left"><label class="control-label" for="private_listing"><?php echo L::t("Private Listing");?> <em>*</em></label></td>
+        <td>
+            <select name="private_listing" id="private_listing" class="col-lg-5">
+                <option value="<?php echo ProfilesModel::PRIVATE_LISTING_NO; ?>" <?php echo (ProfilesModel::PRIVATE_LISTING_NO == $model->private_listing)?'selected="selected"':""; ?>><?php echo L::t("No");?></option>
+                <option value="<?php echo ProfilesModel::PRIVATE_LISTING_YES; ?>" <?php echo (ProfilesModel::PRIVATE_LISTING_YES == $model->private_listing)?'selected="selected"':""; ?>><?php echo L::t("Yes");?></option>
+            </select>
+        </td>
+    </tr>
+
+    <?php $allowedCrossBorderTrade = in_array($model->ebay_site, array(1, 2, 3, 205)); ?>
+    <tr id="cross_border_trade_row" <?php echo $allowedCrossBorderTrade?'':'style="display:none;"'; ?>>
+        <td class="col-left"><label class="control-label" for="cross_border_trade"><?php echo L::t("International Site Visibility");?></label></td>
+        <td>
+            <select name="cross_border_trade" id="cross_border_trade" class="col-lg-5 float-no">
+                <option value="<?php echo ProfilesModel::CROSS_BORDER_RATE_NO; ?>" <?php echo (ProfilesModel::CROSS_BORDER_RATE_NO == $model->cross_border_trade || !$allowedCrossBorderTrade)?'selected="selected"':""; ?>><?php echo L::t("No");?></option>
+                <option value="<?php echo ProfilesModel::CROSS_BORDER_RATE_YES; ?>" <?php echo (ProfilesModel::CROSS_BORDER_RATE_YES == $model->cross_border_trade && $allowedCrossBorderTrade)?'selected="selected"':""; ?>><?php echo L::t("Yes");?></option>
+            </select>
+            <p><?php echo L::t('Work only for UK, US, CA and Ireland'); ?></p>
+        </td>
+    </tr>
+</table>
+
+<?php echo HtmlHelper::tabBlockEnd(); ?>

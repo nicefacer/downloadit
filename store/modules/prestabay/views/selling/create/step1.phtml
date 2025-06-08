@@ -1,0 +1,237 @@
+<?php
+/**
+ * File step1.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php
+RenderHelper::addScript("jquery.validate.min.js");
+$isDuplicate = isset($duplicateData['name']) && $duplicateId;
+$isEdit = isset($duplicateData['name']) && !$duplicateId && $editId;
+$blockTitle = L::t("New Selling List");
+if ($isDuplicate) {
+    $blockTitle = sprintf(L::t("Duplicate Selling List based on '%s'"), $duplicateData['name']);
+}
+
+if ($isEdit) {
+    $blockTitle = sprintf(L::t("Edit Selling List '%s'"), $duplicateData['name']);
+}
+?>
+<style>
+    .choose-language {
+        font-weight: normal;
+        padding: 0.2em 0.5em 0 0;
+        font-size: 1.1em;
+    }
+</style>
+<form action="<?php echo !$isEdit?UrlHelper::getUrl('selling/saveStep1'):UrlHelper::getUrl('selling/saveEditDetails'); ?>" id="sellingFormStep1" name="selling_form_step1" method="post" class="form-horizontal">
+    <input type="hidden" name="duplicateId" value="<?php echo $duplicateId; ?>" />
+    <input type="hidden" name="editId" value="<?php echo $editId; ?>" />
+
+    <?php if (!CoreHelper::isPS16()): ?><h2><?php echo $blockTitle ?></h2><?php endif; ?>
+
+    <div class="content-header">
+        <button class="button btn btn-success btn-small" type="submit"><?php echo !$isEdit?L::t("Next"):L::t("Save"); ?> <i class="icon-arrow-right icon-white"></i></button>
+    </div>
+
+    <?php echo HtmlHelper::blockStart($blockTitle); ?>
+
+        <ul class="error-container"></ul>
+
+    <div class="form-group ">
+        <label for="name" class="control-label col-lg-3 required"><?php echo L::t("Name");?></label>
+	    <div class="col-lg-9 margin-form">
+            <input type="text" size="30" maxlength="32" name="name" value="<?php echo $isEdit?$duplicateData['name']:''; ?>" class="required" title="<?php echo L::t("Please enter correct List Name");?>"/> <?php echo CoreHelper::isPS16()?"":"<sup>*</sup>"; ?>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="profile" class="control-label col-lg-3 required"><?php echo L::t("Profile");?></label>
+        <div class="col-lg-9 margin-form">
+            <select name="profile" class="required" title="<?php echo L::t("Please select Profile");?>">
+                <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                <?php foreach ($profilesList as $singleProfile) { ?>
+                    <option value="<?php echo $singleProfile['id']; ?>" 
+                        <?php echo isset($duplicateData['profile']) && $duplicateData['profile'] == $singleProfile['id'] ? 'selected="selected"':'';?>>
+                            <?php echo $singleProfile['profile_name']; ?>
+                    </option>
+                <?php } ?>
+            </select> <?php echo CoreHelper::isPS16()?"":"<sup>*</sup>"; ?>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="language" class="control-label col-lg-3 required"><?php echo L::t("Language");?></label>
+        <div class="col-lg-9 margin-form">
+            <select id="language" name="language" class="required" title="<?php echo L::t("Please select Language");?>">
+                <option value="">-- <?php echo L::t("Please Select");?> --</option>
+                <?php foreach ($languageList as $singleLanguage) { ?>
+                    <option value="<?php echo $singleLanguage['id_lang']; ?>" 
+                        <?php echo isset($duplicateData['language']) && $duplicateData['language'] == $singleLanguage['id_lang'] ? 'selected=selected':'';?>>
+                        <?php echo $singleLanguage['name']; ?><?php echo ($defaultLangId == $singleLanguage['id_lang'])?" [default]":""; ?>
+                    </option>
+                <?php } ?>
+            </select> <?php echo CoreHelper::isPS16()?"":"<sup>*</sup>"; ?>
+        </div>
+    </div>
+
+    <div class="form-group ">
+        <label for="mode" class="control-label col-lg-3 required"><?php echo L::t("Mode");?></label>
+        <div class="col-lg-9 margin-form">
+            <?php
+            $modeOptions = array(
+                'id' => 'mode',
+                'class' => 'required',
+                'title' => L::t("Please select mode"),
+            );
+            if (isset($duplicateData['name'])) {
+                $modeOptions["disabled"] = "disabled";
+                echo '<input type="hidden" name="mode" value="'.(isset($duplicateData['mode'])?$duplicateData['mode']:'').'"/>';
+            }
+            
+            echo HtmlHelper::dropDownList('mode', isset($duplicateData['mode'])?$duplicateData['mode']:'', array(
+                Selling_ListModel::MODE_PRODUCT => L::t("Products"),
+                Selling_ListModel::MODE_CATEGORY => L::t("Categories"),
+            ), $modeOptions);
+            ?> <?php echo CoreHelper::isPS16()?"":"<sup>*</sup>"; ?>
+        </div>
+    </div>
+    <div class="form-group ">
+        <label for="attribute_mode" class="control-label col-lg-3 required"><?php echo L::t("Combination Product");?></label>
+        <div class="col-lg-9 margin-form">
+            <?php
+                $attributeModeOptional = array(
+                    'id' => 'attribute_mode'
+                );
+                if ($isEdit) {
+                    $attributeModeOptional['disabled'] = "disabled";
+                }
+            ?>
+            <?php echo HtmlHelper::dropDownList('attribute_mode', isset($duplicateData['attribute_mode'])?$duplicateData['attribute_mode']:'', array(
+                Selling_ListModel::ATTRIBUTE_MODE_ONE_LISTING => L::t("Use as one product"),
+                Selling_ListModel::ATTRIBUTE_MODE_SEPARATE_LISTINGS => L::t("Use as separate products"),
+            ), $attributeModeOptional);
+            ?>
+        </div>
+    </div>
+    <div class="form-group ">
+        <label for="duplicate_protect_mode" class="control-label col-lg-3 required"><?php echo L::t("Product duplicate protection");?></label>
+        <div class="col-lg-9 margin-form">
+            <?php
+            $duplicateProtectModeOptional = array(
+                'id' => "duplicate_protect_mode"
+            );
+            echo HtmlHelper::dropDownList('duplicate_protect_mode', isset($duplicateData['duplicate_protect_mode'])?$duplicateData['duplicate_protect_mode']:'', array(
+                Selling_ListModel::DUPLICATE_PROTECT_MODE_NO => L::t('No Protection'),
+                Selling_ListModel::DUPLICATE_PROTECT_MODE_SINGLE_PRODUCT_LIST => L::t('Product should be unique in Selling List')
+            ), $duplicateProtectModeOptional);
+            ?>
+        </div>
+    </div>
+    <div id="category_container" style="display:none;">
+         <div class="form-group ">
+            <label for="category_id" class="control-label col-lg-3 required"><?php echo L::t("Category");?></label>
+            <div class="col-lg-9 margin-form">
+                <div class="choose-language"><?php echo L::t("Please choose language to access this field");?></div>
+                <select id="category_id" 
+                        name="category_id[]"
+                        multiple="multiple"
+                        style="display:none;"
+                        <?php echo $isDuplicate?"disabled='disabled'":''; ?>>
+                </select>
+                <p>NB! <?php echo L::t("Only product that have selected 'Default Category' will be added"); ?></p>
+                <p><b><?php echo $isEdit?L::t("IMPORTANT! Selected categories will be added to existing one"):""; ?></b></p>
+            </div>
+         </div>
+        <?php if (!$isEdit) {  ?>
+            <div class="form-group ">
+                <label for="category_send_product" class="control-label col-lg-3 required"><?php echo L::t("Immediately Send Product");?></label>
+                <div class="col-lg-9 margin-form">
+                    <?php
+                        $categorySendProductOptional = array(
+                            'id' => "category_send_product"
+                        );
+                        echo HtmlHelper::dropDownList('category_send_product', isset($duplicateData['category_send_product'])?$duplicateData['category_send_product']:'', array(
+                            Selling_ListModel::CATEGORY_SEND_PRODUCT_NO => L::t('No. Just add to Selling List'),
+                            Selling_ListModel::CATEGORY_SEND_PRODUCT_YES => L::t('Yes. Send all products from category to eBay')
+                        ), $categorySendProductOptional);
+                    ?>
+                </div>
+            </div>
+        <?php } ?>
+    </div>
+    <?php echo HtmlHelper::blockEnd(); ?>
+</form>
+
+<br/>
+<br/>
+<a href="<?php echo  UrlHelper::getUrl("selling/index"); ?>"><img src="../img/admin/arrow2.gif"><?php echo L::t("Back to list");?></a>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        $("#sellingFormStep1").validate({
+            errorLabelContainer: $("#sellingFormStep1 ul.error-container"),
+            errorClass: 'invalid',
+            errorElement: "li"
+
+        });
+        $("#sellingFormStep1").submit(submitForm);
+
+        $("#language").change(function() {
+            if ($(this).val() == "") {
+                return;
+            }
+            $.post("<?php echo UrlHelper::getUrl("selling/getCategoriesOptionsAjax")?>",
+                {
+                    languageId: $(this).val(),
+                    selectedId: <?php echo isset($duplicateData['category_id'])?json_encode($duplicateData['category_id']):0; ?>
+                },
+                function(data) {
+                    $("#category_id").html(data);
+                    $(".choose-language").hide();
+                    $("#category_id").show();
+            });
+        });
+
+        $("#mode").change(function() {
+            if ($(this).val() == <?php echo Selling_ListModel::MODE_PRODUCT; ?>) {
+                $("#category_container").hide();
+            } else {
+                $("#category_container").show();
+            }
+        });
+        
+        $("#language").change();
+        $("#mode").change();
+    });
+
+    function submitForm() {
+        if (!$("#sellingFormStep1").valid()) {
+            return false;
+        }
+        return true;
+    }
+
+</script>
+
+<style>
+    #category_id {
+        height: 500px;
+        max-height: 500px;
+    }
+</style>

@@ -1,0 +1,1 @@
+<a href="smart_icon"><i class="icon-flag"></i> Font Awesome</a>

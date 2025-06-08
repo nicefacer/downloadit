@@ -1,0 +1,70 @@
+.magna .nobootstrap {
+	min-width: auto;
+}
+
+.bootstrap .page-head h2.page-title,
+.bootstrap .page-head {
+	border-bottom: none;
+}
+
+#ml-js-pushMessages {
+    margin-top: 0 !important;
+}
+
+#nav-sidebar ul.menu  #maintab-AdminMainMagnalister > a {
+    background-image: url("../img/AdminMainMagnalister_v161.png");
+    background-repeat: no-repeat;
+    background-position: 5px center;
+    background-size: 18px 16px;
+}
+
+#nav-sidebar ul.menu  #maintab-AdminMainMagnalister > a i {
+	background-image: url("../img/AdminMainMagnalister_v161h.png");
+	background-position: 1px 11px;
+	background-repeat: no-repeat;
+	background-size: 18px 16px;
+	display: inline-block;
+	float: left;
+	height: 28px;
+	opacity: 0;
+	-webkit-transition: opacity 0.4s ease-out;
+	transition: opacity 0.4s ease-out;
+	width: 22px;
+}
+
+#nav-sidebar ul.menu  #maintab-AdminMainMagnalister:hover > a i,
+#nav-sidebar ul.menu  #maintab-AdminMainMagnalister.active > a i {
+   opacity: 1;
+}
+
+body.page-sidebar-closed #nav-sidebar ul.menu #maintab-AdminMainMagnalister > a {
+	background-position: 17px center;
+}
+
+body.page-sidebar-closed #nav-sidebar ul.menu #maintab-AdminMainMagnalister:hover > a {
+	background-image: none;
+}
+
+body.page-sidebar-closed #nav-sidebar ul.menu #maintab-AdminMainMagnalister > a i {
+    background-position: 13px 14px;
+    background-size: 18px 16px;
+    height: 31px;
+    width: 30px;
+	-webkit-transition: unset;
+	transition: unset;
+}
+
+body.page-sidebar-closed #nav-sidebar ul.menu #maintab-AdminMainMagnalister:hover > a i {
+    background-position: 0 15px;
+}
+
+body.page-sidebar-closed #nav-sidebar ul.menu li#maintab-AdminMainMagnalister > a.title span {
+	padding-left: 0;
+}
+
+@media (min-height:851px) {
+	#nav-sidebar ul.menu #maintab-AdminMainMagnalister > a i {
+		background-position: 1px 14px;
+		height: 31px;
+	}
+}

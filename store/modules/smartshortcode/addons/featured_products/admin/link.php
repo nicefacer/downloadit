@@ -1,0 +1,1 @@
+<a href="featured_products"><i class="icon-list-ul"></i> Featured Products</a>

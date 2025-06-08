@@ -1,0 +1,15 @@
+.icon-AdminMenuSettings:before {
+    content: '\f0c9';
+}
+
+#maintab-AdminMenuSettings i,
+#maintab-AdminMenuSettings a {
+    color: #333333 !important;
+    background: #7caa3d !important;
+}
+
+#maintab-AdminMenuSettings:hover i,
+#maintab-AdminMenuSettings:hover a {
+    color: #ffffff !important;
+    background: #7caa3d !important;
+}

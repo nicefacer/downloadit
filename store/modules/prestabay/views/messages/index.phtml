@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * File index.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<?php RenderHelper::addScript("angular.min.js"); ?>
+
+
+<?php if (CoreHelper::isOnlyPS15()) { ?>
+    <?php RenderHelper::addCss("modal.css"); ?>
+
+    <style>
+        #leaveResponseModal {
+            margin-top: 150px;
+            border: 0px;
+        }
+    </style>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js" ></script>
+<?php } ?>
+
+<form action="<?php echo UrlHelper::getUrl("messages/index"); ?>" id="account_filter" name="account_filter" method="get">
+    <div>
+        <div class="float-right"><?php echo L::t("Filter by account"); ?>: <?php echo HtmlHelper::dropDownList('account', $selectedAccountId, $accountsList, array('addSelect' => true, 'id' => 'account_select')); ?></div>
+    </div>
+</form>
+<?php if (CoreHelper::isPS16()) { ?>
+    <br clear="both"/><br/>
+<?php } ?>
+
+<?php echo $grid; ?>
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        jQuery("#account_select").change(function() {
+            jQuery("#account_filter").submit();
+        });
+
+
+        jQuery("#account_filter").submit(function(e) {
+            e.preventDefault();
+            var filter = "account_select=" + jQuery("#account_select").val();
+            document.location.href = "<?php echo UrlHelper::getUrl("messages/index"); ?>&"+filter;
+
+            return false;
+        });
+
+        jQuery(".writeResponse").bind('click', function(e){
+            var baseUrl = '<?php echo UrlHelper::getUrl('messages/responseModal'); ?>';
+            baseUrl = baseUrl + "&rowid=" + jQuery(this).parent().parent().attr('data-rowid');
+
+            $('#leaveResponseModal').modal({
+                'show': true
+            }).load(baseUrl, function (e) {
+                angular.bootstrap(jQuery("#leaveResponseModalContent"), ['writeResponse']);
+            });
+
+            e.preventDefault();
+        });
+
+        jQuery(".view-replay").bind('click', function(e) {
+           var nd = $(this).next();
+            if (nd.is(":visible")) {
+                nd.hide();
+            } else {
+                nd.show();
+            }
+        });
+    });
+</script>
+
+<div class="modal fade" id="leaveResponseModal" tabindex="-1" role="dialog" aria-hidden="true">
+
+</div>

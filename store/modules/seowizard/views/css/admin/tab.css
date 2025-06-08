@@ -1,0 +1,11 @@
+/*
+ * CSS Styles
+*/
+
+.icon-AdminKbSeoWizardMenu:before, .icon-AdminKbSeoWizardMenu:before { content: "\f019"; }
+
+.free-disabled:hover{
+   opacity:0.3 !important;
+   cursor: not-allowed !important;
+   
+}

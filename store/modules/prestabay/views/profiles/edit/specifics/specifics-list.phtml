@@ -1,0 +1,94 @@
+<?php
+/**
+ * File specifics-list.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+
+<?php $productSpecifics = $model->getProductSpecifics(); ?>
+<?php $productSpecificsCustom = $model->getProductSpecificsCustom(); ?>
+
+<?php $index = 0; ?>
+<?php foreach ($specificsList as $singleSpecific) { ?>
+    <?php
+        $selectedSpecificValue = isset($productSpecifics[$singleSpecific['id']])?$productSpecifics[$singleSpecific['id']]:'';
+        $productSpecificsCustomValue = isset($productSpecificsCustom[$singleSpecific['id']])?$productSpecificsCustom[$singleSpecific['id']]:false;
+    ?>
+
+  <tr>
+    <td class="col-left">
+        <label class="control-label" for="product_specifics_<?php echo $index; ?>"><?php echo $singleSpecific['label']; ?><?php echo $singleSpecific['required']?' <em>*</em>':'';?></label>
+    </td>
+    <td>
+        <?php
+            $isEditElement = ($singleSpecific['style'] == ProfilesModel::SPECIFIC_STYLE_TEXT);
+            $isSelectElement = ($singleSpecific['style'] & ProfilesModel::SPECIFIC_STYLE_SELECT) || ($singleSpecific['style'] & ProfilesModel::SPECIFIC_STYLE_MULTIPLE);
+            $isAllowCustomValue = true; // ($singleSpecific['style'] & ProfilesModel::SPECIFIC_STYLE_TEXT);
+            $multipleHtml = '';
+            $multipleChoose = '';
+            $isMulti = false;
+            if ($singleSpecific['style'] & ProfilesModel::SPECIFIC_STYLE_MULTIPLE) {
+                $multipleHtml = 'multiple="multiple"';
+                $multipleChoose = '[]';
+                $isMulti = true;
+            }
+
+            $requiredClass = ''; //$singleSpecific['required']?'required':'';
+            if ($isSelectElement) {
+        ?>
+            <select id="product_specifics_<?php echo $index; ?>"
+                    name="product_specifics[<?php echo $singleSpecific['id']; ?>]<?php echo $multipleChoose; ?>"
+                    <?php echo $multipleHtml; ?>
+                     class="ebay_specific_input product_specific_select <?php echo $requiredClass; ?>"
+                     ng-model="mappingCtrl.specific['<?php echo addslashes($singleSpecific['id']); ?>']"
+                     "
+                >
+            <option value=""></option>
+            <?php foreach ($singleSpecific['options'] as $singleOption) { ?>
+                <?php
+                    // Long logic construction requred for support multi-select
+                    $isSelectedOption = ((is_array($selectedSpecificValue) && in_array($singleOption['id'], $selectedSpecificValue))
+                                    || $selectedSpecificValue == $singleOption['id']);
+                ?>
+
+                <option value="<?php echo $singleOption['id']; ?>" <?php echo ($isSelectedOption)?'selected="selected"':''; ?>><?php echo $singleOption['label'];?></option>
+            <?php } ?>
+                <?php //if ($isAllowCustomValue && !$isMulti) { ?>
+                    <?php echo ReplaceHelper::getAllSupportedSpecificOptions($selectedSpecificValue); ?>
+                <?php // } ?>
+            </select>
+            <?php  if ($isAllowCustomValue && !$isMulti) { ?>
+               <?php $showCustom = $selectedSpecificValue == ProfilesModel::SPECIFIC_CUSTOM_VALUE_KEY ?>
+               <br/>
+               <input type="text" name="product_specifics_custom[<?php echo $singleSpecific['id']; ?>]"
+                      style="<?php echo $showCustom || $isAngular ?'':'display:none;';?>"
+                      value="<?php echo $productSpecificsCustomValue; ?>"
+                      ng-model="mappingCtrl.specificCustom['<?php echo addslashes($singleSpecific['id']); ?>']"
+                      ng-show="mappingCtrl.showSpecificCustom('<?php echo addslashes($singleSpecific['id']); ?>')"
+                   />
+            <?php  } ?>
+        <?php } else if ($isEditElement) { ?>
+            <input type="text" class="ebay_specific_input" id="product_specifics_<?php echo $index; ?>" name="product_specifics[<?php echo $singleSpecific['id']; ?>]"
+                   value="<?php echo $selectedSpecificValue; ?>"
+                   ng-model="mappingCtrl.specific['<?php echo addslashes($singleSpecific['id']); ?>']"
+                   <?php echo $requiredClass; ?>/>
+        <?php } ?>
+      </td>
+  </tr>
+  <?php } // foreach ?>

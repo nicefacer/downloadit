@@ -1,0 +1,243 @@
+.ml-plist{}
+
+.ml-plist .actionTop{
+    padding-right: 5px;
+}
+
+.ml-plist table.ml-plist-table{width:100%;border: 1px solid #999999;border-spacing: 1px;}
+
+.ml-plist table.ml-plist-table>thead>tr>th{background:#cccccc;padding: .5em;}
+.ml-plist table.ml-plist-table>thead>tr>th[class]{border-left:1px solid white}
+.ml-plist-table tr:first-child {
+    height: 35px;
+}
+
+/*rows*/
+.ml-plist tbody.odd>tr>*{background: #ffffff;}
+.ml-plist tbody.even>tr>*{background: #EAEAEA;}
+.ml-plist table.ml-plist-table>tbody:hover{outline:1px solid black;}
+/*.ml-plist table.ml-plist-table>tbody > tr > td,.ml-plist table.ml-plist-table>tbody > tr > th{border-bottom:1px solid white;border-top:1px solid white;}
+.ml-plist table.ml-plist-table>tbody:hover > tr > td,.ml-plist table.ml-plist-table>tbody:hover > tr > th{border-bottom-color: black;border-top-color:black;}*/
+.ml-plist table>*>tr>*{padding: 0.4em;font-size:.9em;}
+.ml-plist table>tbody>tr>*{font-weight: normal;}
+.ml-plist table>tbody>tr.message>*>div{text-align: center;}
+.ml-plist table.variants{width:100%}
+.ml-plist table>tbody>tr>th.switch, .ml-plist table>tbody>tr>th.no-switch,
+.ml-plist table>tbody>tr>th.switch a, .ml-plist table>tbody>tr>th.no-switch a{vertical-align: top;width:0;text-decoration: none;color:inherit;}
+.ml-plist table>tbody>tr>th.switch{cursor: pointer;}
+
+.ml-plist .cell-magnalisterSelectionRow{
+    width:0;
+    vertical-align: top;
+    text-align: center;
+    padding-right:1em;
+}
+.ml-plist td.next-child{border-top:1px dotted gray;}
+.ml-plist .child>td.cell-magnalisterSelectionRow{
+   text-align: right;
+   padding-right:.5em;
+}
+.ml-plist .cell-product>div{
+    position:relative;
+}
+.ml-plist .cell-product>div>.product-link{
+    position:absolute;
+    right:0;
+    bottom:-10px;
+}.ml-plist .cell-product>div>.product-link>a>span{
+     background:inherit;
+     padding:.5em;
+     opacity:.9;
+ }
+.ml-plist .cell-image{
+    text-align: center;
+    width:0;
+}
+.ml-plist .cell-image>div{
+    width:40px;
+    height:40px;
+    border:1px solid silver;
+    line-height:40px;
+    font-size:.8em;
+    white-space: nowrap;
+}
+.ml-plist .cell-image>div>div{
+    transform:rotate(315deg)
+}
+.ml-plist .cell-priceShop, .ml-plist .cell-priceMarketplace{
+    text-align:right;
+}
+.ml-plist .cell-priceMarketplace{
+    padding-right: 10px;
+}
+.ml-plist .cell-priceMarketplace .price{
+    margin-right: -6px;
+}
+.ml-plist tr.main th.cell-preparedType td.statusGreen{
+    vertical-align: middle;
+}
+
+.ml-plist tr.main th.cell-preparedStatus table{margin:auto}
+.ml-plist tr.main th.cell-preparedStatus div,
+.ml-plist tr.main th.cell-preparedType div.statusGreen {
+    border-radius: 5px;
+    color: white;
+    height: 10px;
+    margin: auto;
+    width: 10px;
+}
+.ml-plist tr.child td.cell-preparedStatus div{
+    border-radius: 5px;
+    color: white;
+    height: 10px;
+    margin: auto;
+    width: 10px;
+}
+
+.ml-plist .cell-preparedStatus{
+    width:0;
+    vertical-align: middle;
+    text-align: center;
+    margin:auto
+}
+
+.ml-plist .cell-preparedStatus .statusGray {
+    background-image: linear-gradient(to bottom, #bdbdbd, #5b5b5b);
+}
+
+.ml-plist .cell-preparedStatus .statusGreen,
+.ml-plist .cell-preparedType div.statusGreen {
+    background-image: linear-gradient(to bottom, #00f1ba, #00d768);
+}
+
+.ml-plist .cell-preparedStatus .statusRed {
+    background-image: linear-gradient(to bottom, #ff6d00, #E31A1C);
+}
+
+.ml-plist .cell-preparedStatus .statusOrange {
+    background-image: linear-gradient(to bottom, #ffa200, #ff6d00);
+}
+
+.ml-plist .pagination_bar {
+    text-align: right;
+    background: none repeat scroll 0 0 #F3F3F3;
+    border-bottom: 1px solid #AAAAAA;
+    border-top: 1px solid #AAAAAA;
+    padding: 2px 5px;
+    margin-bottom: 4px;
+    margin-top: 4px;
+}
+
+.ml-plist select {
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2) inset, 1px 1px 3px -1px #FFFFFF inset;
+    height: 23px;
+    line-height: 23px;
+}
+
+.ml-plist input[type="text"] {
+    height: 17px;
+    line-height: 17px;
+}
+
+.ml-plist select, .ml-plist input[type="text"] {
+    background-color: #F9F9F9;
+    border: 1px solid #9C9C9C;
+    border-radius: 3px;
+    font-size: 12px;
+    padding: 2px 2px 2px 4px;
+}
+
+.ml-plist .actionBottom {
+    padding: 6px 3px;
+}
+
+.ml-plist.ebay .actionBottom .left .mlbtn {
+    min-width: 346px;
+}
+.ml-plist.ebay .actionBottom .right .mlbtn {
+    /* min-width: 230px; */
+}
+
+.ml-plist table.actions {
+    border-spacing: 0;
+}
+
+
+.ml-plist dev.filterWrapper button,
+.ml-plist dev.filterWrapper input,
+.ml-plist dev.filterWrapper select,
+.ml-plist dev.filterWrapper textarea {
+	margin: 0;
+}
+.ml-plist dev.filterWrapper select,
+.ml-plist dev.filterWrapper input[type="text"] {
+	border: 1px solid #9C9C9C;
+	border-radius: 3px;
+	
+	padding: 2px 2px 2px 4px;
+
+	font-size: 12px;
+	
+	line-height: 17px;
+	height: 17px;
+	background-color: #f9f9f9;
+}
+.ml-plist dev.filterWrapper select {
+	line-height: 23px;
+	height: 23px;
+	
+	box-shadow: 0px -1px 2px rgba(0, 0, 0, 0.2) inset, 1px 1px 3px -1px #fff inset;
+}
+.ml-plist dev.filterWrapper input[type="text"] {
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) inset, -1px -1px 3px -1px #fff inset;
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
+}
+.ml-plist dev.filterWrapper select:focus,
+.ml-plist dev.filterWrapper input[type="text"]:focus {
+	background-color: #fff;
+	border-color: rgba(82, 168, 236, 0.8);
+}
+
+.ml-plist table.topControls {
+	margin-bottom: -4px;
+}
+.ml-plist table.topControls select,
+.ml-plist table.topControls #editTemplates {
+	margin-bottom: 4px;
+}
+.ml-plist table.topControls td.filterLeft {
+	padding-left: 8px;
+}
+.ml-plist table.topControls td.filterRight div.filterWrapper {
+	text-align: right;
+}
+.ml-plist table.topControls td.filterRight .filter,
+.ml-plist table.topControls td.filterRight select {
+	display: inline-block;
+	width: 200px;
+	vertical-align: 1px;
+}
+
+.ml-plist .noButton.arrowDesc {
+    background: url('../images/arrows.png') 0 0;
+    width: 20px;
+    height: 17px;
+    text-indent: -9999px;
+ }
+
+.ml-plist .noButton.arrowAsc {
+    background: url('../images/arrows.png') -20px 0;
+    width: 20px;
+    height: 17px;
+    text-indent: -9999px;
+}
+
+.datagrid.ml-plist-old-fix tr td {
+    line-height: 18px;
+}
+
+.datagrid.ml-plist-old-fix tr td .ml-plist {
+    display: inline;
+}

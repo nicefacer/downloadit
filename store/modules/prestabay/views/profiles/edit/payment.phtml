@@ -1,0 +1,96 @@
+<?php
+/**
+ * File payment.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<?php echo HtmlHelper::tabBlockStart("Payment"); ?>
+<table cellpadding="5" width="100%">
+    <tr>
+        <td class="col-left"><label class="control-label" for="payment_list"><?php echo L::t("Payment Methods");?> <em>*</em></label></td>
+        <td>
+            <div class="hide-notice" <?php echo isset($hdbk['payment_methods'])?"style='display:none'":"";?>><?php echo L::t("Please select <b>Marketplace</b> to access this field");?></div>
+            <table id="payment_list" cellspacing="0" cellpadding="0" style="width: 285px;" class="table short-table <?php echo (!isset($hdbk['payment_methods']))?"hidden-option":'';?>">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th><?php echo L::t("Method Name");?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php
+                    $selectedMethods = $model->getPaymentMethods();
+                    if (!is_array($selectedMethods)) {
+                        $selectedMethods = array();
+                    }
+                ?>
+                <?php if (isset($hdbk['payment_methods'])) { ?>
+                    <?php foreach ($hdbk['payment_methods'] as  $method) { ?>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" value="<?php echo $method['id']; ?>" name="paymentBox[]" id="paymentBox_<?php echo $method['id']; ?>" <?php echo (in_array($method['id'], $selectedMethods))?"checked='checked'":""; ?>>
+                                </td>
+                                <td>
+                                    <label class="control-label" for="paymentBox_<?php echo $method['id']; ?>"><?php echo $method['label']; ?></label>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
+                </tbody>
+            </table>
+            <div class="error-container" for="paymentBox[]"></div>
+        </td>
+    </tr>
+    <tr id="payment_paypal_email_row" style="<?php echo (isset($selectedMethods) && is_array($selectedMethods) && in_array("PayPal", $selectedMethods))?"":"display:none";?>">
+        <td class="col-left"><label class="control-label" for="payment_paypal_email"><?php echo L::t("PayPal E-mail");?> <em>*</em></label></td>
+        <td>
+            <input type="text" name="payment_paypal_email" id="payment_paypal_email" value="<?php echo $model->payment_paypal_email; ?>"/>
+        </td>
+    </tr>
+
+    <tr id="cod_cost_italy_row" style="<?php echo (isset($selectedMethods) && is_array($selectedMethods) && in_array("COD", $selectedMethods) && $model->ebay_site == 101)?"":"display:none";?>">
+        <td class="col-left"><label class="control-label" for="cod_cost_italy"><?php echo L::t("COD cost");?> <em>*</em></label></td>
+        <td>
+            <input type="text" name="cod_cost_italy" id="cod_cost_italy" value="<?php echo $model->cod_cost_italy; ?>"/>
+        </td>
+    </tr>
+
+    <?php $allowedAutopay = (isset($selectedMethods) && is_array($selectedMethods) && in_array("PayPal", $selectedMethods) && count($selectedMethods) == 1); ?>
+    <tr id="autopay_row" style="<?php echo $allowedAutopay?"":"display:none";?>">
+        <td class="col-left"><label class="control-label" for="autopay"><?php echo L::t("Requiring Immediate Payment");?></label></td>
+        <td>
+            <select name="autopay" id="autopay">
+                <option value="<?php echo ProfilesModel::AUTOPAY_NO; ?>" <?php echo (ProfilesModel::AUTOPAY_NO == $model->autopay || !$allowedAutopay)?'selected="selected"':""; ?>><?php echo L::t("No");?></option>
+                <option value="<?php echo ProfilesModel::AUTOPAY_YES; ?>" <?php echo (ProfilesModel::AUTOPAY_YES == $model->autopay && $allowedAutopay)?'selected="selected"':""; ?>><?php echo L::t("Yes");?></option>
+            </select>
+        </td>
+    </tr>
+
+
+   <tr id="payment_instruction_row">
+        <td class="col-left">
+            <label class="control-label" for="payment_instruction"><?php echo L::t("Payment Instruction");?></label>
+        </td>
+        <td>
+            <textarea cols="5" rows="3" style="width: 500px; height: 150px;" name="payment_instruction" id="payment_instruction"><?php echo $model->payment_instruction; ?></textarea>
+            <p><?php echo L::t("Maximum 500 chars. These instructions appear on eBay's View Item page and on eBay's checkout page when the buyer pays for the item."); ?></p>
+        </td>
+   </tr>
+
+</table>
+<?php echo HtmlHelper::tabBlockEnd(); ?>

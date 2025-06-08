@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Nunito+Sans&display=swap');
+
+
+.uc_radio {display: inline-block !important;}
+.uc_radio input[type="radio"] {margin-left: 0px !important; margin-right: 10px;}
+.uc_privacy_button img {background-color: #0045A5; border-radius: 50%;}
+.uc-constent-template img {width: 25px; margin-right: 10px;}
+.uc-template-categories-header .translatable-field {margin-right: 10px;}
+.uc-template-categories-header {margin-bottom: 5px;}
+.uc-template-templates-header {margin-bottom: 5px;}
+.uc-constent-template {padding: 5px; }
+.uc-template-category {padding: 5px; cursor: pointer; border-bottom: 1px solid #adadad;}
+.uc-template-category.active{
+    border: 1px solid #0b93ff;
+    border-radius: 3px;}
+#addCategory {float: right;}
+.business_coming_msg{color:#0045A5;}
+p.business_coming_msg + p.business_coming_msg{display:none;}
+
+
+/*** UC admininfo style ***/
+body .bootstrap .ucstyle p, body .bootstrap  .ucstyle label { font-family: 'Nunito Sans', sans-serif; color: #303d4a!important; font-size: 16px; }
+body .bootstrap h1 { color: #111a51; font-family: 'Montserrat', sans-serif; font-size: 32px }
+body .bootstrap h2 { color: #42b983; font-family: 'Montserrat', sans-serif; font-size: 25px }
+
+body .bootstrap .uc_block {
+    background: #e5e5e5;
+    padding: 1.5rem 1rem;
+    box-shadow: 0 9px 24px rgb(0 0 0 / 7%);
+    border-radius: 6px;
+    background: white;
+    margin:  0 5px;
+    padding: 35px;
+    font-size: 16px;
+    line-height:  150%;
+    margin-bottom: 15px; 
+}
+
+body .bootstrap .uc_block strong {
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.form-group label.control-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+
+.business_coming_msg { background: #666!important }
+#fieldset_settings_2 > div.form-wrapper > div:nth-child(17){
+    border-top: 1px solid #c3c3c3;
+    padding-top: 1rem;
+}
+.business_coming_container{
+    margin-top: 5px;
+}

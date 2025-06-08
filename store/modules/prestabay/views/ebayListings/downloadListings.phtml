@@ -1,0 +1,94 @@
+<?php
+/**
+ * File selectAccount.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php RenderHelper::addScript("progress.js"); ?>
+
+<h2><?php echo L::t("Download eBay Listings"); ?></h2>
+
+<?php if (CoreHelper::isPS16()) { ?>
+    <?php $warningMessage = L::t("<u>Important!</u> Don't close window until process not finished."); ?>
+    <div class="alert alert-warning">
+        <h4><?php echo $warningMessage; ?></h4>
+    </div>
+<?php } else { ?>
+    <h3 class="notify"><?php echo $warningMessage; ?></h3>
+<?php } ?>
+
+<br/>
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        initImportAction(0);
+    });
+    var totalImported = 0;
+    var totalUsedInPrestabay = 0;
+    var totalAlreadyImported = 0;
+
+    function initImportAction(currentPage) {
+        if (currentPage == 0) {
+            appendMessage('get-ebay-listing', '<?php echo L::t("Obtain eBay Listings"); ?>...');
+        }
+        currentPage++;
+        jQuery.ajax({
+            url: '<?php echo UrlHelper::getUrl("ebayListings/importEbayListingsAjax")?>',
+            type: "post",
+            dataType: 'json',
+            data: {
+                   accountId: '<?php echo $account->id; ?>',
+                   page: currentPage
+            },
+            success: function(data) {
+                if (data.success == true) {
+                    totalImported += data.totalImport;
+                    totalUsedInPrestabay += data.skipPrestaBay;
+                    totalAlreadyImported += data.skipEbayListing;
+                    
+                    var progressMessage = '<br/><?php echo L::t('Total items'); ?>:' + data.totalItems
+                        + '<br/><?php echo L::t('Total imported');?>:' + totalImported
+                        + '<br/><?php echo L::t('Skipped (managed by PrestaBay)'); ?>:' + totalUsedInPrestabay
+                        + '<br/><?php echo L::t('Skipped (already imported)'); ?>:' + totalAlreadyImported;
+                    if (data.errors != "") {
+                        appendMessage('get-ebay-listing-error' + currentPage, data.errors, 'error');
+                    }
+                    
+                    if (currentPage < data.totalPages) {
+                        progressMessage = '<?php echo L::t("Obtain eBay Listings"); ?>...' + progressMessage;
+                        appendMessage('get-ebay-listing', progressMessage);
+                        initImportAction(currentPage);
+                    } else {
+                        progressMessage = '<?php echo L::t("Finish Import eBay Listings"); ?>' + progressMessage;
+                        appendMessage('get-ebay-listing', progressMessage, 'success');
+                        appendReturnButton('Return', '<?php echo UrlHelper::getUrl('ebayListings/index'); ?>');
+                    }
+                } else {
+                    appendMessage('get-ebay-listing', '<?php echo L::t('Error happens during import eBay Listings'); ?>.');
+                    appendMessage('get-ebay-listing-global-error', data.errors);
+                    appendReturnButton('Return', '<?php echo UrlHelper::getUrl('ebayListings/index'); ?>');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                // log the error to the console
+                alert('Problem with get JSON data.\n' + textStatus + "\n" + errorThrown);
+            }
+        });
+    }
+</script>
+<div id="synchronize-process"></div>

@@ -1,0 +1,1 @@
+<a href="sds_slider"><i class="icon-picture"></i> Image Slider</a>

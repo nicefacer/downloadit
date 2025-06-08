@@ -1,0 +1,192 @@
+<?php
+/**
+ * File main.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php
+$domain = Configuration::get("INVEBAY_SHOP_DOMAIN");
+
+$menuItems = array(
+    L::t('Selling List') => array(
+        'url' => UrlHelper::getUrl("selling/index"),
+    ),
+    L::t('Profiles') => array(
+        'url' => UrlHelper::getUrl("profiles/index"),
+        'child' => array(
+              L::t('Selling Profiles') => array(
+                'url' => UrlHelper::getUrl("profiles/index"),
+              ),
+              'delimiter1' => array('url' => '--'),
+              L::t('Price Templates') => array(
+                    'url' => UrlHelper::getUrl("priceTemplates/index"),
+              ),
+              L::t('Shipping Templates') => array(
+                    'url' => UrlHelper::getUrl("shippingTemplates/index"),
+              ),
+              L::t('Description Templates') => array(
+                    'url' => UrlHelper::getUrl("descriptionTemplates/index"),
+              ),
+              'delimiter2' => array('url' => '--'),
+              L::t('Category Mapping') => array(
+                  'url' => UrlHelper::getUrl("categoryMapping/index"),
+              ),
+              L::t('Ebay Store Mapping') => array(
+                  'url' => UrlHelper::getUrl("storeMapping/index"),
+              ),
+        )
+    ),
+    L::t('Logs') => array(
+        'url' => '#',
+        'child' => array(
+            L::t('Items Log') => array(
+                'url' => UrlHelper::getUrl("selling/itemsLog"),
+            ),
+            L::t('Synchronizations Log') => array(
+                'url' => UrlHelper::getUrl("synchronization/log"),
+            ),
+            L::t('Orders Log') => array(
+                'url' => UrlHelper::getUrl("order/log"),
+            ),
+            L::t('Listings Fee') => array(
+                'url' => UrlHelper::getUrl("fee/index"),
+            ),
+        )
+    ),
+    L::t('Orders') => array(
+        'url' => UrlHelper::getUrl("order/index"),
+    ),
+    L::t('Communication') => array(
+        'url' => '#',
+        'child' => array(
+            L::t('Feedbacks') => array(
+                'url' => UrlHelper::getUrl("feedback/index"),
+            ),
+            L::t('Feedbacks Templates') => array(
+                'url' => UrlHelper::getUrl("feedback/templates"),
+            ),
+            L::t('Messages') => array(
+                'url' => UrlHelper::getUrl("messages/index"),
+            ),
+            'delimiter1' => array('url' => '--'),
+            L::t('eBay Listings') => array(
+                'url' => UrlHelper::getUrl("ebayListings/index"),
+            ),
+        )
+    ),
+    L::t('Accounts') => array(
+        'url' => UrlHelper::getUrl("accounts/index"),
+    ),
+    L::t('Marketplaces') => array(
+        'url' => UrlHelper::getUrl("marketplaces/index"),
+    ),
+    L::t('Synchronization') => array(
+        'url' => UrlHelper::getUrl("synchronization/index"),
+    ),
+    L::t('Configuration') => array(
+        'url' => UrlHelper::getUrl("config/index"),
+    )
+);
+?>
+
+<div>
+    <script>
+        // Include the UserVoice JavaScript SDK (only needed once on a page)
+        UserVoice=window.UserVoice||[];(function(){var uv=document.createElement('script');uv.type='text/javascript';uv.async=true;uv.src='//widget.uservoice.com/c2Wl61QNUi08oR9P3fWO3g.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(uv,s)})();
+
+        // Set colors
+        UserVoice.push(['set', {
+            accent_color: '#448dd6',
+            trigger_color: 'white',
+            trigger_background_color: 'rgba(46, 49, 51, 0.6)',
+            ticket_custom_fields: {'Version': '2.x'}
+        }]);
+
+        // Identify the user and pass traits
+        // To enable, replace sample data with actual user traits and uncomment the line
+        UserVoice.push(['identify', {
+            <?php if (CoreHelper::isPS15()) { ?>
+            email:      '<?php echo Context::getContext()->employee->email; ?>',
+            name:       '<?php echo str_replace("'",'"',Context::getContext()->employee->firstname.' '.Context::getContext()->employee->lastname." (".$domain.")"); ?>',
+            <?php } ?>
+            account: {
+                id: 'LICENSE-<?php echo $domain; ?>',
+                name: '<?php echo $domain; ?>',
+                plan: 'V2.5'
+            }
+        }]);
+
+        // Or, use your own custom trigger:
+        UserVoice.push(['addTrigger', '#uservoicesupport', { mode: 'contact' }]);
+        UserVoice.push(['autoprompt', {}]);
+    </script>
+
+</div>
+
+<?php if (CoreHelper::isPS16()) { ?>
+    <?php RenderHelper::view("main/menu16.phtml", array('menuItems' => $menuItems)); ?>
+<?php } else { ?>
+
+<ul id="modulemenu">
+    <?php foreach ($menuItems as $menuText => $menuInfo) { ?>
+    <li class="withLeftBorder">
+        <a href="<?php echo $menuInfo['url']; ?>"><?php echo $menuText; ?></a>
+        <?php if (isset($menuInfo['child']) && is_array($menuInfo['child'])) { ?>
+        <ul>
+            <?php foreach ($menuInfo['child'] as $menuChildText => $menuChildInfo) { ?>
+                <?php if ($menuChildInfo['url'] == "--") { continue; } ?>
+                <li><a href="<?php echo $menuChildInfo['url']; ?>"><?php echo $menuChildText; ?></a></li>
+            <?php } ?>
+        </ul>
+        <?php } ?>
+    </li>
+    <?php } ?>
+    <li style="float:right !important;">
+        <a id="uservoicesupport" href="mailto:support@involic.com"><?php echo L::t("Support"); ?></a>
+    </li>
+</ul>
+<?php } ?>
+<?php
+    $unreadNotification = NotificationsHelper::getFirstUnread();
+    if ($unreadNotification) {
+        echo RenderHelper::displayModuleNotification($unreadNotification['class'], $unreadNotification['title'], $unreadNotification['id']);
+        if (CoreHelper::isPS16()) {
+            ?>
+            <script>
+                jQuery('.alert').alert();
+                jQuery('#module-notification .close').bind('click', function () {
+                    var messId = jQuery('#module-notification').attr('data-id');
+
+                    $.ajax({
+                        type: "POST",
+                        url: '<?php echo UrlHelper::getUrl('notification/markAsRead'); ?>',
+                        data: {
+                            'id': messId
+                        },
+                        success: function(data) {
+                        },
+                        dataType: 'json'
+                    });
+                    jQuery('#module-notification').alert('close');
+                });
+            </script>
+            <?php
+        }
+    }
+?>

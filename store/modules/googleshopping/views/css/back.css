@@ -1,0 +1,66 @@
+.site-name {
+  box-sizing: border-box;
+  color: rgb(132, 132, 132);
+  cursor: pointer;
+  display: inline-block;
+  font-family: 'product sans', 'open sans', arial, sans-serif;
+  font-size: 20px;
+  font-weight: normal;
+  height: 20px;
+  left: -3px;
+  letter-spacing: -0.2px;
+  line-height: 20px;
+  position: relative;
+  top: -8px;
+  white-space: nowrap;
+  width: 144.391px;
+  -webkit-font-smoothing: antialiased;
+}
+
+#shopping-logo {
+  height: 40px;
+  width: 294px;
+}
+
+#left-column {
+  float: left;
+  width: 400px;
+  margin-top: 20px;
+  margin-right: 50px;
+}
+
+#shopping-ads {
+  margin-top: 20px;
+  width: 450px;
+}
+
+.panel {
+  overflow:auto;
+}
+
+.signup-button {
+  background: #00c853;
+  border: none;
+  border-radius: 2px;
+  color: #fff !important;
+  display: inline-block;
+  font-family: 'Roboto',arial,sans-serif;
+  font-size: 16px;
+  height: 48px;
+  letter-spacing: .5px;
+  line-height: 48px;
+  padding: 0 24px;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.signup-button-error {
+  background: #e27c79;
+}
+
+#search-img {
+  height: auto;
+  width: auto;
+  max-width: 600px;
+}

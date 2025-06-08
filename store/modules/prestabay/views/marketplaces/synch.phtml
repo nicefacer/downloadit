@@ -1,0 +1,147 @@
+<?php
+/**
+ * File synch.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+
+<?php RenderHelper::addScript("progress.js"); ?>
+
+<h2><?php echo L::t("Marketplace Synchronization"); ?></h2>
+<?php $warningMessage = L::t("<u>Important!</u> Don't close window until marketplaces not synchronized."); ?>
+<?php if (CoreHelper::isPS16()) { ?>
+    <div class="alert alert-warning">
+        <h4><?php echo $warningMessage; ?></h4>
+    </div>
+<?php } else { ?>
+    <h3 class="notify"><?php echo $warningMessage; ?></h3>
+<?php } ?>
+
+<br/>
+
+<script type="text/javascript">
+    var marketplaces = [
+        <?php $z = 0; foreach ($idsList as $id) {
+            if ($z != 0) {
+                echo ",";
+            }
+            echo $id;
+            $z = 1;
+        } ?>
+    ];
+
+    var marketplaceIndex = -1;
+    var newCategoryVersion = 0;
+    var marketplaceLabel = "";
+
+    jQuery(document).ready(function() {
+        initSynchMarketplace();
+    });
+
+    function initSynchMarketplace() {
+        marketplaceIndex++;
+        if (marketplaceIndex >= marketplaces.length) {
+            appendMessage('finish-process' + marketplaces[marketplaceIndex], "<?php echo L::t("Marketplace synchronization finished");?>", "success");
+            appendReturnButton("<?php echo L::t("Return to Marketplace List");?>", "<?php echo UrlHelper::getUrl("marketplaces/index")?>");
+            return;
+        }
+        checkMarketplaceVersion();
+    }
+
+    function checkMarketplaceVersion() {
+        appendMessage('prepare-' + marketplaces[marketplaceIndex], "<?php echo L::t("Prepare Loading Marketplace.");?>");
+
+        jQuery.ajax({
+            url: '<?php echo UrlHelper::getUrl("marketplaces/getVersion")?>',
+            type: "post",
+            dataType: 'json',
+            data: { id: marketplaces[marketplaceIndex] },
+            success: function(data){
+                   if (data.success == true) {
+                        newCategoryVersion = data.version;
+                        marketplaceLabel = data.label;
+                   }
+
+                   if (data.next == true) {
+                        appendMessage('prepare-' + marketplaces[marketplaceIndex], "<?php echo L::t("Prepare Load marketplace. Result");?>: <br/>" + data.message, 'success');
+                        downloadCategoryFromEbay(data.session);
+                   } else {
+                       appendMessage('prepare-' + marketplaces[marketplaceIndex], "<?php echo L::t("Prepare Load marketplace. Result");?>: <br/>" + data.message, (data.success == true)?'warning':'error');
+                        initSynchMarketplace();
+                   }
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                alert('Problem with get JSON data.\n' + textStatus + "\n" + errorThrown);
+            }
+         });
+    }
+
+    function downloadCategoryFromEbay(sessionId) {
+        appendMessage('download-category-' + marketplaces[marketplaceIndex], "<?php echo L::t("Download categories from eBay");?>...");
+
+        jQuery.ajax({
+            url: '<?php echo UrlHelper::getUrl("marketplaces/getCategories")?>',
+            type: "post",
+            dataType: 'json',
+            data: { id: marketplaces[marketplaceIndex], session: sessionId },
+            success: function(data) {
+                   appendMessage('download-category-' + marketplaces[marketplaceIndex], false, "success");
+
+                   if (data.next == true) {
+                        appendMessage('download-category-' + marketplaces[marketplaceIndex], "<?php echo L::t("Download categories from eBay");?>. <?php echo L::t("Done");?>. <br/>" + data.message, "success");
+                        importCategoryToDb(sessionId);
+                   } else {
+                        appendMessage('download-category-' + marketplaces[marketplaceIndex], "<?php echo L::t("Download categories from eBay");?>. <?php echo L::t("Result");?>: <br/>" + data.message, (data.success == true)?'warning':'error');
+                        initSynchMarketplace();
+                   }
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                alert('Problem with get JSON data.\n' + textStatus + "\n" + errorThrown);
+            }
+        });
+    }
+
+
+    function importCategoryToDb(sessionId) {
+        appendMessage('import-category-' + marketplaces[marketplaceIndex], "<?php echo L::t("Import eBay Category Data to DataBase");?>...");
+        jQuery.ajax({
+            url:'<?php echo UrlHelper::getUrl("marketplaces/importCategories")?>',
+            type: "post",
+            dataType: 'json',
+            data: {
+                    id: marketplaces[marketplaceIndex],
+                    session: sessionId,
+                    version: newCategoryVersion,
+                    label: marketplaceLabel
+            },
+            success: function(data) {
+                   appendMessage('import-category-' + marketplaces[marketplaceIndex], "<?php echo L::t("Import eBay Category Data to DataBase");?>. <?php echo L::t("Done");?>. <br/>" + data.message, (data.success == true)?'success':'error');
+                   initSynchMarketplace();
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                alert('Problem with get JSON data.\n' + textStatus + "\n" + errorThrown);
+            }
+        });
+    }
+
+
+</script>
+<div id="synchronize-process">
+
+</div>
+

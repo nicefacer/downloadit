@@ -1,0 +1,31 @@
+<div id="tabs-container" class="profilesTabs col-lg-2">
+    <div class="list-group">
+            <?php $isFirst = true; ?>
+            <?php foreach($tabs as $tabKey => $tabLabel) { ?>
+                <a class="list-group-item <?php echo $isFirst?' selected':''; ?>" href="#<?php echo $tabKey; ?>" data-toggle="tab"><?php echo L::t($tabLabel);?></a>
+                <?php $isFirst = false; ?>
+            <?php } ?>
+   </div>
+</div>
+<div class="col-lg-10 profiles-tab-content">
+    <?php foreach($tabs as $tabKey => $tabLabel) { ?>
+        <div id="<?php echo $tabKey; ?>" class="tab-panel">
+            <div id="<?php echo $tabKey; ?>-tab" class="panel">
+                <?php RenderHelper::view("profiles/edit/".$tabKey.".phtml", array('hdbk' => $hdbk, 'model' => $model)); ?>
+            </div>
+        </div>
+    <?php } ?>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#tabs-container a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+            $("#tabs-container .active").removeClass('active');
+            $(this).addClass('active');
+        })
+        $('#tabs-container a:first').click();
+    })
+
+</script>

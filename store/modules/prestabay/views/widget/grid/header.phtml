@@ -1,0 +1,53 @@
+<table class="grid-content">
+    <tr>
+        <td class="grid-pagitation">
+            <span style="float: left;">
+                <?php echo L::t('Page'); ?>
+                <?php if ($page > 1): ?>
+                    <a href="javascript:void(0)" onclick="setNewPage(<?php echo(1); ?>, this)"><img
+                            src="../img/admin/list-prev2.gif" border="0"/></a>
+                    <a href="javascript:void(0)" onclick="setNewPage(<?php echo($page - 1); ?>, this)"><img
+                            src="../img/admin/list-prev.gif" border="0"/></a>
+                <?php endif; ?>
+                <input type="text" id="paginator-page" name="paginator-page" class="paginator-current-page"
+                       value="<?php echo $page; ?>"/>
+                <?php if ($page < $totalPages) : ?>
+                    <a href="javascript:void(0)" onclick="setNewPage(<?php echo($page + 1); ?>, this)"><img
+                            src="../img/admin/list-next.gif" border="0"/></a>
+                    <a href="javascript:void(0)" onclick="setNewPage(<?php echo($totalPages); ?>, this)"><img
+                            src="../img/admin/list-next2.gif" border="0"/></a>
+                <?php endif; ?>
+                <?php echo 'of ' . $totalPages . ' ' . L::t('pages'); ?>
+                <?php echo ' | ' . L::t('Display'); ?>
+                <select name="pagination" class="grid-pagination">
+                    <?php foreach ($grid->getLimits() as $k => $value) : ?>
+                        <option
+                            value="<?php echo $k; ?>" <?php echo ($k == $grid->getLimit()) ? "selected='selected'" : ""; ?>><?php echo $value; ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <?php echo L::t('per page') . ' | '; ?>
+                <?php echo sprintf(L::t('Total: %s records found'), $grid->getTotalItemsCount()); ?>
+            </span>
+            <span style="float: right;">
+                <button type="button" onclick="document.location.href='<?php echo $grid->getGridUrl(); ?>'"
+                        class="button"><?php echo L::t("Reset"); ?></button>
+                <button id="submitFilterButton_<?php echo $grid->getGridId(); ?>" type="submit" name="submitFilter"
+                        class="button"><?php echo L::t("Filter"); ?></button>
+            </span>
+            <span class="clear"></span>
+        </td>
+    </tr>
+    <tr><td>
+<!--</table>-->
+<script>
+    function setNewPage(pageNum, element) {
+        jQuery("#paginator-page").attr("value", pageNum);
+        jQuery(element).parents("form:eq(0)").submit();
+        return false;
+    }
+
+    jQuery(".grid-pagination").change(function() {
+        jQuery(this).parents("form:eq(0)").submit();
+    });
+
+</script>

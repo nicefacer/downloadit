@@ -1,0 +1,2 @@
+<?php class_exists('ML', false) or die() ?>
+ <input type="hidden" id="<?php echo $aField['id']; ?>" name="<?php echo MLHttp::gi()->parseFormFieldName($aField['name']) ?>" value="<?php echo isset($aField['value']) ? $aField['value'] : '' ?>" />

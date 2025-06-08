@@ -1,0 +1,2 @@
+<?php class_exists('ML', false) or die() ?>
+<input class="fullwidth" type="text" readonly="readonly" id="<?php echo $aField['id']; ?>" name="<?php echo MLHttp::gi()->parseFormFieldName($aField['name']) ?>" value="<?php echo $aField['value'] ?>" />

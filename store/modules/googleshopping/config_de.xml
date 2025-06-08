@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>googleshopping</name>
+	<displayName><![CDATA[Google Shopping]]></displayName>
+	<version><![CDATA[1.0.2]]></version>
+	<description><![CDATA[Nutzen Sie die Daten Ihres PrestaShop-Gesch&auml;fts, um Ihre Produkte bei Google zu bewerben.]]></description>
+	<author><![CDATA[Google]]></author>
+	<tab><![CDATA[advertising_marketing]]></tab>
+	<confirmUninstall><![CDATA[Wenn Sie das Modul deinstallieren, werden Ihre Angebote nicht länger in Google Shopping angezeigt.]]></confirmUninstall>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+	<limited_countries></limited_countries>
+</module>

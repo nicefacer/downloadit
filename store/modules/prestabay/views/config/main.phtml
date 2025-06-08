@@ -1,0 +1,96 @@
+<?php
+/**
+ * File main.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<script>
+    if (UserVoice) {
+        UserVoice.push(['addTrigger', '#uservoicesupport-button', {mode: 'contact'}]);
+        UserVoice.push(['addTrigger', '#uservoicesatisfaction', {mode: 'satisfaction'}]);
+    }
+
+</script>
+<form action="<?php echo UrlHelper::getUrl("config/index"); ?>" method="post">
+
+<div class="<?php echo CoreHelper::isPS16()?'col-lg-5':'column-left'; ?>">
+    <?php echo HtmlHelper::blockStart("License", "../img/admin/htaccess.gif"); ?>
+        <?php if ($hasLicense) { ?>
+            <strong><?php echo L::t("Key:"); ?></strong> <font color="green"><strong><?php echo $licenseKey;?></strong></font><br/>
+            <?php echo L::t("URL"); ?>: http://<?php echo $licenseInfo['domain']; ?><br/>
+            <div style="float: right;">
+                <strong><a href="https://involic.com/purchase/prestabay-integration-pro-annual?url=<?php echo $licenseInfo['domain']; ?>" target="_blank"><?php echo L::t("Yearly payment"); ?></a></strong>
+                |
+                <strong><a href="https://involic.com/purchase/prestabay-integration-pro-monthly?url=<?php echo $licenseInfo['domain']; ?>" target="_blank"><?php echo L::t("Monthly payment"); ?></a></strong>
+
+            </div>
+
+            <?php $color = ''; ?>
+            <?php if ($licenseInfo['is_expired']) {
+                $color = " style='color:red;'";
+                }
+            ?>
+            <div <?php echo $color; ?>><?php echo L::t("Expired"); ?>: <?php echo date("d M Y", strtotime($licenseInfo['expired_time'])); ?><br/></div>
+            <?php if ($licenseInfo['trial']) { ?>
+                <div><?php echo L::t("Trial"); ?></div>
+            <?php } ?>
+
+        <?php } else { ?>
+            <font color="red"><strong><?php echo L::t("No License Key");?></strong></font>
+            <div style="float: right;">
+                | <a href="<?php echo UrlHelper::getUrl("license/generate") ?>"><?php echo L::t("Get License"); ?></a>
+            </div>
+        <?php } ?>
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+    <br/>
+
+    <?php echo HtmlHelper::blockStart("Other"); ?>
+        <div style="text-align: left">
+            <a id="uservoicesatisfaction" href="#" class="footer_link">Leave Testimonial</a><br/>
+            <a href="<?php echo UrlHelper::getUrl("config/variables"); ?>" class="footer_link"><?php echo L::T("Variables"); ?></a><br/>
+            <a href="<?php echo UrlHelper::getUrl("notification/index"); ?>" class="footer_link"><?php echo L::T("Notifications"); ?></a>
+        </div>
+    <?php echo HtmlHelper::blockEnd(); ?>
+
+</div>
+
+<div class="<?php echo CoreHelper::isPS16()?'col-lg-5 column-right':'column-right'; ?>">
+    <?php echo HtmlHelper::blockStart("Module", "../img/admin/tab-plugins.gif"); ?>
+        <table>
+            <?php foreach ($moduleConfig as $configLabel => $configValue) { ?>
+            <tr>
+                <td class="row-label"><?php echo $configLabel; ?></td>
+                <td><?php echo $configValue; ?></td>
+            </tr>
+            <?php } ?> 
+        </table>
+        <br/>
+        <?php if ($showUpgradeButton) { ?>
+            <button type="button" class="button btn btn-success btn-small" onclick="document.location.href='<?php echo UrlHelper::getUrl("config/upgrade"); ?>'">
+                <?php echo L::t("Upgrade Version"); ?>
+            </button>
+        <?php } ?>
+        <button type="button" class="button btn btn-primary btn-small" onclick="document.location.href='<?php echo UrlHelper::getUrl('config/clearCache'); ?>'">
+            <?php echo L::t("Clear Cache"); ?>
+        </button>
+        <button id="uservoicesupport-button" type="button" class="button btn btn-primary btn-small"><?php echo L::t("Support"); ?></button>
+      <?php echo HtmlHelper::blockEnd(); ?>
+</div>
+<div style="height: 20px;" class="clear">&nbsp;</div>
+</form>

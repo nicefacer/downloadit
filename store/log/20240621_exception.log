@@ -1,0 +1,3 @@
+*ERROR* 	2024/06/21 - 09:17:31: Deadlock found when trying to get lock; try restarting transaction<br /><br /><pre>INSERT IGNORE INTO `pbarhocks_smarty_lazy_cache`
+							(`template_hash`, `cache_id`, `compile_id`, `last_update`)
+							VALUES ('ac4030f819422695d4ee3c4668edc229',"productlist_colors|10|1|1","", FROM_UNIXTIME(1718954250))</pre> at line 791 in file classes/db/Db.php

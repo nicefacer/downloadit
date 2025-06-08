@@ -1,0 +1,115 @@
+<?php
+/**
+ * File price.phtml
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * It is available through the world-wide-web at this URL:
+ * http://involic.com/license.txt
+ * If you are unable to obtain it through the world-wide-web,
+ * please send an email to license@involic.com so
+ * we can send you a copy immediately.
+ *
+ * eBay Listener Itegration with PrestaShop e-commerce platform.
+ * Adding possibilty list PrestaShop Product dirrectly to eBay.
+ *
+ * @author      Involic <contacts@involic.com>
+ * @copyright   Copyright (c) 2011-2015 by Involic (http://www.involic.com)
+ * @license     http://involic.com/license.txt
+ */
+?>
+<?php echo HtmlHelper::tabBlockStart("Price"); ?>
+
+<table cellpadding="5" width="100%">
+    <tr>
+        <?php // @todo select curency depending from marketplace  ?>
+        <td class="col-left"><label class="control-label"  for="item_currency"><?php echo L::t("Currency");?> <em>*</em></label></td>
+        <td>	
+	    <?php 
+		$availableCurrencyList = array(
+		    "USD" => "US Dollar",
+		    "CAD" => "Canadian Dollar",
+		    "GBP" => "British Pound",
+		    "EUR" => "Euro",
+		    "AUD" => "Australian Dollar",
+		    "CNY" => "Chinese Renminbi",
+		    "CHF" => "Swiss Franc",
+		    "PLN" => "Polish Zloty",
+		    "HKD" => "Hong Kong Dollar",
+		    "SEK" => "Sweden Krona",
+		    "PHP" => "Philippines Peso",
+		    "INR" => "Indian Rupees",
+		    "SGD" => "Singapore Dollar",
+		    "MYR" => "Malaysian Ringgit",
+		    "TWD" => "Taiwanese Dollar"
+                )
+            ?>
+            <select name="item_currency" id="item_currency">
+                <option value=""> -- <?php echo L::t("Please Select");?> --</option>
+		<?php foreach ($availableCurrencyList as $currencyKey => $currencyLabel) { ?>
+		    <option 
+			  value="<?php echo $currencyKey; ?>"
+			  <?php echo ($model->item_currency == $currencyKey)?"selected='selected'":"";?>>
+			  <?php echo $currencyLabel; ?>
+		    </option>
+                <?php } ?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div id="price_start_hide_notice" class="hide-notice" <?php echo (!is_null($model->auction_type))?'style="display:none"':'';?>><?php echo L::t("Please select <b>Auction Type</b> to access this field");?></div>
+        </td>
+    </tr>
+    <tr id="price_start_row" <?php echo (is_null($model->auction_type)?"style='display:none'":""); ?>>
+        <td class="col-left"><label class="control-label"  id="start_price_label" for="price_start"><?php echo (is_null($model->auction_type) || $model->auction_type == ProfilesModel::AUCTION_TYPE_CHINESE)?L::t("Start Price"):L::t("Product Price"); ?> <em>*</em></label></td>
+        <td>
+
+            <select name="price_start" id="price_start" class="price-option-select-box" style="<?php echo (is_null($model->auction_type))?'':'display: inline;';?>">
+                <?php echo ProfilesHelper::getPriceOptions($model->price_start, $model->price_start_template); ?>
+            </select>
+            <span class="" style="<?php echo (is_null($model->auction_type))?'':'display: inline;';?>">x</span>
+            <input type="text" name="price_start_multiply" class="small-width" style="<?php echo (is_null($model->auction_type))?'':'display: inline;';?>" value="<?php echo ($model->price_start_multiply)?$model->price_start_multiply:"1" ;?>"/>
+            <br/>
+            <span class="" style="<?php echo (is_null($model->auction_type) || $model->price_start != ProfilesModel::PRICE_MODE_CUSTOM)?'display: none;':'';?>"><?php echo L::t("Value");?>:</span>
+            <input type="text" name="price_start_custom" class="small-width"  style="<?php echo (is_null($model->auction_type) || $model->price_start != ProfilesModel::PRICE_MODE_CUSTOM)?'display: none;':'';?>" value="<?php echo ($model->price_start_custom)?$model->price_start_custom:"0" ;?>"/>
+        </td>
+    </tr>
+    <tr id="price_reserve_row" <?php echo (is_null($model->auction_type) || (!is_null($model->auction_type) && $model->auction_type != ProfilesModel::AUCTION_TYPE_CHINESE))?"style='display:none'":"";?>>
+        <td class="col-left"><label class="control-label"  for="price_reserve"><?php echo L::t("Reserve Price");?> <em>*</em></label></td>
+        <td>
+            <select name="price_reserve" id="price_reserve" class="price-option-select-box">
+                <?php echo ProfilesHelper::getPriceOptions($model->price_reserve); ?>
+            </select>
+            <span>x</span>
+            <input type="text" name="price_reserve_multiply" class="small-width" value="<?php echo ($model->price_reserve_multiply)?$model->price_reserve_multiply:"1" ;?>"/>
+            <br/>
+            <span class="<?php echo (is_null($model->auction_type) || $model->price_reserve != ProfilesModel::PRICE_MODE_CUSTOM)?'hidden-option':'';?>"><?php echo L::t("Value");?>:</span>
+            <input type="text" name="price_reserve_custom" class="small-width" value="<?php echo ($model->price_reserve_custom)?$model->price_reserve_custom:"0" ;?>" <?php echo ($model->price_reserve != ProfilesModel::PRICE_MODE_CUSTOM)?"style='display:none;'":""; ?>/>
+        </td>
+    </tr>
+    <tr id="price_buynow_row" <?php echo (is_null($model->auction_type) || (!is_null($model->auction_type) && $model->auction_type != ProfilesModel::AUCTION_TYPE_CHINESE))?"style='display:none'":"";?>>
+        <td class="col-left"><label class="control-label"  for="price_buynow"><?php echo L::t("'Buy It Now' Price");?> <em>*</em></label></td>
+        <td>
+            <select name="price_buynow" id="price_buynow" class="price-option-select-box">
+                <?php echo ProfilesHelper::getPriceOptions($model->price_buynow); ?>
+            </select>
+            <span>x</span>
+            <input type="text" name="price_buynow_multiply" class="small-width" value="<?php echo ($model->price_buynow_multiply)?$model->price_buynow_multiply:"1" ;?>"/>
+            <br/>
+           <span class="<?php echo (is_null($model->auction_type) || $model->price_buynow != ProfilesModel::PRICE_MODE_CUSTOM)?'hidden-option':'';?>"><?php echo L::t("Value");?>:</span>
+           <input type="text" name="price_buynow_custom" class="small-width" value="<?php echo ($model->price_buynow_custom)?$model->price_buynow_custom:"0"; ?>" <?php echo ($model->price_buynow != ProfilesModel::PRICE_MODE_CUSTOM)?"style='display:none;'":""; ?>/>
+        </td>
+    </tr>
+    <tr id="price_discount_row" <?php echo (is_null($model->auction_type)?"style='display:none'":""); ?>>
+        <td class="col-left"><label class="control-label"  id="price_discount_label" for="price_discount"><?php echo L::t("Price Discount"); ?></label></td>
+        <td>
+            <input type="text" name="price_discount" class="small-width"  value="<?php echo ($model->price_discount)?$model->price_discount:"0" ;?>"/> %
+            <p style="font-size: 10px;"><?php echo L::t('For any value more that 0 "Product price" will be shown with discount.'); ?><br/>
+            <?php echo L::t('Original Price (before discount) show as value from "Product Price" field'); ?><br/>
+            <?php echo L::t('Example "Product Price"=200, Discount=5, ebay price before discount 200, sell price 190'); ?></p>
+        </td>
+    </tr>
+</table>
+<?php echo HtmlHelper::tabBlockEnd(); ?>

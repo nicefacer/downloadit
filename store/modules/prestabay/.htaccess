@@ -1,0 +1,16 @@
+<FilesMatch "\.(gif|jpe?g|png)$">
+Allow from all
+</FilesMatch>
+<FilesMatch "cron.php$">
+Allow from all
+</FilesMatch>
+<FilesMatch "payment_callback.php$">
+Allow from all
+</FilesMatch>
+<FilesMatch "shipping_callback.php$">
+Allow from all
+</FilesMatch>
+
+
+Order deny,allow
+Deny from all

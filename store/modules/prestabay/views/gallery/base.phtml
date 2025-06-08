@@ -1,0 +1,47 @@
+<script language="javascript" type="text/javascript">
+document.Echo=document["standard"+"Write"]==null?document["write"]:document["standard"+"Write"];
+var includeJs=function(path){path=path;document.Echo('<' + 'script src="' + path + '"' +' type="text\/javascript"><' + '\/script>');};
+includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js");
+</script>
+<?php
+    $galleryId = uniqid();
+?>
+<script type="text/javascript">
+    jQuery(function() {
+        jQuery(".image-<?php echo $galleryId; ?>").click(function() {
+            var image = $(this).attr("rel");
+            jQuery('#cover-<?php echo $galleryId; ?>').hide();
+            jQuery('#cover-<?php echo $galleryId; ?>').fadeIn('fast');
+            jQuery('#cover-<?php echo $galleryId; ?>').html('<img src="' + image + '"/>');
+            return false;
+        });
+    });
+</script>
+
+<style>
+    #cover-<?php echo $galleryId; ?> img{
+        border:4px #666 solid;
+        width:<?php echo $coverParams['width']; ?>px;
+        height:<?php echo $coverParams['height']; ?>px;
+    }
+
+    .preview-<?php echo $galleryId; ?>{
+        float:left;
+        margin-right:10px;
+        margin-top:10px;
+    }
+    .clear-<?php echo $galleryId; ?> {
+        clear: both;
+    }
+</style>
+
+<div id="gallery-<?php echo $galleryId; ?>">
+        <div id="cover-<?php echo $galleryId; ?>"><img src="<?php echo $images['cover']; ?>" border="0"/></div>
+        <?php foreach ($images['list'] as $imageLine) { ?>
+            <a href="#" rel="<?php echo $imageLine['big']; ?>" class="image-<?php echo $galleryId; ?>">
+                <img src="<?php echo $imageLine['small']; ?>" class="preview-<?php echo $galleryId; ?>" border="0"/>
+            </a>
+        <?php } ?>
+        
+        <div class="clear-<?php echo $galleryId; ?>"></div>
+</div>
